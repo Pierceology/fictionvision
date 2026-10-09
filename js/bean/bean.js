@@ -46,18 +46,18 @@ const ALMOST = [
   { k: 'shrug', pam: "Craig says no. I don't argue with Craig.", aside: 'Craig did not look up.' },
   { k: 'finger', pam: 'No.', aside: 'The finger was polite about it.' },
   { k: 'sniff', pam: 'Hm. Not that one.', aside: 'That one goes where the others went.' },
-  { k: 'lid', pam: 'Order up. Not yours.', aside: 'Craig takes it to the right. The right is a wall.' },
+  { k: 'lid', pam: 'Order up. Not yours.', aside: 'She slid it to Craig and back. Craig rang up the trip.' },
   { k: 'drop', pam: 'Oops.', aside: 'Nobody moved. Nobody here ever moves.' },
   { k: 'stare', pam: '…', aside: 'She blinked once. That was the whole transaction.' },
   { k: 'twirl', pam: 'Was there something?', aside: 'There was. It was coffee. It was yours.' },
   { k: 'count', pam: "You're ninety-six. Ninety-seven. Ninety-eight. Ninety-nine.", aside: 'A Zeeombie behind you crumbles a little, politely.' },
-  { k: 'wipe', pam: "Counter's wet. Can't serve on a wet counter.", aside: 'The cup is under the rag. It is dry under there.' },
-  { k: 'two', pam: 'Two? No. Two is also no.', aside: 'Both went under the counter, where the coffee lives.' },
+  { k: 'wipe', pam: "Counter's wet. Can't serve on a wet counter.", aside: 'She wiped around the cup. The cup stayed hers.' },
+  { k: 'two', pam: 'Both hands. Still no.', aside: 'She considered it with both hands. Both hands said no.' },
   { k: 'toast', pam: 'To you.', aside: 'She meant it. She drank it.' },
   { k: 'ceiling', pam: 'Give me a second.', aside: 'The second has been going on since Tuesday.' },
   { k: 'laugh', pam: 'Ha.', aside: "That was the laugh. It's gone now." },
   { k: 'push', pam: 'This far. No further.', aside: 'An inch out, an inch back. The inch was the whole visit.' },
-  { k: 'lamp', pam: "Lighting's better today. Come back when it's worse.", aside: 'The lamp swings. Craig rings up the swing.' },
+  { k: 'lamp', pam: 'Hang on. Picturing a world where you got it.', aside: 'She pictured it. She opened her eyes. No.' },
 ];
 const WIN = { pam: "That's a coffee. That's an actual coffee. CRAIG.", aside: 'Craig rang it up. Barry stood. The line applauded, because a thing had happened.' };
 /* the euphoria: Pierce's own clips. The Planet Zee nebula behind, the aliens' disco in front, his zombies and the band floating through. */
