@@ -65,7 +65,7 @@
 #bumper .rocks { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 #bumper .rock { position: absolute; top: var(--top); left: 0; width: var(--sz); height: auto; opacity: 0; animation: bmDrift var(--dur) linear var(--delay) infinite; filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .6)); will-change: transform; }
 @keyframes bmDrift { 0% { transform: translateX(110vw) rotate(0deg); opacity: 0; } 4% { opacity: 1; } 96% { opacity: 1; } 100% { transform: translateX(-40vw) rotate(var(--spin)); opacity: 0; } }
-#bumper .lower { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%) translateY(14px); width: min(100vw, 1600px); max-height: 44vh; object-fit: contain; object-position: center bottom; pointer-events: none; opacity: 0; transition: opacity .8s .5s, transform 1.2s .5s cubic-bezier(.2, .8, .2, 1); filter: drop-shadow(0 -10px 30px rgba(0, 0, 0, .5)); }
+#bumper .lower { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%) translateY(14px); width: 100%; height: auto; object-fit: cover; object-position: center bottom; pointer-events: none; opacity: 0; transition: opacity 1.2s ease .4s, transform 1.2s ease .4s; z-index: 2; }   /* full-bleed at its own height, as in Pierce's show (.bottom-image) */
 #bumper.open .lower { opacity: 1; transform: translateX(-50%) translateY(0); }
 /* the deck's name: a proximity prompt, low on the screen, fading on its own, never over the art for long */
 #bumper .tag { position: absolute; left: 50%; bottom: 14%; transform: translateX(-50%); z-index: 5; pointer-events: none; text-align: center; opacity: 0; transition: opacity .5s ease; max-width: 86%; padding: 0 12px; }
@@ -98,7 +98,7 @@
   #bumper .fl button { min-width: 40px; width: auto; height: 34px; font-size: 12px; padding: 0 6px; letter-spacing: 0; flex: 0 0 auto; }
   #bumper .tip { display: none; }
   #bumper .ind { top: calc(60px + env(safe-area-inset-top, 0px)); }
-  #bumper .lower { max-height: 34vh; }
+  #bumper .lower { max-height: 40vh; object-fit: contain; }
 }
 /* reduced motion: no door travel, no drifting rocks; the gate card is shown at once */
 #bumper.quick .moses { transition: none; } #bumper.quick.open .moses { display: none; }
