@@ -40,14 +40,14 @@ export const FILMS = {
 };
 /* the twenty ways she does not hand it over, and the one time she does. The line lands as she moves, the aside as she comes back. */
 const ALMOST = [
-  { k: 'slide', pam: "Here you g— oh. That one's for the gentleman who's been here since Tuesday.", aside: 'Barry nods. Barry has been here since several Tuesdays.' },
+  { k: 'slide', pam: "Here you g— oh. That one's for the gentleman who's been here since Tuesday.", aside: 'It went left, toward Barry. Barry has been here since several Tuesdays.' },
   { k: 'pour', pam: "I'm legally required to pour this one out. Planet Zee statute one-in-a-hundred.", aside: 'The counter is the most popular customer.' },
   { k: 'face', pam: 'Quality check.', aside: 'She passed. The coffee did not.' },
   { k: 'hand', pam: 'Hold this. No, give it back. Policy.', aside: 'For one second it was warm.' },
   { k: 'sip', pam: "Let me make sure it's good.", aside: 'It was good.' },
   { k: 'shrug', pam: "Craig says no. I don't argue with Craig.", aside: 'Craig did not look up.' },
   { k: 'finger', pam: 'No.', aside: 'The finger was polite about it.' },
-  { k: 'sniff', pam: 'Hm. Not that one.', aside: 'That one goes where the others went.' },
+  { k: 'sniff', pam: 'Hm. Let me check that one.', aside: 'She checked it. It was hers after all.' },
   { k: 'lid', pam: 'Order up. Not yours.', aside: 'She slid it to Craig and back. Craig rang up the trip.' },
   { k: 'drop', pam: 'Oops.', aside: 'Nobody moved. Nobody here ever moves.' },
   { k: 'stare', pam: '…', aside: 'She blinked once. That was the whole transaction.' },
@@ -58,7 +58,7 @@ const ALMOST = [
   { k: 'toast', pam: 'To you.', aside: 'She meant it. She drank it.' },
   { k: 'ceiling', pam: 'Give me a second.', aside: 'The second has been going on since Tuesday.' },
   { k: 'laugh', pam: 'Ha.', aside: "That was the laugh. It's gone now." },
-  { k: 'push', pam: 'This far. No further.', aside: 'An inch out, an inch back. The inch was the whole visit.' },
+  { k: 'push', pam: 'This far. No further.', aside: 'She brought it over. She brought it back. That was the visit.' },
   { k: 'lamp', pam: 'Hang on. Picturing a world where you got it.', aside: 'She pictured it. She opened her eyes. No.' },
 ];
 const WIN = { pam: "That's a coffee. That's an actual coffee. CRAIG.", aside: 'Craig rang it up. Barry stood. The line applauded, because a thing had happened.' };
