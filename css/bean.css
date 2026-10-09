@@ -1,0 +1,97 @@
+/* BRAIN BEAN COFFEE: the counter on Planet Zee, the cup that almost comes to you, Pam's lines, the living button, the celebration. */
+.bean-page { padding: calc(var(--bar-h) + clamp(14px, 1.8vw, 40px)) var(--gutter) 40px; max-width: calc(1100px + 2 * var(--gutter)); margin: 0 auto; }
+.bean-head .kicker { display: block; font-size: var(--fs-small); letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin-bottom: .3em; }
+.bean-head h1 { margin: 0 0 .2em; font-size: var(--fs-h1); line-height: 1; letter-spacing: .02em; }
+.bean-head p { margin: 0 0 clamp(14px, 1.8vw, 24px); font-size: var(--fs-lead); max-width: 60ch; }
+.bean-head .test { color: var(--gold); font-weight: 600; letter-spacing: .06em; }
+.bean-stage { position: relative; border-radius: 18px; overflow: hidden; background: #0b0a09; border: 1px solid var(--line); isolation: isolate; }
+/* the scene is Pam's film, the counter is hers */
+.scene { position: relative; aspect-ratio: 16 / 9; max-height: 72vh; overflow: hidden; background: #0b0a09; }
+.scene .shop { position: absolute; inset: 0; background: #0b0a09 center / cover no-repeat; filter: saturate(.8) brightness(.5); }
+.pam-film { position: absolute; inset: 0; background: #0b0a09 center / cover no-repeat; }
+.pam-film video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; }
+.pam-film video.on { opacity: 1; }
+.cup.off { opacity: 0; transform: translateY(-40px) scale(.9); }
+.scene::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, .25), rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, .55)); pointer-events: none; }
+.scene > * { position: absolute; z-index: 1; }
+/* the two of them at the edges of her counter; Pam is the film */
+.crew { left: 0; right: 0; bottom: 4%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 clamp(10px, 2vw, 26px); pointer-events: none; }
+.who { display: grid; justify-items: center; text-align: center; gap: 3px; font-size: var(--fs-small); text-shadow: 0 1px 8px rgba(0, 0, 0, .9); }
+.who i { display: block; width: clamp(54px, 9vw, 110px); height: clamp(54px, 9vw, 110px); border-radius: 50%; background: var(--pic, radial-gradient(circle at 50% 35%, #3b3a44, #15141a 70%)) center 28% / cover no-repeat; border: 2px solid rgba(255, 255, 255, .25); box-shadow: 0 10px 30px rgba(0, 0, 0, .6); }
+.who.craig i { background-position: center 22%; border-color: rgba(255, 200, 87, .5); }
+.who b { font: 600 1.05em/1.1 var(--display); letter-spacing: .06em; }
+.who small { opacity: .8; }
+.who.pam { align-self: flex-end; padding-bottom: 6px; }
+/* the cup, on her counter */
+.counter { left: 0; right: 0; bottom: 0; height: 34%; pointer-events: none; }
+.cup { position: absolute; left: 50%; bottom: 11%; width: clamp(34px, 5.2vw, 56px); height: clamp(42px, 6.6vw, 70px); margin-left: calc(clamp(34px, 5.2vw, 56px) / -2); background: linear-gradient(180deg, #f1e7d6, #cdbfa8); border-radius: 6px 6px 14px 14px / 6px 6px 20px 20px; box-shadow: 0 10px 24px rgba(0, 0, 0, .6); transform: translateY(-40px) scale(.9); opacity: 0; transition: transform .9s cubic-bezier(.2, .8, .2, 1), opacity .5s; }
+.cup .lid { position: absolute; left: -6%; right: -6%; top: -8px; height: 12px; background: #2a2622; border-radius: 6px; }
+.cup .sleeve { position: absolute; left: 0; right: 0; top: 38%; height: 30%; background: #6b4a2d; border-top: 1px solid #8a6a4c; border-bottom: 1px solid #40291a; }
+.cup .steam { position: absolute; left: 30%; top: -34px; width: 40%; height: 28px; background: radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 70%); filter: blur(4px); animation: beanSteam 2.2s ease-in-out infinite; }
+@keyframes beanSteam { 0%, 100% { transform: translateY(0) scaleX(1); opacity: .7; } 50% { transform: translateY(-10px) scaleX(1.2); opacity: .3; } }
+.cup.rest { transform: translateY(-40px) scale(.9); opacity: 0; }
+.cup.come { transform: translateY(0) scale(1); opacity: 1; }
+.cup.slide { animation: beanSlide 1.4s cubic-bezier(.2, .8, .2, 1) forwards; }
+@keyframes beanSlide { 0% { transform: translateY(0) scale(1); } 45% { transform: translateY(34px) scale(1.08); } 100% { transform: translateY(-42px) scale(.9); opacity: .8; } }
+.cup.lift { animation: beanLift 1.4s ease-in-out forwards; }
+@keyframes beanLift { 0% { transform: translateY(0); } 40% { transform: translateY(-26px) rotate(-6deg); } 100% { transform: translateY(-40px) scale(.9); opacity: .8; } }
+.cup.register { animation: beanRegister 1.4s ease-in-out forwards; }
+@keyframes beanRegister { 0% { transform: translateY(0); } 100% { transform: translate(min(34vw, 300px), -30px) scale(.8); opacity: .7; } }
+.cup.tilt { animation: beanTilt 1.4s ease-in-out forwards; }
+@keyframes beanTilt { 0% { transform: translateY(0); } 40% { transform: translateY(8px) rotate(14deg); } 100% { transform: translateY(-40px) rotate(0) scale(.9); opacity: .8; } }
+.cup.pour { animation: beanPour 1.4s ease-in forwards; }
+@keyframes beanPour { 0% { transform: translateY(0); } 50% { transform: translate(-60px, -20px) rotate(-70deg); } 100% { transform: translate(-80px, 30px) rotate(-100deg); opacity: 0; } }
+.cup.hand { animation: beanHand 1.6s ease-in-out forwards; }
+@keyframes beanHand { 0% { transform: translateY(0); } 35% { transform: translateY(44px) scale(1.15); } 60% { transform: translateY(44px) scale(1.15); } 100% { transform: translateY(-40px) scale(.9); opacity: .8; } }
+.cup.give { animation: beanGive 1.4s cubic-bezier(.2, .8, .2, 1) forwards; }
+@keyframes beanGive { 0% { transform: translateY(0); } 100% { transform: translateY(70px) scale(1.5); opacity: 1; } }
+.ticket { right: clamp(12px, 2vw, 24px); top: clamp(12px, 2vw, 24px); display: grid; text-align: center; padding: 8px 12px; border-radius: 8px; background: rgba(241, 231, 214, .92); color: #1b140f; font: 600 var(--fs-small)/1 var(--display); letter-spacing: .1em; text-transform: uppercase; transform: rotate(3deg); box-shadow: 0 8px 20px rgba(0, 0, 0, .5); }
+.ticket b { font-size: 1.6em; letter-spacing: 0; margin-top: 4px; }
+/* under the film: Pam's line, the board, the button */
+.panel { position: relative; padding: 14px clamp(12px, 2.4vw, 28px) clamp(14px, 2.4vw, 28px); background: linear-gradient(180deg, #14110e, #0b0a09); }
+.say { min-height: 5.2em; }
+.say .nm { display: block; font: 600 var(--fs-small)/1 var(--display); letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin-bottom: .4em; }
+.say p { margin: 0; font-size: var(--fs-lead); line-height: 1.35; }
+.say .aside { margin-top: .4em; font-size: var(--fs-body); opacity: .8; min-height: 1.4em; }
+.board { display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 10px 0 0; font-size: var(--fs-small); opacity: .9; }
+.board b { color: var(--gold); margin-left: .3em; }
+.btnrow { padding: 14px 0 0; display: flex; align-items: center; gap: 14px; }
+.sim { padding: 12px 0 0; font-size: var(--fs-small); display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.ghostbtn { font: inherit; font-size: var(--fs-small); color: #fff; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; padding: 8px 14px; cursor: pointer; }
+/* the living button: thin white outline, transparent inside, white text, width animates on 400ms; it answers, holds, leaves, the next arrives */
+.living { position: relative; display: inline-grid; grid-template-columns: 1fr; align-items: center; justify-items: start; min-height: 46px; padding: 0 22px; border: 1px solid rgba(255, 255, 255, .85); border-radius: 999px; background: transparent; color: #fff; font: 500 var(--fs-body)/1 var(--ui); letter-spacing: .04em; cursor: pointer; transition: border-color .3s, background .3s, opacity .4s, transform .4s; -webkit-tap-highlight-color: transparent; }
+.living .ghost, .living .label { grid-area: 1 / 1; white-space: nowrap; }
+.living .ghost { visibility: hidden; }     /* the longest label it will ever carry keeps the width; the width never jumps */
+.living .label { transition: opacity .25s; }
+.living:hover { background: rgba(255, 255, 255, .08); border-color: #fff; }
+.living.answering { border-color: rgba(255, 255, 255, .5); color: rgba(255, 255, 255, .92); cursor: default; }
+.living.answering .label { font-style: italic; }
+.living.gone { opacity: 0; transform: translateY(6px); }
+.living.arrive { animation: livingIn .4s ease-out; }
+@keyframes livingIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* the celebration */
+/* the celebration: off the page entirely until it is on. display:grid used to beat the hidden attribute, so an invisible full-screen
+   layer sat over the whole game and ate every tap on the button (Pierce, 2026-10-08: "the button for order coffee does not work") */
+.win { position: fixed; inset: 0; z-index: 130; display: grid; place-items: center; background: #000; opacity: 0; transition: opacity .5s; pointer-events: none; }
+.win[hidden] { display: none; }
+.win.on { opacity: 1; pointer-events: auto; }
+.win .winv { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.win.novideo .winv { display: none; }
+.win.novideo { background: radial-gradient(circle at 50% 40%, #5a3a1f, #0b0a09 70%); }
+.win .burst { position: absolute; inset: 0; pointer-events: none; background: repeating-conic-gradient(from 0deg, rgba(255, 200, 87, .12) 0 6deg, transparent 6deg 18deg); animation: beanSpin 18s linear infinite; mix-blend-mode: screen; }
+@keyframes beanSpin { to { transform: rotate(360deg); } }
+.win .wincopy { position: relative; z-index: 1; text-align: center; max-width: min(760px, 90vw); padding: 0 var(--gutter); text-shadow: 0 2px 24px rgba(0, 0, 0, .9); }
+.win .kicker { display: block; font-size: var(--fs-small); letter-spacing: .18em; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; }
+.win h2 { margin: 0; font-size: clamp(34px, 6vw, 72px); line-height: 1; }
+.win p { font-size: var(--fs-lead); margin: 14px 0 22px; }
+.win.sipped h2 { color: var(--gold); }
+.win .winbtn { display: flex; justify-content: center; }
+@media (max-width: 600px) { .who small { display: none; } .who i { width: 44px; height: 44px; } .ticket { transform: rotate(3deg) scale(.8); transform-origin: top right; } .scene { max-height: none; } }
+/* the card on the Games page: Pam at her counter, the name top-left like the other games, the odds in the corner */
+.bean-art { position: absolute; inset: 0; display: block; background: #1b140f; overflow: hidden; }
+.bean-art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; display: block; filter: saturate(.95); }
+.bean-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7, 7, 11, .84), rgba(7, 7, 11, 0) 55%), linear-gradient(90deg, rgba(7, 7, 11, .55), rgba(7, 7, 11, 0) 55%); pointer-events: none; }
+.bean-art .odds { position: absolute; right: 6%; top: 10%; z-index: 2; font: 700 clamp(16px, 5cqw, 34px)/1 var(--display); color: var(--gold); letter-spacing: .04em; display: flex; align-items: baseline; gap: .15em; text-shadow: 0 2px 14px rgba(0, 0, 0, .9); white-space: nowrap; }
+.bean-art .odds small { font-size: .45em; font-weight: 500; opacity: .8; }
+.bean-art .ttl { position: absolute; z-index: 2; left: 6%; top: 9%; text-align: left; font: 700 clamp(16px, 7.2cqw, 36px)/.94 var(--display); letter-spacing: .02em; color: #fff; text-shadow: 0 2px 18px rgba(0, 0, 0, .8); }
+@container (max-width: 330px) { .bean-art .ttl { display: none; } }

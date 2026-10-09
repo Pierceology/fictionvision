@@ -1,0 +1,59 @@
+/* TYPECAST and NAME THAT PLANET. Both sit in the OVER THE BOARD frame (chess.css) and borrow the clock and times (maze.css). */
+
+/* ---- the two Games cards */
+.tc-art, .np-art { position: absolute; inset: 0; display: block; overflow: hidden; background: #0b0b10; }
+.tc-art::after, .np-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7, 7, 11, .82), rgba(7, 7, 11, 0) 55%); pointer-events: none; }
+.tc-art .ttl, .np-art .ttl { position: absolute; z-index: 2; left: 6%; top: 9%; font: 700 clamp(16px, 7.2cqw, 36px)/.94 var(--display); letter-spacing: .02em; text-shadow: 0 2px 18px rgba(0, 0, 0, .7); }
+.tc-art .keys { position: absolute; right: 5%; top: 12%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4%; width: 46%; }
+.tc-art .keys i { aspect-ratio: 1; display: grid; place-items: center; border-radius: 12%; background: linear-gradient(180deg, #2a2a38, #16161f); border: 1px solid rgba(255, 255, 255, .14); box-shadow: 0 3px 0 #0a0a10; font: 700 clamp(9px, 4cqw, 20px)/1 var(--display); color: #fff; }
+.tc-art .keys i.sp { visibility: hidden; }
+.tc-art .keys i:nth-child(3) { background: linear-gradient(180deg, var(--orange-2), var(--orange)); color: #14141d; transform: translateY(2px); box-shadow: 0 1px 0 #0a0a10; }
+.tc-art .line { position: absolute; left: 6%; right: 6%; bottom: 38%; z-index: 1; font: 500 clamp(9px, 3.6cqw, 17px)/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: #cfd3dc; white-space: nowrap; overflow: hidden; }
+.tc-art .caret { display: inline-block; width: .55em; height: 1.1em; vertical-align: -.2em; background: var(--orange); animation: tcCaret 1s steps(2) infinite; }
+@keyframes tcCaret { to { opacity: 0; } }
+.np-art .dial { position: absolute; right: 5%; top: 50%; width: 36cqw; aspect-ratio: 1; transform: translateY(-50%); border-radius: 50%; border: 2px solid rgba(255, 255, 255, .3); background: radial-gradient(circle, #1a1a27, #0b0b10 70%); }
+.np-art .dial img { position: absolute; width: 22%; height: 22%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .7)); }
+.np-art .dial b { position: absolute; left: 50%; top: 50%; width: 46%; height: 3px; background: var(--orange); transform-origin: 0 50%; transform: rotate(-34deg); box-shadow: 0 0 10px var(--orange); border-radius: 2px; }
+.np-art .dial b::before { content: ''; position: absolute; left: -8px; top: -7px; width: 17px; height: 17px; border-radius: 50%; background: #fff; }
+@container (max-width: 330px) { .tc-art .ttl, .np-art .ttl { display: none; } .tc-art .keys { right: 50%; transform: translateX(50%); width: 60%; } .np-art .dial { right: 50%; transform: translate(50%, -50%); width: 56cqw; } }
+
+/* ---- TYPECAST */
+.tc-table { --bsz: min(calc(100vw - 2 * var(--gutter) - 400px), 900px); }
+.tc-table .otb-boardwrap.tc-stage { aspect-ratio: auto; min-height: clamp(220px, 32vh, 340px); display: grid; align-content: center; gap: 16px; padding: clamp(16px, 3vw, 36px); border-radius: 16px; transition: box-shadow .12s; }
+.tc-stage.err { box-shadow: 0 0 0 3px #ff4a3d, 0 0 40px -6px #ff4a3d; animation: tcShake .18s; }
+@keyframes tcShake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.tc-line { font: 500 clamp(18px, 1.1vw + 12px, 30px)/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; text-wrap: pretty; overflow-wrap: anywhere; }
+.tc-line .done { color: var(--green); }
+.tc-line .cur { background: var(--orange); color: #14141d; border-radius: 3px; min-width: .55em; display: inline-block; animation: tcCaret 1s steps(2) infinite; }
+.tc-line .rest { color: rgba(255, 255, 255, .55); }
+.tc-in { width: 100%; padding: 12px 14px; border-radius: 10px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .25); color: #fff; font: 500 var(--fs-body)/1.3 var(--ui); caret-color: var(--orange); }
+.tc-in:focus { outline: none; border-color: var(--orange); }
+.tc-gate { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; padding: 20px; border-radius: 16px; background: rgba(7, 7, 11, .94); }
+.tc-gate[hidden] { display: none; }
+.tc-gate b { font: 700 clamp(18px, 1.4vw + 10px, 30px)/1.1 var(--display); text-wrap: balance; }
+.tc-round { font-weight: 600; opacity: .9; }
+@media (max-width: 899px) { .tc-table { --bsz: calc(100vw - 2 * var(--gutter)); } .tc-table .otb-side .meta { display: none; } }
+
+/* ---- NAME THAT PLANET */
+.np-table { --bsz: min(calc(100vw - 2 * var(--gutter) - 400px), 900px); }
+.np-table .otb-boardwrap.np-stage { aspect-ratio: auto; display: grid; gap: 14px; padding: clamp(14px, 2.4vw, 28px); border-radius: 16px; }
+.np-dial { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; }
+.np-play { white-space: nowrap; }
+.np-bar { height: 8px; border-radius: 999px; background: rgba(255, 255, 255, .12); overflow: hidden; }
+.np-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--orange), var(--gold)); transition: width .1s linear; }
+.np-t { font: 700 var(--fs-small)/1 var(--display); font-variant-numeric: tabular-nums; min-width: 2.6em; text-align: right; color: var(--gold); }
+.np-choices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.np-opt { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .22); color: #fff; font: 600 var(--fs-body)/1.2 var(--display); text-align: left; transition: transform .2s, border-color .2s, background .2s; }
+.np-opt img { width: var(--mark); height: var(--mark); flex: none; }
+.np-opt:hover:not(:disabled) { transform: translateY(-2px); border-color: rgba(255, 255, 255, .5); }
+.np-opt:disabled { opacity: .55; }
+.np-opt.yes { opacity: 1; border-color: var(--green); background: rgba(44, 232, 128, .14); box-shadow: 0 0 0 1px var(--green); }
+.np-opt.no { opacity: 1; border-color: #ff4a3d; background: rgba(255, 74, 61, .14); }
+.np-reveal { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 14px; background: rgba(255, 255, 255, .05); border: 1px solid var(--line); animation: otbPop .35s cubic-bezier(.2, .9, .3, 1.1) both; }
+.np-reveal[hidden] { display: none; }
+.np-reveal img { width: calc(var(--mark) * 1.6); height: calc(var(--mark) * 1.6); }
+.np-reveal b { display: block; font: 700 var(--fs-row)/1.15 var(--display); }
+.np-reveal small { display: block; font-size: var(--fs-small); opacity: .85; margin-top: 2px; }
+.np-score { font-weight: 600; color: var(--gold); }
+@media (max-width: 899px) { .np-table { --bsz: calc(100vw - 2 * var(--gutter)); } .np-table .otb-side .meta { display: none; } .np-reveal { grid-template-columns: auto 1fr; } .np-reveal .cta { grid-column: 1 / -1; justify-self: start; } }
+@media (max-width: 480px) { .np-choices { grid-template-columns: 1fr; } }

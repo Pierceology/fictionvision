@@ -1,0 +1,71 @@
+/* DEAD ENDS. Shares the OVER THE BOARD frame (chess.css): the ladder cards, the head, the grid, the talk bubble, the side, the over card.
+   This file only adds the stage: the disc (the maze on its nebula), the ring of faces, the pad, the clock. */
+
+/* the Games cards for the two new games */
+.de-art, .ip-art { position: absolute; inset: 0; display: block; overflow: hidden; background: #0b0b10; }
+.de-art img.neb, .ip-art img.neb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .75; }
+.de-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7, 7, 11, .8), rgba(7, 7, 11, 0) 55%); }
+.de-art .ttl, .ip-art .ttl { position: absolute; z-index: 2; left: 6%; top: 9%; font: 700 clamp(16px, 7.2cqw, 36px)/.94 var(--display); letter-spacing: .02em; text-shadow: 0 2px 18px rgba(0, 0, 0, .7); }
+.de-art .ring { position: absolute; z-index: 1; right: 5%; top: 50%; width: 34cqw; aspect-ratio: 1; transform: translateY(-50%); border-radius: 50%; border: 2px solid rgba(255, 255, 255, .35); box-shadow: 0 0 0 10cqw rgba(0, 0, 0, .18) inset; }
+.de-art .ring img { position: absolute; width: 26%; aspect-ratio: 1; border-radius: 50%; object-fit: cover; object-position: 50% 20%; background: #14141d; border: 2px solid #0b0b10; }
+.ip-art .grid { position: absolute; z-index: 1; inset: 0; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); gap: 2px; }
+.ip-art .grid i { display: block; background-size: 400% 300%; background-repeat: no-repeat; }
+.ip-art .grid i.out { transform: translate(8%, 10%) rotate(5deg); box-shadow: 0 8px 18px rgba(0, 0, 0, .6); z-index: 1; }
+.ip-art::after { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(0deg, rgba(7, 7, 11, .82), rgba(7, 7, 11, 0) 55%); pointer-events: none; }
+@container (max-width: 330px) { .de-art .ttl, .ip-art .ttl { display: none; } .de-art .ring { right: 50%; transform: translate(50%, -50%); width: 56cqw; } }
+
+/* ---------------------------------------------------------------- the stage */
+.de-table .otb-boardwrap.de-stage { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 50%; background: #07070b; box-shadow: 0 0 0 1px rgba(255, 255, 255, .12), 0 40px 90px -46px var(--bc); touch-action: none; }
+.de-table .otb-boardwrap.de-stage.phone { border-radius: 16px; }
+.de-disc { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; overflow: hidden; background: #0b0b10; box-shadow: 0 0 0 2px color-mix(in srgb, var(--bc) 60%, transparent), 0 0 60px -10px var(--bc); }
+.de-neb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .55; filter: saturate(.95) brightness(.9); background: #0b0b10 center / cover no-repeat; }
+.de-neb.in { opacity: .6; }
+.de-maze { position: absolute; inset: 0; display: block; }
+.de-ring { position: absolute; inset: 0; display: block; z-index: 2; }
+.de-stage.phone .de-ring { display: none; }
+.de-orbit { display: none; }
+.de-stage.phone .de-orbit { position: absolute; left: 0; right: 0; top: 0; z-index: 3; display: flex; gap: 6px; padding: 6px 8px; overflow-x: auto; scrollbar-width: none; background: linear-gradient(180deg, rgba(7, 7, 11, .9), rgba(7, 7, 11, 0)); }
+.de-orbit::-webkit-scrollbar { display: none; }
+.de-orbit button { flex: none; width: 44px; height: 44px; padding: 0; border-radius: 50%; background: #14141d; border: 2px solid rgba(255, 255, 255, .25); overflow: hidden; position: relative; }
+.de-orbit button img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; transform: scale(1.25); }
+.de-orbit button.on { border-color: var(--bc); box-shadow: 0 0 0 2px color-mix(in srgb, var(--bc) 55%, transparent), 0 0 16px var(--bc); }
+.de-orbit button.did { border-color: var(--green); }
+.de-orbit button.locked img { opacity: .3; }
+.de-orbit button.locked::after { content: ''; position: absolute; inset: 0; background: center / 40% no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E"); }
+.de-stage.phone .de-disc { top: calc(50% + 28px); }
+
+/* the arrow-keys card over the maze until the first move */
+.de-card { position: absolute; left: 50%; bottom: 10%; z-index: 4; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; padding: 8px 14px; border-radius: 999px; background: rgba(12, 12, 20, .9); border: 1px solid rgba(255, 255, 255, .22); font-size: var(--fs-small); font-weight: 600; white-space: nowrap; transition: opacity .4s, transform .4s; pointer-events: none; }
+.de-card .keys { display: flex; gap: 4px; }
+.de-card .keys i { display: grid; place-items: center; width: 1.7em; height: 1.7em; border-radius: 6px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .3); font-style: normal; animation: deKey 1.6s infinite; }
+.de-card .keys i:nth-child(2) { animation-delay: .4s; } .de-card .keys i:nth-child(3) { animation-delay: .8s; } .de-card .keys i:nth-child(4) { animation-delay: 1.2s; }
+@keyframes deKey { 0%, 25%, 100% { background: rgba(255, 255, 255, .1); } 12% { background: var(--orange); } }
+.de-card.gone { opacity: 0; transform: translateX(-50%) translateY(8px); }
+.de-stage.phone .de-card span:first-child { display: none; }
+.de-stage.phone .de-card::before { content: 'Swipe, or use the pad'; }
+.de-stage.phone .de-card .keys { display: none; }
+
+/* the pad (phones) */
+.de-pad { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .de-pad { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 8px; justify-content: center; margin: 10px 0 4px; grid-template-areas: '. up .' 'left down right'; }
+  .de-pad button { width: 60px; height: 60px; border-radius: 14px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .3); font: 700 24px/1 var(--ui); color: #fff; touch-action: none; -webkit-user-select: none; user-select: none; }
+  .de-pad button:active { background: var(--orange); border-color: var(--orange); }
+  .de-pad [data-dir="up"] { grid-area: up; } .de-pad [data-dir="left"] { grid-area: left; } .de-pad [data-dir="down"] { grid-area: down; } .de-pad [data-dir="right"] { grid-area: right; }
+}
+
+/* the strip under the stage: the clock */
+.de-clock { font: 700 clamp(18px, 1.3vw + 10px, 24px)/1 var(--display); font-variant-numeric: tabular-nums; letter-spacing: .02em; color: var(--gold); }
+.otb-strip .tray.de-planet { gap: 8px; font-weight: 600; }
+.otb-strip .tray.de-planet img { width: var(--mark); height: var(--mark); margin: 0; }
+
+/* the side: the two times */
+.de-times { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
+.de-times div { padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, .04); border: 1px solid var(--line); }
+.de-times dt { font-size: var(--fs-small); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
+.de-times dd { margin: 4px 0 0; font: 700 clamp(18px, 1.2vw + 10px, 24px)/1.1 var(--display); font-variant-numeric: tabular-nums; }
+.de-times div:first-child dd { color: var(--bc); }
+
+@media (max-width: 899px) {
+  .de-table .de-times { grid-template-columns: 1fr 1fr; }
+}

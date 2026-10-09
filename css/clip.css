@@ -1,0 +1,34 @@
+/* Clippo, bottom right. A bent clip with eyes, a bubble, two buttons. Never over the toast, never over the pad on a phone. */
+#clippo { position: fixed; right: calc(14px + env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 90; display: grid; justify-items: end; gap: 8px; pointer-events: none; }
+#clippo .clip { pointer-events: auto; width: 54px; height: 66px; padding: 4px; border-radius: 16px; background: rgba(20, 20, 28, .85); border: 1px solid rgba(255, 255, 255, .22); color: #cfd3dc; backdrop-filter: blur(8px); transition: transform .25s cubic-bezier(.2, .8, .2, 1.2), color .2s; }
+#clippo .clip:hover { transform: translateY(-2px) rotate(-6deg); color: #fff; }
+#clippo .clip svg { width: 100%; height: 100%; overflow: visible; }
+#clippo .clip .pupil { fill: #0b0b10; transition: transform .25s; }
+#clippo.on .clip { color: var(--orange); }
+#clippo.on .clip .wire { animation: clipWiggle 1.6s ease-in-out infinite; transform-origin: 50% 90%; }
+#clippo.on .clip .pupil { transform: translate(1px, -1px); }
+#clippo .clip .brow { opacity: 0; transition: opacity .2s; } #clippo.on .clip .brow { opacity: 1; }
+@keyframes clipWiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-5deg); } 75% { transform: rotate(4deg); } }
+#clippo .bub { pointer-events: auto; position: relative; width: min(320px, calc(100vw - 2 * var(--gutter))); padding: 12px 14px 12px; border-radius: 16px 16px 4px 16px; background: #14141d; border: 1px solid color-mix(in srgb, var(--orange) 55%, #2c2c3a); box-shadow: 0 18px 40px -20px #000; opacity: 0; transform: translateY(8px) scale(.98); transform-origin: 100% 100%; transition: opacity .25s, transform .25s; visibility: hidden; }
+#clippo.on .bub { opacity: 1; transform: none; visibility: visible; }
+#clippo.pop .bub { animation: otbPop .38s cubic-bezier(.2, .9, .3, 1.15) backwards; }
+#clippo .bub p { margin: 0 0 10px; font-size: clamp(14px, .4vw + 11px, 16px); line-height: 1.4; text-wrap: pretty; }
+#clippo .bub .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; align-items: center; }
+#clippo .bub .row button, #clippo .bub .row a { white-space: nowrap; }
+#clippo .bub button { font-size: var(--fs-small); padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .3); background: rgba(255, 255, 255, .1); color: #fff; }
+#clippo .bub .ok { background: var(--orange); border-color: var(--orange); color: #14141d; font-weight: 600; }
+#clippo .bub .no { opacity: .75; } #clippo .bub .no:hover { opacity: 1; }
+#clippo .bub .go { font-size: var(--fs-small); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--green); color: var(--green); font-weight: 600; white-space: nowrap; }
+#clippo .bub .go:hover { background: var(--green); color: #031; }
+#clippo .bub .ls { margin-right: auto; padding: 6px 0; border: none; background: none; opacity: .7; text-decoration: underline; text-underline-offset: 3px; } #clippo .bub .ls:hover, #clippo .bub .ls[aria-expanded="true"] { opacity: 1; }
+#clippo .bub .todo { list-style: none; margin: 0 0 10px; padding: 8px 0 0; border-top: 1px solid rgba(255, 255, 255, .14); max-height: 42vh; overflow: auto; font-size: var(--fs-small); line-height: 1.5; display: grid; gap: 2px; }
+#clippo .bub .todo li { display: flex; align-items: center; gap: 8px; }
+#clippo .bub .todo li i { flex: none; width: 1.1em; height: 1.1em; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .4); display: grid; place-items: center; font-style: normal; font-size: .8em; }
+#clippo .bub .todo li.did i { background: var(--green); border-color: var(--green); color: #031; }
+#clippo .bub .todo li.did span { opacity: .55; text-decoration: line-through; }
+#clippo .bub .todo li a { color: var(--orange); }
+#clippo .bub .todo li.sum { font-weight: 600; color: var(--gold); margin-bottom: 4px; }
+body.has-player #clippo { bottom: calc(104px + env(safe-area-inset-bottom, 0px)); }
+@media (max-width: 900px) { body.has-player #clippo { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); } }
+@media (hover: none) and (pointer: coarse) { .de-table #clippo { bottom: calc(100px + env(safe-area-inset-bottom, 0px)); } }
+@media (prefers-reduced-motion: reduce) { #clippo.on .clip .wire, #clippo.pop .bub { animation: none; } #clippo .bub { transition: none; } }

@@ -1,0 +1,67 @@
+/* TFRTA, The Friendly Robot Travel Agency: the blog, back, in the FictionVision brand. Also Rick's scale (TEE-HEEs and PFFFFTs),
+   the "How Rick rates" note, the link from a movie to its excursion post, and the request-Rick block in the submit flow. */
+.tf .mast .copy p { max-width: 52ch; }
+.tf-planet { padding: clamp(22px, 3vw, 44px) var(--gutter) 0; }
+.tf-ph { display: grid; grid-template-columns: clamp(56px, 6vw, 84px) 1fr; gap: clamp(12px, 1.6vw, 24px); align-items: start; max-width: 980px; }
+.tf-ph img { width: 100%; height: auto; }
+.tf-ph .kicker { display: block; font-size: var(--fs-small); letter-spacing: .14em; text-transform: uppercase; color: var(--orange); margin-bottom: .3em; }
+.tf-ph h2 { margin: 0 0 .2em; font-size: var(--fs-h1); line-height: 1.05; }
+.tf-ph h2 a { color: inherit; }
+.tf-ph h2 a:hover { color: var(--gold); }
+.tf-tag { margin: 0 0 .4em; font: 600 var(--fs-lead)/1.3 var(--display); color: var(--gold); }
+.tf-welcome { margin: 0; max-width: 60ch; font-size: var(--fs-body); line-height: 1.45; opacity: .92; }
+.tf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: clamp(12px, 1.6vw, 22px); margin-top: clamp(14px, 1.8vw, 26px); }
+.tf-card { display: block; border-radius: 14px; overflow: hidden; background: var(--bg-2); border: 1px solid var(--line); color: inherit; transition: transform .2s, border-color .2s; }
+.tf-card:hover { transform: translateY(-3px); border-color: rgba(250, 96, 16, .6); }
+.tf-thumb { display: block; aspect-ratio: 16 / 9; background: #000; }
+.tf-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tf-cap { display: block; padding: 12px 14px 14px; }
+.tf-cap b { display: block; font: 600 var(--fs-row)/1.2 var(--display); }
+.tf-cap small { display: block; margin-top: .3em; font-size: var(--fs-small); line-height: 1.35; opacity: .85; }
+.tf-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: .7em; font-size: var(--fs-small); }
+.tf-meta em { font-style: normal; font-weight: 600; color: var(--green); }
+/* a post */
+.tf-post .page-head { padding-top: calc(var(--bar-h) + clamp(12px, 1.6vw, 28px)); }
+.tf-post .page-head h1 { max-width: 20ch; }
+.tf-video { padding: 0 var(--gutter); max-width: calc(1180px + 2 * var(--gutter)); margin: 0 auto; }
+.tf-video .vstage { border-radius: 14px; overflow: hidden; }
+.tf-body { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr); gap: clamp(20px, 3vw, 48px); padding: clamp(18px, 2.4vw, 36px) var(--gutter) 0; max-width: calc(1180px + 2 * var(--gutter)); margin: 0 auto; }
+@media (max-width: 820px) { .tf-body { grid-template-columns: 1fr; } }
+.tf-by { margin: 0 0 .6em; font: 600 var(--fs-small)/1 var(--ui); letter-spacing: .16em; text-transform: uppercase; color: var(--orange); }
+.tf-text { margin: 0; font-size: var(--fs-lead); line-height: 1.5; }
+.tf-am { margin-top: 1.2em; }
+.tf-am .lbl, .tf-price .lbl { font-weight: 600; color: var(--green); }
+.tf-am ul { margin: .4em 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.tf-am li { font-size: var(--fs-small); padding: .35em .9em; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, .04); }
+.tf-price { margin: 1em 0 0; font-size: var(--fs-body); }
+.tf-price b { font: 700 1.15em/1 var(--display); color: var(--gold); }
+.tf-side .rick { margin-top: 0; }
+.tf-side .cta { margin-top: 14px; }
+.tf-stops { display: flex; justify-content: space-between; gap: 16px; padding: clamp(18px, 2.4vw, 36px) var(--gutter) 0; max-width: calc(1180px + 2 * var(--gutter)); margin: 0 auto; font-size: var(--fs-body); }
+.tf-stops a { color: var(--orange); }
+/* Rick's scale and his note */
+.rick .who { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.rick .howrick, .rr .howrick { font: 500 calc(var(--fs-small) * .95)/1 var(--ui); letter-spacing: 0; text-transform: none; color: var(--gold); opacity: .8; border-bottom: 1px solid rgba(255, 200, 87, .5); padding: 0 0 1px; }
+.rick .howrick:hover, .rr .howrick:hover { opacity: 1; }
+.rick-how { margin-top: .7em; padding: .7em .9em; border-radius: 10px; background: rgba(0, 0, 0, .35); border: 1px solid rgba(255, 200, 87, .25); font-size: var(--fs-small); line-height: 1.45; }
+.rick-how p { margin: 0 0 .5em; } .rick-how p:last-child { margin: 0; }
+.rate.pf { color: #ff9b7a; }
+.rate.pf .dots i { background: #ff9b7a; }
+.rate.pf .dots i.off { background: rgba(255, 155, 122, .25); }
+.tfrta-link { margin: .4em 0 0; font-size: var(--fs-small); line-height: 1.4; }
+.tfrta-link a { color: inherit; opacity: .9; }
+.tfrta-link a:hover { opacity: 1; color: var(--gold); }
+.tfrta-link b { font: 700 1em/1 var(--display); letter-spacing: .12em; color: var(--orange); margin-right: .4em; }
+/* request Rick, in the submit flow */
+.rr { margin-top: 18px; padding: 16px; border-radius: 14px; background: linear-gradient(135deg, rgba(255, 200, 87, .1), rgba(255, 255, 255, .03)); border: 1px solid rgba(255, 200, 87, .32); }
+.rr-head { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: center; margin-bottom: 12px; }
+.rr-head img { width: 56px; height: 56px; }
+.rr-head b { display: block; font: 600 var(--fs-row)/1.2 var(--display); }
+.rr-head span { display: block; font-size: var(--fs-body); line-height: 1.4; opacity: .9; }
+.rr .nav { margin-top: 10px; }
+.rr .rick { margin: 0 0 10px; }
+.rr-note { margin: 0; font-size: var(--fs-body); }
+.rr-fine { margin: 10px 0 0; font-size: var(--fs-small); line-height: 1.4; opacity: .75; }
+.rr .link { color: var(--orange); border-bottom: 1px solid currentColor; font-size: inherit; }
+.tf-stops a { display: inline-flex; align-items: center; gap: .4em; }
+.tf-stops svg { width: 1em; height: 1em; flex: none; }
