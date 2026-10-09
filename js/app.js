@@ -111,7 +111,8 @@ function badgeHTML(t, big) {
   const w = worldOf(t);
   if (!w || !t.spot) return '';
   const [x, y, d] = t.spot;
-  const dd = clamp(d, 0.11, 0.28);
+  // one size on every card (Pierce, 2026-10-09: "different size icons"); the big poster keeps the size painted for its spot
+  const dd = big ? clamp(d, 0.11, 0.28) : 0.17;
   return `<span class="badge" style="left:${x * 100}%;top:${y * 100}%;width:${dd * 100}%"><img src="${big ? w.badge : w.mark}" alt="" loading="lazy" decoding="async"></span>`;
 }
 function rateBadge(t) {
