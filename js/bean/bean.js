@@ -31,10 +31,12 @@ const abs = u => /^https?:|^data:/.test(u) ? u : new URL(u, document.baseURI).hr
 const PAM_STILL = 'https://static.wixstatic.com/media/6c593b_fdfd6e5873d44fd28b4adf464325e6a2~mv2.png/v1/fit/w_1600,h_900,q_85/p.png';
 /* her films, by key: Wix video ids as they come out of Flow (2026-10-09). A key with no id plays as words over her still. */
 export const FILMS = {
-  // 2026-10-09: the clean set, shot from her one-cup frame at Veo quality and measured frame by frame before it counts; the rest land as they pass.
-  idle: '6c593b_77502b258b794181a94b175fd8ea4c3a', give: '6c593b_6f2d64322c624cfca0ec750cb6bc1705',
-  slide: '', pour: '6c593b_cec9c63dc00c4bd785b02973cb1d31a1', face: '6c593b_c2529cde82e04c23b0c87335d9128f68', hand: '6c593b_eeb92cc63fdd491082f10cf03b6bee62', sip: '', shrug: '', finger: '', sniff: '', lid: '', drop: '',
-  stare: '', twirl: '', count: '', wipe: '', two: '', toast: '', ceiling: '', laugh: '', push: '', lamp: '',
+  // 2026-10-09: the clean set, shot from her one-cup frame at Veo quality and measured frame by frame before it counted
+  idle: '6c593b_792c44f5c11e4f1abd048f6b51be7e88', give: '6c593b_6f2d64322c624cfca0ec750cb6bc1705',
+  slide: '6c593b_7cbe4e6cc1f347c5b3e4ab2de6de8df9', pour: '6c593b_cec9c63dc00c4bd785b02973cb1d31a1', face: '6c593b_c2529cde82e04c23b0c87335d9128f68', hand: '6c593b_eeb92cc63fdd491082f10cf03b6bee62', sip: '6c593b_1d39c8b27c5f4da3b5c0a6fcfddf9e20',
+  shrug: '6c593b_35e3ab2ae9544ba2ad7d5c0c9882c355', finger: '6c593b_57c1236579d24d17a4ea28d26770ba3d', sniff: '6c593b_eb31b07cb5e148568248ab1990dcb325', lid: '6c593b_fc878cca9b884cda85df83b827fd3d51', drop: '6c593b_707cd4f9f52c45e7a2be053c8898af6f',
+  stare: '6c593b_53c01de5c5684c1eade899a44057c93d', twirl: '6c593b_cd56d90c695b4f8190e116bd79301f33', count: '6c593b_afc0691a71c04f8282c331c1116725f5', wipe: '6c593b_c22a6e05d0aa4a39a4fcd0a03cae88da', two: '6c593b_1f3b5713363f4b28a3b97a09b791498c',
+  toast: '6c593b_7ea5650883654e789b630fe8e8fef18f', ceiling: '6c593b_c3d083c341914ec6adbf4a305ff38505', laugh: '6c593b_b71a5fdabec2419a8cab0ee78d3c000e', push: '6c593b_f808a6b5788e4aba8996a3a775d2f484', lamp: '6c593b_550703934f444622849212884f7eddcd',
 };
 /* the twenty ways she does not hand it over, and the one time she does. The line lands as she moves, the aside as she comes back. */
 const ALMOST = [
