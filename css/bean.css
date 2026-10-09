@@ -11,7 +11,6 @@
 .pam-film { position: absolute; inset: 0; background: #0b0a09 center / cover no-repeat; }
 .pam-film video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; }
 .pam-film video.on { opacity: 1; }
-.cup.off { opacity: 0; transform: translateY(-40px) scale(.9); }
 .scene::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, .25), rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, .55)); pointer-events: none; }
 .scene > * { position: absolute; z-index: 1; }
 /* the two of them at the edges of her counter; Pam is the film */
@@ -22,29 +21,6 @@
 .who b { font: 600 1.05em/1.1 var(--display); letter-spacing: .06em; }
 .who small { opacity: .8; }
 .who.pam { align-self: flex-end; padding-bottom: 6px; }
-/* the cup, on her counter */
-.counter { left: 0; right: 0; bottom: 0; height: 34%; pointer-events: none; }
-.cup { position: absolute; left: 50%; bottom: 11%; width: clamp(34px, 5.2vw, 56px); height: clamp(42px, 6.6vw, 70px); margin-left: calc(clamp(34px, 5.2vw, 56px) / -2); background: linear-gradient(180deg, #f1e7d6, #cdbfa8); border-radius: 6px 6px 14px 14px / 6px 6px 20px 20px; box-shadow: 0 10px 24px rgba(0, 0, 0, .6); transform: translateY(-40px) scale(.9); opacity: 0; transition: transform .9s cubic-bezier(.2, .8, .2, 1), opacity .5s; }
-.cup .lid { position: absolute; left: -6%; right: -6%; top: -8px; height: 12px; background: #2a2622; border-radius: 6px; }
-.cup .sleeve { position: absolute; left: 0; right: 0; top: 38%; height: 30%; background: #6b4a2d; border-top: 1px solid #8a6a4c; border-bottom: 1px solid #40291a; }
-.cup .steam { position: absolute; left: 30%; top: -34px; width: 40%; height: 28px; background: radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 70%); filter: blur(4px); animation: beanSteam 2.2s ease-in-out infinite; }
-@keyframes beanSteam { 0%, 100% { transform: translateY(0) scaleX(1); opacity: .7; } 50% { transform: translateY(-10px) scaleX(1.2); opacity: .3; } }
-.cup.rest { transform: translateY(-40px) scale(.9); opacity: 0; }
-.cup.come { transform: translateY(0) scale(1); opacity: 1; }
-.cup.slide { animation: beanSlide 1.4s cubic-bezier(.2, .8, .2, 1) forwards; }
-@keyframes beanSlide { 0% { transform: translateY(0) scale(1); } 45% { transform: translateY(34px) scale(1.08); } 100% { transform: translateY(-42px) scale(.9); opacity: .8; } }
-.cup.lift { animation: beanLift 1.4s ease-in-out forwards; }
-@keyframes beanLift { 0% { transform: translateY(0); } 40% { transform: translateY(-26px) rotate(-6deg); } 100% { transform: translateY(-40px) scale(.9); opacity: .8; } }
-.cup.register { animation: beanRegister 1.4s ease-in-out forwards; }
-@keyframes beanRegister { 0% { transform: translateY(0); } 100% { transform: translate(min(34vw, 300px), -30px) scale(.8); opacity: .7; } }
-.cup.tilt { animation: beanTilt 1.4s ease-in-out forwards; }
-@keyframes beanTilt { 0% { transform: translateY(0); } 40% { transform: translateY(8px) rotate(14deg); } 100% { transform: translateY(-40px) rotate(0) scale(.9); opacity: .8; } }
-.cup.pour { animation: beanPour 1.4s ease-in forwards; }
-@keyframes beanPour { 0% { transform: translateY(0); } 50% { transform: translate(-60px, -20px) rotate(-70deg); } 100% { transform: translate(-80px, 30px) rotate(-100deg); opacity: 0; } }
-.cup.hand { animation: beanHand 1.6s ease-in-out forwards; }
-@keyframes beanHand { 0% { transform: translateY(0); } 35% { transform: translateY(44px) scale(1.15); } 60% { transform: translateY(44px) scale(1.15); } 100% { transform: translateY(-40px) scale(.9); opacity: .8; } }
-.cup.give { animation: beanGive 1.4s cubic-bezier(.2, .8, .2, 1) forwards; }
-@keyframes beanGive { 0% { transform: translateY(0); } 100% { transform: translateY(70px) scale(1.5); opacity: 1; } }
 .ticket { right: clamp(12px, 2vw, 24px); top: clamp(12px, 2vw, 24px); display: grid; text-align: center; padding: 8px 12px; border-radius: 8px; background: rgba(241, 231, 214, .92); color: #1b140f; font: 600 var(--fs-small)/1 var(--display); letter-spacing: .1em; text-transform: uppercase; transform: rotate(3deg); box-shadow: 0 8px 20px rgba(0, 0, 0, .5); }
 .ticket b { font-size: 1.6em; letter-spacing: 0; margin-top: 4px; }
 /* under the film: Pam's line, the board, the button */
@@ -69,23 +45,37 @@
 .living.gone { opacity: 0; transform: translateY(6px); }
 .living.arrive { animation: livingIn .4s ease-out; }
 @keyframes livingIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-/* the celebration */
-/* the celebration: off the page entirely until it is on. display:grid used to beat the hidden attribute, so an invisible full-screen
-   layer sat over the whole game and ate every tap on the button (Pierce, 2026-10-08: "the button for order coffee does not work") */
-.win { position: fixed; inset: 0; z-index: 130; display: grid; place-items: center; background: #000; opacity: 0; transition: opacity .5s; pointer-events: none; }
+/* the euphoria. Off the page entirely until it is on (display:grid used to beat the hidden attribute and ate every tap). Layers, back to
+   front: the Planet Zee nebula, a colour trip that cycles, the aliens' disco, Pierce's zombies and the band floating through, confetti,
+   the words, the button. His clips are never filtered; the colour lives on its own layer. */
+.win { position: fixed; inset: 0; z-index: 130; display: grid; place-items: center; background: #000; opacity: 0; transition: opacity .6s; pointer-events: none; overflow: hidden; }
 .win[hidden] { display: none; }
 .win.on { opacity: 1; pointer-events: auto; }
-.win .winv { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.win.novideo .winv { display: none; }
-.win.novideo { background: radial-gradient(circle at 50% 40%, #5a3a1f, #0b0a09 70%); }
-.win .burst { position: absolute; inset: 0; pointer-events: none; background: repeating-conic-gradient(from 0deg, rgba(255, 200, 87, .12) 0 6deg, transparent 6deg 18deg); animation: beanSpin 18s linear infinite; mix-blend-mode: screen; }
-@keyframes beanSpin { to { transform: rotate(360deg); } }
-.win .wincopy { position: relative; z-index: 1; text-align: center; max-width: min(760px, 90vw); padding: 0 var(--gutter); text-shadow: 0 2px 24px rgba(0, 0, 0, .9); }
-.win .kicker { display: block; font-size: var(--fs-small); letter-spacing: .18em; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; }
-.win h2 { margin: 0; font-size: clamp(34px, 6vw, 72px); line-height: 1; }
-.win p { font-size: var(--fs-lead); margin: 14px 0 22px; }
+.win .sky, .win .disco { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.win .sky { transform: scale(1.08); animation: beanSky 24s ease-in-out infinite alternate; }
+@keyframes beanSky { from { transform: scale(1.04) rotate(-1deg); } to { transform: scale(1.14) rotate(1.5deg); } }
+.win .trip { position: absolute; inset: -20%; background: conic-gradient(from 0deg, rgba(255, 0, 128, .55), rgba(255, 200, 0, .55), rgba(0, 255, 160, .55), rgba(0, 160, 255, .55), rgba(170, 0, 255, .55), rgba(255, 0, 128, .55)); mix-blend-mode: screen; opacity: .55; animation: beanTrip 9s linear infinite, beanBreathe 3.1s ease-in-out infinite; filter: blur(40px); }
+@keyframes beanTrip { to { transform: rotate(360deg); } }
+@keyframes beanBreathe { 0%, 100% { opacity: .4; } 50% { opacity: .7; } }
+.win .disco { opacity: .78; mix-blend-mode: lighten; animation: beanDisco 2.2s ease-in-out infinite; }
+@keyframes beanDisco { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+.win .orbit { position: absolute; inset: 0; pointer-events: none; }
+.win .fl { position: absolute; width: clamp(150px, 22vw, 340px); aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, .6), 0 0 0 2px rgba(255, 255, 255, .25), 0 0 40px rgba(255, 200, 87, .35); animation: beanFloat var(--d, 7s) ease-in-out infinite alternate; }
+.win .fl video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.win .f1 { left: 4%; top: 10%; --d: 6.5s; } .win .f2 { right: 5%; top: 8%; --d: 7.5s; animation-delay: -2s; } .win .f3 { left: 6%; bottom: 10%; --d: 8s; animation-delay: -4s; }
+.win .f4 { right: 6%; bottom: 12%; --d: 7s; animation-delay: -1s; } .win .f5 { left: 50%; top: 4%; margin-left: calc(clamp(150px, 22vw, 340px) / -2); --d: 9s; animation-delay: -3s; }
+@keyframes beanFloat { from { transform: translateY(-14px) rotate(-3deg) scale(.98); } to { transform: translateY(16px) rotate(3deg) scale(1.04); } }
+.win .confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.win .wincopy { position: relative; z-index: 2; text-align: center; max-width: min(820px, 92vw); padding: 0 var(--gutter); text-shadow: 0 2px 24px rgba(0, 0, 0, .9), 0 0 60px rgba(0, 0, 0, .8); }
+.win .kicker { display: block; font-size: var(--fs-small); letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.win h2 { margin: 0; font-size: clamp(44px, 9vw, 120px); line-height: .92; letter-spacing: .01em; color: #fff; animation: beanPulse 1.55s ease-in-out infinite; }
+@keyframes beanPulse { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(255, 200, 87, .5)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 30px rgba(255, 200, 87, .9)); } }
+.win p { font-size: var(--fs-lead); margin: 14px auto 22px; max-width: 46ch; }
 .win.sipped h2 { color: var(--gold); }
 .win .winbtn { display: flex; justify-content: center; }
+.win .winbtn .living { background: rgba(0, 0, 0, .35); backdrop-filter: blur(6px); }
+@media (max-width: 700px) { .win .f3, .win .f4 { display: none; } .win .fl { width: 38vw; } }
+@media (prefers-reduced-motion: reduce) { .win .trip, .win .sky, .win .disco, .win .fl, .win h2 { animation: none; } }
 @media (max-width: 600px) { .who small { display: none; } .who i { width: 44px; height: 44px; } .ticket { transform: rotate(3deg) scale(.8); transform-origin: top right; } .scene { max-height: none; } }
 /* the card on the Games page: Pam at her counter, the name top-left like the other games, the odds in the corner */
 .bean-art { position: absolute; inset: 0; display: block; background: #1b140f; overflow: hidden; }
