@@ -34,9 +34,9 @@ export function inPiecesCard(o = {}) {
 export const TC_HREF = '#/games/typecast';
 export function typecastCard(o = {}) {
   const clone = o.clone ? ' aria-hidden="true" tabindex="-1"' : '';
-  const keys = 'ZUG TAKE'.split('').map(k => `<i class="${k === ' ' ? 'sp' : ''}">${k.trim()}</i>`).join('');
+  const keys = 'TYP WHAT'.split('').map(k => `<i class="${k === ' ' ? 'sp' : ''}">${k.trim()}</i>`).join('');
   return `<a class="card tile gcard" href="${TC_HREF}"${clone}>
-    <span class="frame"><span class="tc-art" aria-hidden="true"><span class="keys">${keys}</span><span class="line">Zug take knight! Zug take! Go<i class="caret"></i></span><span class="ttl">TYPE<br>CAST</span></span></span>
+    <span class="frame"><span class="tc-art" aria-hidden="true"><span class="keys">${keys}</span><span class="line">Type what I say. The Wall is watching your hands.<i class="caret"></i></span><span class="ttl">TYPE<br>CAST</span></span></span>
     <span class="cap"><b>Type TYPECAST</b><small><span>Type what the beings say, as fast as you can, while they say worse things about your typing</span></small></span></a>`;
 }
 
