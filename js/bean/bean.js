@@ -31,9 +31,9 @@ const abs = u => /^https?:|^data:/.test(u) ? u : new URL(u, document.baseURI).hr
 const PAM_STILL = 'https://static.wixstatic.com/media/6c593b_fdfd6e5873d44fd28b4adf464325e6a2~mv2.png/v1/fit/w_1600,h_900,q_85/p.png';
 /* her films, by key: Wix video ids as they come out of Flow (2026-10-09). A key with no id plays as words over her still. */
 export const FILMS = {
-  // 2026-10-09: the first batch of 22 is out (things moved that should not have). A clean set, from a new frame of Pam with one cup, is being made.
-  idle: '', give: '',
-  slide: '', pour: '', face: '', hand: '', sip: '', shrug: '', finger: '', sniff: '', lid: '', drop: '',
+  // 2026-10-09: the clean set, shot from her one-cup frame at Veo quality and measured frame by frame before it counts; the rest land as they pass.
+  idle: '6c593b_77502b258b794181a94b175fd8ea4c3a', give: '6c593b_6f2d64322c624cfca0ec750cb6bc1705',
+  slide: '', pour: '6c593b_cec9c63dc00c4bd785b02973cb1d31a1', face: '6c593b_c2529cde82e04c23b0c87335d9128f68', hand: '6c593b_eeb92cc63fdd491082f10cf03b6bee62', sip: '', shrug: '', finger: '', sniff: '', lid: '', drop: '',
   stare: '', twirl: '', count: '', wipe: '', two: '', toast: '', ceiling: '', laugh: '', push: '', lamp: '',
 };
 /* the twenty ways she does not hand it over, and the one time she does. The line lands as she moves, the aside as she comes back. */
