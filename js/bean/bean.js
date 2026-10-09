@@ -31,11 +31,10 @@ const abs = u => /^https?:|^data:/.test(u) ? u : new URL(u, document.baseURI).hr
 const PAM_STILL = 'https://static.wixstatic.com/media/6c593b_fdfd6e5873d44fd28b4adf464325e6a2~mv2.png/v1/fit/w_1600,h_900,q_85/p.png';
 /* her films, by key: Wix video ids as they come out of Flow (2026-10-09). A key with no id plays as words over her still. */
 export const FILMS = {
-  idle: '6c593b_d3b31d43f2c84ade9e08021d220c0228', give: '6c593b_231c07c8fcf64f0fa4b8fa2b689a9c52',
-  slide: '6c593b_d92acca1a2ca4fb9a4965148661b2038', pour: '6c593b_c82b71dd0baa4733ac1d7890bda9dfb1', face: '6c593b_6f85cf6bbec84a1b9316fb6294281e2e', hand: '6c593b_31e5d3791cfa4bf08df63b98387da434', sip: '6c593b_2d27e149b9ea405b9b32c65e33c6ad62',
-  shrug: '6c593b_dbccce3ca21d4e2ab1162546a126e49d', finger: '6c593b_b90edf60ad2b4fd489da606ec1df0ea9', sniff: '6c593b_4f2d56ee1135401bbff3429d20f1f450', lid: '6c593b_bbc9302462f048349ef91e8bddbcd9d7', drop: '6c593b_f5e8bb29cd1c4db6b9554a5e501f369f',
-  stare: '6c593b_30602707301d4e49b32e14bbe9d56b74', twirl: '6c593b_1bc80f8f8d344b6b9630ed025f654b14', count: '6c593b_c904c18482084680962ae907440c2f26', wipe: '6c593b_f88cf1ee29654e449a45b1bb0f421cce', two: '6c593b_7da80389808146b4bc9278bf1b4d4715',
-  toast: '6c593b_32e8ab39faf946d798094260d825ce30', ceiling: '6c593b_8664568e8c1c41e69afe68622a95e4cd', laugh: '6c593b_2ba5b38fef0f49058c5fb83f1c188976', push: '6c593b_f295218db69f41c2bc808c4c44b3d9d1', lamp: '6c593b_332be38f6dcb4dfc97475179524c9da1',
+  // 2026-10-09: the first batch of 22 is out (things moved that should not have). A clean set, from a new frame of Pam with one cup, is being made.
+  idle: '', give: '',
+  slide: '', pour: '', face: '', hand: '', sip: '', shrug: '', finger: '', sniff: '', lid: '', drop: '',
+  stare: '', twirl: '', count: '', wipe: '', two: '', toast: '', ceiling: '', laugh: '', push: '', lamp: '',
 };
 /* the twenty ways she does not hand it over, and the one time she does. The line lands as she moves, the aside as she comes back. */
 const ALMOST = [
