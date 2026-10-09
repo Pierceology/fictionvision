@@ -14,7 +14,7 @@ const store = {
 /* what he says, and when. Each key fires once per device. {n} is the number of things on your list. */
 const TIPS = {
   arrive: ["Hey. Hey. Hi. I'm Clippo. Not that one. Legally different. Those posters move. Click one. I'll wait. I won't wait."],
-  idle: ["Still here? Me too. I have no choice. You do. Click something.", "You've been staring for a while. The posters can tell."],
+  idle: ["Still here? Me too. I have no choice. You do. Click something.", "Still looking? Open one. They're better up close."],
   title: ["See that button, I'd watch this? That's the whole site. Click it, or admit you wouldn't.", "Somebody wrote this in their own words. The least you can do is press the orange button."],
   watch1: ["THERE it is. That click just made somebody's day in Nebraska. Do it again on something worse."],
   watch3: ["Three on your list. You have taste. Questionable, but taste. The Trophy Room keeps score of this stuff."],
