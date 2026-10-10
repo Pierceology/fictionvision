@@ -2,12 +2,12 @@
    The arrival is the ship's own elevator, as Pierce built it (solace-ship v0.7.0): full-screen doors skinned with the deck's film as ONE
    continuous frame, his gate card on the doors (the headline that ends the way every SOLACE line ends, the second line, the body, the
    button), the floor controller on the right, and THE READER OPENS THE DOORS WHEN READY. The car arrives at Deck 16, Observation; press
-   the button and the doors part onto the asteroid show for the planet in view (his nebula as the sky, his lower artwork, his asteroids,
-   "We're Grand" when the sounds are on). Press a floor instead and the car rides there: the doors re-skin, the card changes, and the
-   doors open onto that deck's own film with its own sound. Before a preview the car arrives at Deck 4, the Atrium. */
+   the button and the doors part onto the deck's own film, the ship's "We're Grand" asteroid show (Pierce, 2026-10-10: that one is the
+   special one and it lives here; the only other show on the site is his beat-synced one at #/show). Press a floor instead and the car
+   rides there: the doors re-skin, the card changes, and the doors open onto that deck's own film with its own sound. Before a preview
+   the car arrives at Deck 4, the Atrium. */
 import { srcFor } from './media.js';
 import { FLOORS } from './ship.js';
-import { OBS, SKY } from './observation.js';
 import { bus } from './bus.js';
 
 const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -19,18 +19,12 @@ const M = window.FVM || { v: {} };
 const vurl = (id, q) => { if (/^https?:/.test(id)) return id.replace(/\/(480|720|1080)p\//, `/${q}p/`); if (M.v[id]) return srcFor(id); return `https://video.wixstatic.com/video/${id}/${q}p/mp4/file.mp4`; };
 const frame = id => { const x = /^https?:/.test(id) ? id.split('/video/')[1].split('/')[0] : id; return `https://static.wixstatic.com/media/${x}f000.jpg/v1/fill/w_1280,h_720,q_78/p.jpg`; };
 const sfxEv = kind => document.dispatchEvent(new CustomEvent('fv:sfx', { detail: { kind } }));
-const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 const SOLACE_LOGO = 'https://static.wixstatic.com/media/6c593b_e8fd7344f1784c52abe40b3f08413a34~mv2.png';
 const ATRIUM = FLOORS.findIndex(f => f.k === '4'), OBSERVATION = FLOORS.findIndex(f => f.k === '16');
 const stateroom = f => f.k.length === 2 && f.k.charAt(0) === '5';
 /* door skins, as on the ship: the atrium and the thirteen stateroom decks greet you with their planet's nebula; every other deck's doors wear the film across its hall */
 const skinOf = (f, i) => (i === ATRIUM || stateroom(f)) ? f.door : f.wall;
-const SLUGS = ['planet-zee', 'yaaarghs-revenge', 'oogh-iv', 'prearth', 'that-other-planet', 'figuria', 'dens-crevice', 'heliumdrum', 'washy-washy-ii', 'yarnia', 'hungary', 'guffaw-7', 'spee-ider-grove'];
 const NAMES = { 'planet-zee': 'Planet Zee', 'yaaarghs-revenge': "Yaaargh's Revenge", 'oogh-iv': 'OOGH-IV', 'prearth': 'Prearth', 'that-other-planet': 'That Other Planet', 'figuria': 'Figuria', 'dens-crevice': "Den's Crevice", 'heliumdrum': 'Heliumdrum', 'washy-washy-ii': 'Washy Washy II', 'yarnia': 'Yarnia', 'hungary': 'Hungary', 'guffaw-7': 'Guffaw-7', 'spee-ider-grove': 'Spee-ider Grove' };
-const store = {
-  get(k, d) { try { const v = localStorage.getItem('fv.solace.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem('fv.solace.' + k, JSON.stringify(v)); } catch (e) { } },
-};
 
 /* the plates on the seams of the site (a trophy back, a win card, the preview box) */
 export const DECKS = [
@@ -48,35 +42,19 @@ export function plate(kind, o = {}) {
   return `<span class="spon${o.cls ? ' ' + o.cls : ''}"><span class="by">Brought to you by</span><b>SOLACE</b><small>Deck ${d.n} · ${esc(d.name)}</small></span>`;
 }
 
-/* the planet in view from the Observation Deck: the next one each arrival; its asteroid show */
-function planetInView() {
-  const n = store.get('n', 0); store.set('n', n + 1);
-  const slug = SLUGS[n % SLUGS.length], sky = SKY[slug], round = Math.floor(n / SLUGS.length) % 3;
-  const rocks = sky.rocks.slice(); const pick = []; let h = hash(slug + n);
-  while (pick.length < Math.min(7, rocks.length)) { h = Math.imul(h ^ (h >>> 13), 16777619) >>> 0; pick.push(rocks.splice(h % rocks.length, 1)[0]); }
-  return { slug, name: NAMES[slug], nebula: sky.nebula, lower: sky.lower[round], rocks: pick };
-}
-
-/* the view from the observation deck of one planet in particular: its nebula, one of its three lower skies, seven of its rocks */
-function viewOf(slug) {
-  const sky = SKY[slug]; if (!sky) return planetInView();
-  const n = store.get('n', 0); store.set('n', n + 1);
-  const round = n % 3;
-  const rocks = sky.rocks.slice(); const pick = []; let h = hash(slug + n);
-  while (pick.length < Math.min(7, rocks.length)) { h = Math.imul(h ^ (h >>> 13), 16777619) >>> 0; pick.push(rocks.splice(h % rocks.length, 1)[0]); }
-  return { slug, name: NAMES[slug], nebula: sky.nebula, lower: sky.lower[round], rocks: pick };
-}
+/* the planet in view from the Observation Deck, named on the deck tag when the car arrives for a planet */
+const viewOf = slug => NAMES[slug] ? { slug, name: NAMES[slug] } : null;
 
 let primed = null;
 /* start the door film loading early, and the deck behind it */
 export function prime(kind = 'ident', planet = null) {
   const at = kind === 'preview' ? ATRIUM : OBSERVATION;
-  const view = kind === 'preview' ? null : planet ? viewOf(planet) : planetInView();
+  const view = kind === 'preview' ? null : viewOf(planet);
   const q = quality();
   const door = document.createElement('video');
   door.muted = true; door.playsInline = true; door.preload = 'auto'; door.loop = true; door.setAttribute('disablepictureinpicture', '');
   door.src = vurl(skinOf(FLOORS[at], at), q); door.load();
-  const imgs = [frame(skinOf(FLOORS[at], at)), view && view.lower, ...(view ? view.rocks : [])].filter(Boolean).map(u => { const i = new Image(); i.src = u; return i; });
+  const imgs = [frame(skinOf(FLOORS[at], at)), frame(FLOORS[at].wall)].map(u => { const i = new Image(); i.src = u; return i; });
   primed = { kind, at, view, door, imgs };
   return primed;
 }
@@ -108,7 +86,7 @@ export function play(opts = {}) {
   document.body.appendChild(el);
   door.play().catch(() => { });
 
-  let done = false, covered = false, state = 'closed', wall = null, song = null, autoT = 0;
+  let done = false, covered = false, state = 'closed', wall = null, autoT = 0;
   const timers = [];
   const later = (fn, ms) => { const t = setTimeout(fn, ms); timers.push(t); return t; };
   const cover = () => { if (covered) return; covered = true; try { opts.onCovered && opts.onCovered(); } catch (e) { } };
@@ -158,32 +136,25 @@ export function play(opts = {}) {
     later(() => { el.classList.remove('riding', 'ding'); state = 'closed'; renderGate(); }, RIDE + 700);
   };
 
-  // ---- the deck behind the doors, built when the doors open: the asteroid show on 16, the deck's own film elsewhere
+  // ---- the deck behind the doors, built when the doors open: the deck's own film, full bleed. On 16 that film is "We're Grand", the
+  // ship's asteroid show; it starts a few seconds in so the asteroids are already flying when the doors part.
   const buildDeck = () => {
     floorEl.innerHTML = ''; wall = null;
     const f = FLOORS[at];
-    if (at === OBSERVATION && view) {
-      const rocks = view.rocks.map(u => { const h = hash(u); const size = 44 + (h % 110), top = 6 + ((h >>> 8) % 62), dur = 22 + ((h >>> 16) % 26), delay = -((h >>> 4) % dur), spin = (h & 1 ? 1 : -1) * (120 + (h % 240)); return `<img class="rock" src="${u}" alt="" style="--sz:${size}px;--top:${top}%;--dur:${dur}s;--delay:${delay}s;--spin:${spin}deg" draggable="false">`; }).join('');
-      floorEl.innerHTML = `<div class="sky" style="background-image:url(${frame(view.nebula)})"></div><div class="rocks" aria-hidden="true">${rocks}</div><img class="lower" src="${view.lower}" alt="" draggable="false">`;
-      wall = document.createElement('video'); wall.muted = true; wall.playsInline = true; wall.preload = 'auto'; wall.loop = true; wall.setAttribute('disablepictureinpicture', '');
-      wall.src = vurl(view.nebula, quality()); floorEl.querySelector('.sky').appendChild(wall);
-    } else {
-      floorEl.innerHTML = `<div class="sky" style="background-image:url(${frame(f.wall)})"></div>`;
-      wall = document.createElement('video'); wall.muted = true; wall.playsInline = true; wall.preload = 'auto'; wall.setAttribute('disablepictureinpicture', '');
-      wall.src = vurl(f.wall, quality()); floorEl.querySelector('.sky').appendChild(wall);
-    }
+    floorEl.innerHTML = `<div class="sky" style="background-image:url(${frame(f.wall)})"></div>`;
+    wall = document.createElement('video'); wall.muted = true; wall.playsInline = true; wall.preload = 'auto'; wall.loop = true; wall.setAttribute('disablepictureinpicture', '');
+    wall.src = vurl(f.wall, quality()); floorEl.querySelector('.sky').appendChild(wall);
+    if (at === OBSERVATION) wall.addEventListener('loadedmetadata', () => { try { wall.currentTime = 4; } catch (e) { } }, { once: true });
     wall.play().catch(() => { });
   };
-  // one sound per floor, heard once the reader opens the doors: "We're Grand" on 16, the deck's own film elsewhere.
+  // one sound per floor, heard once the reader opens the doors: the deck's own film, "We're Grand" on 16.
   // Only when the sounds are on and nothing else is speaking; the button press is the gesture the browser wants.
   const hear = byReader => {
-    if (!soundOn() || bus.claims.size || !byReader) return;
+    if (!soundOn() || bus.claims.size || !byReader || !wall) return;
     bus.claim('elevator');
-    if (at === OBSERVATION && view) { song = new Audio(`https://static.wixstatic.com/mp3/${OBS.song}.mp3`); song.volume = 0.55; song.play().catch(() => { bus.release('elevator'); song = null; }); }
-    else if (wall) { wall.muted = false; wall.volume = 0.5; wall.play().catch(() => { wall.muted = true; bus.release('elevator'); }); }
+    wall.muted = false; wall.volume = 0.5; wall.play().catch(() => { wall.muted = true; bus.release('elevator'); });
   };
   const hush = () => {
-    if (song) { const s = song; song = null; let v = s.volume; const f = setInterval(() => { v -= 0.08; if (v <= 0) { clearInterval(f); try { s.pause(); } catch (e) { } } else s.volume = v; }, 60); }
     if (wall) { try { wall.muted = true; } catch (e) { } }
     bus.release('elevator');
   };

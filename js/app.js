@@ -14,6 +14,8 @@ const TF_BY_FV = Object.fromEntries(TFRTA.posts.filter(p => p.fvId).map(p => [p.
 
 const FV = window.FV;
 const FVM = window.FVM || { albums: [], p: {}, v: {}, hq: '', atrium: '' };
+// the SOLACE spot, Pierce's own: 44 seconds aboard, a clip of the We're Grand show, and the jump in slow motion at the end (uploaded 2026-10-10)
+const SOLACE_SPOT = '6c593b_045f65e97136458dbd17c7e1de5b97fd';
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -502,7 +504,7 @@ function ptu() {
     title: 'Aboard SOLACE',
     html: `
     ${mast({
-      vid: FVM.atrium, kicker: 'The Pool Table Universe · Deck 4', title: 'Aboard SOLACE',
+      vid: SOLACE_SPOT, kicker: 'The Pool Table Universe · Deck 4', title: 'Aboard SOLACE',
       text: 'SOLACE is the cruise line that runs between all thirteen planets. You board on Deck 4, the excursion desk is on Deck 15, and Rick reviews the excuriences before you spend a single Wishbone.',
       btns: `<a class="ghost" href="#/ptu/planet-zee">Start at Planet Zee ${ARROW}</a><button class="ghost" id="rand" type="button">Take me somewhere</button>`,
     })}

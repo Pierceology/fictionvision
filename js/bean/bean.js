@@ -28,7 +28,7 @@ export const FACES = {
 };
 const abs = u => /^https?:|^data:/.test(u) ? u : new URL(u, document.baseURI).href;
 /* Pam: PamPhotoshop.png, the diner Pam at her counter under the sign. Her frame is the scene; her films start and end on it. */
-const PAM_STILL = 'https://static.wixstatic.com/media/6c593b_fdfd6e5873d44fd28b4adf464325e6a2~mv2.png/v1/fit/w_1600,h_900,q_85/p.png';
+const PAM_STILL = 'img/bean/pam-scene.webp';   // the idle film's own first frame, so the scene and the films are one picture (2026-10-10)
 /* her films, by key: Wix video ids as they come out of Flow (2026-10-09). A key with no id plays as words over her still. */
 export const FILMS = {
   // 2026-10-09: the clean set, shot from her one-cup frame at Veo quality and measured frame by frame before it counted
