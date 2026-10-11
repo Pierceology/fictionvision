@@ -31,43 +31,57 @@ const abs = u => /^https?:|^data:/.test(u) ? u : new URL(u, document.baseURI).hr
 const PAM_STILL = 'img/bean/pam-scene.webp';   // the idle film's own first frame, so the scene and the films are one picture (2026-10-10)
 /* her films, by key: Wix video ids as they come out of Flow (2026-10-09). A key with no id plays as words over her still. */
 export const FILMS = {
-  // 2026-10-09: the clean set, shot from her one-cup frame at Veo quality and measured frame by frame before it counted
-  idle: '6c593b_792c44f5c11e4f1abd048f6b51be7e88', give: '6c593b_6f2d64322c624cfca0ec750cb6bc1705',
-  slide: '6c593b_7cbe4e6cc1f347c5b3e4ab2de6de8df9', pour: '6c593b_cec9c63dc00c4bd785b02973cb1d31a1', face: '6c593b_c2529cde82e04c23b0c87335d9128f68', hand: '6c593b_eeb92cc63fdd491082f10cf03b6bee62', sip: '6c593b_1d39c8b27c5f4da3b5c0a6fcfddf9e20',
-  shrug: '6c593b_35e3ab2ae9544ba2ad7d5c0c9882c355', finger: '6c593b_57c1236579d24d17a4ea28d26770ba3d', sniff: '6c593b_eb31b07cb5e148568248ab1990dcb325', lid: '6c593b_fc878cca9b884cda85df83b827fd3d51', drop: '6c593b_707cd4f9f52c45e7a2be053c8898af6f',
-  stare: '6c593b_53c01de5c5684c1eade899a44057c93d', twirl: '6c593b_cd56d90c695b4f8190e116bd79301f33', count: '6c593b_afc0691a71c04f8282c331c1116725f5', wipe: '6c593b_c22a6e05d0aa4a39a4fcd0a03cae88da', two: '6c593b_1f3b5713363f4b28a3b97a09b791498c',
-  toast: '6c593b_7ea5650883654e789b630fe8e8fef18f', ceiling: '6c593b_c3d083c341914ec6adbf4a305ff38505', laugh: '6c593b_b71a5fdabec2419a8cab0ee78d3c000e', push: '6c593b_f808a6b5788e4aba8996a3a775d2f484', lamp: '6c593b_550703934f444622849212884f7eddcd',
+  // 2026-10-10: only the films Pierce kept on the review page (Keep / Not approved per film, read back from its db); nine were cut
+  idle: '6c593b_792c44f5c11e4f1abd048f6b51be7e88', give: '6c593b_6f2d64322c624cfca0ec750cb6bc1705', give2: '6c593b_1155bc3b4c374c428e8c1520efc34888',
+  pour: '6c593b_cec9c63dc00c4bd785b02973cb1d31a1', hand: '6c593b_eeb92cc63fdd491082f10cf03b6bee62', sip: '6c593b_1d39c8b27c5f4da3b5c0a6fcfddf9e20',
+  shrug: '6c593b_35e3ab2ae9544ba2ad7d5c0c9882c355', sniff: '6c593b_eb31b07cb5e148568248ab1990dcb325', stare: '6c593b_53c01de5c5684c1eade899a44057c93d',
+  twirl: '6c593b_cd56d90c695b4f8190e116bd79301f33', two: '6c593b_1f3b5713363f4b28a3b97a09b791498c', ceiling: '6c593b_c3d083c341914ec6adbf4a305ff38505',
+  laugh: '6c593b_b71a5fdabec2419a8cab0ee78d3c000e', push: '6c593b_f808a6b5788e4aba8996a3a775d2f484',
 };
 /* the twenty ways she does not hand it over, and the one time she does. The line lands as she moves, the aside as she comes back. */
-const ALMOST = [
-  { k: 'slide', pam: "Here you g— oh. That one's for the gentleman who's been here since Tuesday.", aside: 'It went left, toward Barry. Barry has been here since several Tuesdays.' },
+const ALMOST = [   // eleven, the ones Pierce kept (2026-10-10)
   { k: 'pour', pam: "I'm legally required to pour this one out. Planet Zee statute one-in-a-hundred.", aside: 'The counter is the most popular customer.' },
-  { k: 'face', pam: 'Quality check.', aside: 'She passed. The coffee did not.' },
   { k: 'hand', pam: 'Hold this. No, give it back. Policy.', aside: 'For one second it was warm.' },
   { k: 'sip', pam: "Let me make sure it's good.", aside: 'It was good.' },
   { k: 'shrug', pam: "Craig says no. I don't argue with Craig.", aside: 'Craig did not look up.' },
-  { k: 'finger', pam: 'No.', aside: 'The finger was polite about it.' },
   { k: 'sniff', pam: 'Hm. Let me check that one.', aside: 'She checked it. It was hers after all.' },
-  { k: 'lid', pam: 'Order up. Not yours.', aside: 'She slid it to Craig and back. Craig rang up the trip.' },
-  { k: 'drop', pam: 'Oops.', aside: 'Nobody moved. Nobody here ever moves.' },
   { k: 'stare', pam: '…', aside: 'She blinked once. That was the whole transaction.' },
   { k: 'twirl', pam: 'Was there something?', aside: 'There was. It was coffee. It was yours.' },
-  { k: 'count', pam: "You're ninety-six. Ninety-seven. Ninety-eight. Ninety-nine.", aside: 'A Zeeombie behind you crumbles a little, politely.' },
-  { k: 'wipe', pam: "Counter's wet. Can't serve on a wet counter.", aside: 'She wiped around the cup. The cup stayed hers.' },
   { k: 'two', pam: 'Both hands. Still no.', aside: 'She considered it with both hands. Both hands said no.' },
-  { k: 'toast', pam: 'To you.', aside: 'She meant it. She drank it.' },
   { k: 'ceiling', pam: 'Give me a second.', aside: 'The second has been going on since Tuesday.' },
   { k: 'laugh', pam: 'Ha.', aside: "That was the laugh. It's gone now." },
   { k: 'push', pam: 'This far. No further.', aside: 'She brought it over. She brought it back. That was the visit.' },
-  { k: 'lamp', pam: 'Hang on. Picturing a world where you got it.', aside: 'She pictured it. She opened her eyes. No.' },
 ];
 const WIN = { pam: "That's a coffee. That's an actual coffee. CRAIG.", aside: 'Craig rang it up. Barry stood. The line applauded, because a thing had happened.' };
-/* the euphoria: Pierce's own clips. The Planet Zee nebula behind, the aliens' disco in front, his zombies and the band floating through. */
+/* the euphoria (2026-10-10): the hit, the montage on the beat, then the float. Every clip is Pierce's own, from his libraries. */
 const TRIP = {
   sky: '0caac7_1ad5486d6a4e468085a5f03c1679f4dd',          // Planet Zee's nebula, from the Asteroid Show
   disco: '6c593b_d039e77764fb4c8cab94b3b64d26e2fc',        // aliens dancing under lasers
   floats: ['6c593b_848efa75153e463594cb32954850b167', '6c593b_8e01f70aaaef4430adffa4d43f10ff14', '6c593b_319ef0dbbf1f43859898065e2c6b03a1', '6c593b_b83415c9d2234dabac94b021f590f9d2', '6c593b_1a1e152c84ce4fca930b14d25b9e8d5b'],
   song: 'https://static.wixstatic.com/mp3/f08d21_c324c5edd2b84e20b2a926ccceb3ff13.mp3',   // "Pulse", Planet Zee Radio, Vol. 1
+  hit: '6c593b_a3182a06bc7040b3802ad6d1d0516dd0',          // Zombie Brew: SCREAM FOR YOUR CREAM
+  smoke: '6c593b_abef282565c447efb048ade54c8b33f9',        // green smoke rolling in
+  fire: '6c593b_a1b092584cb54e74a8f7b3a078707638',         // flames on black, lit over everything
+  wash: '6c593b_9f5a70e45b9644b389ef3acc6d279cf9',         // his retro colours, the trip layer
+  // the montage, in order: light = on black, lit over the sky; wide = a banner, shown whole
+  cuts: [
+    { id: '6c593b_127fa847c7df49e29c5766dd16da44c5' },                 // the beings, dancing
+    { id: '6c593b_02e3a036ea0d400bb2e3e7799d704d87', wide: 1 },        // the 753rd Planet Zee Beauty Pageant
+    { id: '6c593b_848efa75153e463594cb32954850b167' },                 // zombie one
+    { id: '6c593b_73afabfe66a44f2e8f95163f9259b7f1', light: 1 },       // DANCE, in neon
+    { id: '6c593b_f3250b9b96ff4d8787dcf9f693e8c63c' },                 // the beings' string section
+    { id: '6c593b_8e01f70aaaef4430adffa4d43f10ff14' },                 // zombie two
+    { id: '6c593b_a0134b02178c414a8edd35048809ea28', light: 1 },       // the robot in the shirt, dancing like a night
+    { id: '6c593b_79482a1e700843e08464c50db54f9f70' },                 // Planet Zee itself, molten, in a hand
+    { id: '6c593b_9153801ec9b84b9289002019c0bc9b17' },                 // the beings again
+    { id: '6c593b_319ef0dbbf1f43859898065e2c6b03a1' },                 // zombie three
+    { id: '6c593b_a79afa0b35784a178117cd9fb6fb2418', light: 1 },       // the dancing silhouettes
+    { id: '6c593b_b83415c9d2234dabac94b021f590f9d2' },                 // the guitar zombie
+    { id: '6c593b_39c7528dae6d4e9ea296433dd412d7a0' },                 // the universe, floating
+    { id: '6c593b_1a1e152c84ce4fca930b14d25b9e8d5b' },                 // the band
+    { id: '6c593b_d039e77764fb4c8cab94b3b64d26e2fc' },                 // the aliens' disco
+    { id: '6c593b_ef1e4bfb733646a588cbe60454428b4e', light: 1 },       // the robot again
+  ],
 };
 
 /* the living button: thin white outline, transparent inside, white text; width animates on 400ms; a narrator. */
@@ -100,6 +114,28 @@ function pingpong(v, isDead) {
   v.play().catch(() => { }); raf = requestAnimationFrame(tick);
   return () => cancelAnimationFrame(raf);
 }
+/* the beat of the song, read from the song itself: the file is fetched and decoded once, and every jump in energy that is at least
+   a quarter second after the last one is a beat. Null when the file cannot be read (then a clock at Pulse's tempo stands in). */
+async function beatMap(url) {
+  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+  const buf = await (await fetch(url, { mode: 'cors' })).arrayBuffer();
+  const ctx = new AC(); let audio; try { audio = await ctx.decodeAudioData(buf); } finally { try { ctx.close(); } catch (e) { } }
+  const ch = audio.getChannelData(0), sr = audio.sampleRate, W = 1024, N = Math.floor(ch.length / W);
+  const E = new Float32Array(N); for (let i = 0; i < N; i++) { let a = 0; for (let j = i * W, e = j + W; j < e; j++) a += ch[j] * ch[j]; E[i] = a / W; }
+  const beats = []; let avg = 0, last = -1;
+  for (let i = 0; i < N; i++) { const t = i * W / sr; avg = i < 20 ? (avg * i + E[i]) / (i + 1) : avg * 0.97 + E[i] * 0.03; if (E[i] > avg * 1.6 && E[i] > 1e-4 && t - last > 0.28) { beats.push(t); last = t; } }
+  return beats.length > 8 ? beats : null;
+}
+/* onBeat on every beat of the playing song, or on a 128 bpm clock when the beats are not known; returns the stop */
+function beatClock(song, beats, onBeat, isDead) {
+  let raf = 0, timer = 0, k = 0;
+  if (beats && song) {
+    const tick = () => { if (isDead()) return; raf = requestAnimationFrame(tick); const t = song.currentTime; while (k < beats.length && beats[k] <= t) { k++; if (t - beats[k - 1] < 0.25) onBeat(); } };
+    raf = requestAnimationFrame(tick);
+  } else { const T = 60000 / 128; const tick = () => { if (isDead()) return; onBeat(); timer = setTimeout(tick, T); }; timer = setTimeout(tick, T); }
+  return () => { cancelAnimationFrame(raf); clearTimeout(timer); };
+}
+const calmer = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* the deck: all twenty, shuffled, dealt one at a time; a new shuffle when it runs out, never starting on the card it just ended on */
 function shuffle(a) { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
 function deal(S) {
@@ -131,15 +167,21 @@ export function mount(root, slug) {
         <div class="say" id="beanSay" aria-live="polite"><span class="nm">Pam</span><p id="beanPam">What can I almost get you?</p><p class="aside" id="beanAside"></p></div>
         <div class="board"><span>Your orders <b id="beanOrders">${S.orders}</b></span><span>Your coffees <b id="beanWins">${S.wins}</b></span><span>The odds <b>1 in ${odds}</b></span></div>
         <div class="btnrow" id="beanBtn"></div>
-        ${test ? '<div class="sim"><button type="button" class="ghostbtn" id="beanSim">Run 1,000 customers</button><button type="button" class="ghostbtn" id="beanShowWin">Show me the win</button><span id="beanSimOut"></span></div>' : ''}
+        ${test ? '<div class="sim"><button type="button" class="ghostbtn" id="beanSim">Run 1,000 customers</button><button type="button" class="ghostbtn" id="beanShowWin">Show me the win</button><button type="button" class="ghostbtn" id="beanShowOld">Show me the old win</button><span id="beanSimOut"></span></div>' : ''}
       </div>
     </div>
     <div class="win" id="beanWin" hidden>
       <video class="sky" muted playsinline preload="none"></video>
+      <video class="wash" muted playsinline preload="none"></video>
       <div class="trip" aria-hidden="true"></div>
+      <div class="cuts" aria-hidden="true"></div>
+      <video class="hitv" muted playsinline preload="none"></video>
+      <video class="fx smoke" muted playsinline preload="none"></video>
+      <video class="fx fire light" muted playsinline preload="none"></video>
       <video class="disco" muted playsinline preload="none"></video>
       <div class="orbit" aria-hidden="true">${TRIP.floats.map((id, i) => `<div class="fl f${i + 1}"><video muted playsinline preload="none" data-id="${id}"></video></div>`).join('')}</div>
       <canvas class="confetti" aria-hidden="true"></canvas>
+      <div class="flash" aria-hidden="true"></div>
       <div class="wincopy"><span class="kicker">Customer #<b id="beanWinNo"></b></span><h2>YOU GOT<br>THE COFFEE</h2><p>One in a hundred. Planet Zee Radio is playing Pulse. The zombies are dancing for you, specifically.</p><div class="winbtn" id="beanWinBtn"></div></div>
     </div>
   </div>`;
@@ -216,33 +258,76 @@ export function mount(root, slug) {
     stage.classList.remove('serving');
   };
 
-  // ---- the euphoria
+  // ---- the euphoria. 'new' (2026-10-10): the flash and Zombie Brew with smoke and flames for eight beats, then the montage cut on the
+  // beat of Pulse, the floats arriving halfway, then everything at once. 'old': the float alone, kept so the two can be compared in test mode.
   let tripStops = [], song = null, confettiRaf = 0;
-  const celebrate = async () => {
-    const win = $('#beanWin', root); win.hidden = false; requestAnimationFrame(() => win.classList.add('on'));
+  const stopAll = () => { tripStops.forEach(f => { try { f(); } catch (e) { } }); tripStops = []; };
+  const celebrate = async (mode = 'new') => {
+    const win = $('#beanWin', root); win.hidden = false;
+    win.classList.remove('hit', 'montage', 'float', 'sipped', 'beat'); win.classList.toggle('v2', mode === 'new');
+    requestAnimationFrame(() => win.classList.add('on'));
     $('#beanWinNo', root).textContent = S.orders;
     const isDead = () => dead || win.hidden;
-    const sky = $('.sky', win), disco = $('.disco', win);
-    sky.src = vurl(TRIP.sky, 720); disco.src = vurl(TRIP.disco, 720);
-    tripStops.push(pingpong(sky, isDead), pingpong(disco, isDead));
-    win.querySelectorAll('.fl video').forEach((v, i) => { v.src = vurl(v.dataset.id, 480); setTimeout(() => { if (!isDead()) tripStops.push(pingpong(v, isDead)); }, 300 + i * 350); });
+    const q = innerWidth < 760 ? 480 : 720;
+    const sky = $('.sky', win), disco = $('.disco', win), wash = $('.wash', win), hit = $('.hitv', win), smoke = $('.smoke', win), fire = $('.fire', win), cutsEl = $('.cuts', win);
+    sky.src = vurl(TRIP.sky, q); tripStops.push(pingpong(sky, isDead));
+    let floated = false;
+    const floatsOn = () => {
+      if (floated) return; floated = true;
+      disco.src = vurl(TRIP.disco, q); tripStops.push(pingpong(disco, isDead));
+      win.querySelectorAll('.fl video').forEach((v, i) => { v.src = vurl(v.dataset.id, 480); setTimeout(() => { if (!isDead()) tripStops.push(pingpong(v, isDead)); }, 300 + i * 350); });
+    };
     // the song: Pulse, over everything else that was playing
-    try { bus.claim('bean'); song = new Audio(TRIP.song); song.volume = 0; song.play().then(() => { let v = 0; const f = setInterval(() => { v = Math.min(0.85, v + 0.05); song.volume = v; if (v >= 0.85 || isDead()) clearInterval(f); }, 80); }).catch(() => { }); } catch (e) { }
+    bus.claim('bean'); song = new Audio(TRIP.song); song.volume = 0;
+    const songOn = song.play().then(() => { let v = 0; const f = setInterval(() => { v = Math.min(0.85, v + 0.05); if (song) song.volume = v; if (v >= 0.85 || isDead()) clearInterval(f); }, 80); return true; }).catch(() => false);
     // confetti: coffee-coloured and gold, falling through it all
     const c = $('.confetti', win), ctx = c.getContext('2d'); const fit = () => { c.width = win.clientWidth; c.height = win.clientHeight; }; fit(); addEventListener('resize', fit);
-    const P = Array.from({ length: 160 }, () => ({ x: Math.random() * c.width, y: Math.random() * -c.height, r: 3 + Math.random() * 6, s: 1 + Math.random() * 3, a: Math.random() * 6.28, w: 0.02 + Math.random() * 0.06, col: ['#ffc857', '#fa6010', '#f1e7d6', '#6b4a2d', '#2ce880', '#39d2ff'][Math.floor(Math.random() * 6)] }));
-    const draw = () => { if (isDead()) return; ctx.clearRect(0, 0, c.width, c.height); for (const p of P) { p.y += p.s; p.a += p.w; p.x += Math.sin(p.a) * 0.8; if (p.y > c.height + 10) { p.y = -10; p.x = Math.random() * c.width; } ctx.fillStyle = p.col; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.r, p.r * Math.abs(Math.cos(p.a)) + 1, p.a, 0, 6.28); ctx.fill(); } confettiRaf = requestAnimationFrame(draw); };
+    const P = Array.from({ length: 160 }, () => ({ x: Math.random() * c.width, y: Math.random() * -c.height, r: 3 + Math.random() * 6, s: 1 + Math.random() * 3, a: Math.random() * 6.28, w: 0.02 + Math.random() * 0.06, col: ['#ffc857', '#fa6010', '#f1e9dc', '#6b3e1e', '#ff2d95'][Math.floor(Math.random() * 5)] }));
+    const draw = () => { if (isDead()) return; ctx.clearRect(0, 0, c.width, c.height); for (const p of P) { p.y += p.s; p.a += p.w; p.x += Math.sin(p.a) * 0.8; if (p.y > c.height + 10) { p.y = -10; p.x = Math.random() * c.width; } ctx.fillStyle = p.col; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.r, p.r * 0.6, p.a, 0, 6.28); ctx.fill(); } confettiRaf = requestAnimationFrame(draw); };
+    tripStops.push(() => { cancelAnimationFrame(confettiRaf); removeEventListener('resize', fit); });
     draw();
     sfx('win'); setTimeout(() => sfx('chime'), 500);
     document.dispatchEvent(new CustomEvent('fv:unlock', { detail: { key: 'brain-bean' } }));
+    if (mode === 'new' && !calmer()) {
+      // THE HIT: the flash, Zombie Brew, the smoke, the flames
+      hit.src = vurl(TRIP.hit, q); smoke.src = vurl(TRIP.smoke, 480); fire.src = vurl(TRIP.fire, 480);
+      win.classList.add('hit');
+      [hit, smoke, fire].forEach(v => { v.classList.add('on'); v.loop = true; v.play().catch(() => { }); });
+      // the cuts, loading while the hit plays
+      const cuts = TRIP.cuts.slice(0, innerWidth < 760 ? 10 : TRIP.cuts.length).map(k => { const v = document.createElement('video'); v.className = 'cut' + (k.light ? ' light' : '') + (k.wide ? ' wide' : ''); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.loop = true; v.src = vurl(k.id, 480); cutsEl.appendChild(v); return v; });
+      let n = 0, i = -1, held = 0, phase = 'hit';
+      const show = k => cuts.forEach((v, j) => { v.classList.toggle('on', j === k); if (j === k) { try { v.currentTime = 0; } catch (e) { } v.play().catch(() => { }); } else if (!v.paused) v.pause(); });
+      const toMontage = () => { if (phase !== 'hit') return; phase = 'montage'; win.classList.remove('hit'); win.classList.add('montage'); hit.classList.remove('on'); smoke.classList.remove('on'); };
+      const toFloat = () => { if (phase === 'float') return; phase = 'float'; win.classList.remove('montage'); win.classList.add('float'); cuts.forEach(v => v.classList.remove('on')); fire.classList.remove('on'); floatsOn(); setTimeout(() => cuts.forEach(v => { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) { } v.remove(); }), 1400); };
+      const onBeat = () => {
+        if (isDead() || phase === 'float') return;
+        n++; win.classList.add('beat'); setTimeout(() => win.classList.remove('beat'), 110);
+        if (phase === 'hit') { if (n >= 8) toMontage(); return; }
+        if (held > 0) { held--; return; }
+        i++;
+        if (i === 7) floatsOn();                                   // the floats come in halfway through the montage
+        if (i >= cuts.length) { toFloat(); return; }
+        show(i); held = i < 6 ? 1 : 0;                             // two beats a cut, then one
+      };
+      const ok = await songOn; if (isDead()) return;
+      const beats = ok ? await beatMap(TRIP.song).catch(() => null) : null;
+      if (isDead()) return;
+      tripStops.push(beatClock(ok ? song : null, beats, onBeat, isDead));
+      const t1 = setTimeout(toMontage, 6000), t2 = setTimeout(toFloat, 24000);   // whatever the song does, the montage starts by six seconds and ends by twenty-four
+      tripStops.push(() => { clearTimeout(t1); clearTimeout(t2); });
+    } else {
+      win.classList.add('float'); floatsOn();
+    }
+    wash.src = vurl(TRIP.wash, 480); tripStops.push(pingpong(wash, isDead));
     const host = $('#beanWinBtn', win); host.innerHTML = '';
     const wb = livingButton(host); wb.reserve(['Drink it', 'Back to the line']); wb.next('Drink it');
     wb.press(async () => { await wb.say('Tastes like everything at once.'); win.classList.add('sipped'); wb.next('Back to the line'); wb.press(async () => { await comeDown(); }); });
     const comeDown = async () => {
       if (song) { const s = song; song = null; let v = s.volume; const f = setInterval(() => { v -= 0.06; if (v <= 0) { clearInterval(f); try { s.pause(); } catch (e) { } } else s.volume = v; }, 60); }
       win.classList.remove('on'); await sleep(600); win.hidden = true;
-      tripStops.forEach(f => f()); tripStops = []; cancelAnimationFrame(confettiRaf); removeEventListener('resize', fit);
-      [sky, disco, ...win.querySelectorAll('.fl video')].forEach(v => { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) { } });
+      stopAll();
+      win.querySelectorAll('video').forEach(v => { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) { } v.classList.remove('on'); }); cutsEl.innerHTML = '';
+      win.classList.remove('hit', 'montage', 'float', 'v2', 'beat', 'sipped');
       bus.release('bean');
       pamReset(); pamEl.textContent = 'What can I almost get you?'; asideEl.textContent = ''; btn.next('Order a coffee'); btn.unlock();
     };
@@ -257,7 +342,8 @@ export function mount(root, slug) {
       S.wins++; S.dry = 0; save(); paint();
       stage.classList.add('serving');
       let started; const onFilm = new Promise(r => { started = r; });
-      const give = films.give ? pamPlay('give', started, { hold: true }) : null;
+      const gk = films.give2 && Math.random() < 0.5 ? 'give2' : 'give';   // the two gives he kept, at random
+      const give = films[gk] ? pamPlay(gk, started, { hold: true }) : null;
       if (give) { await onFilm; await sleep(1800); pamEl.textContent = WIN.pam; asideEl.textContent = ''; await sleep(2600); asideEl.textContent = WIN.aside; await give; }
       else { await sleep(700); pamEl.textContent = WIN.pam; asideEl.textContent = ''; await sleep(1600); asideEl.textContent = WIN.aside; await sleep(1400); }
       stage.classList.remove('serving');
@@ -274,12 +360,13 @@ export function mount(root, slug) {
       let w = 0; const N = 1000; for (let i = 0; i < N; i++) if (roll(odds)) w++;
       $('#beanSimOut', root).textContent = `${w} coffees in ${N} customers (expected about ${Math.round(N / odds)} at 1 in ${odds}). At the real 1 in 100, expect about 10.`;
     });
-    $('#beanShowWin', root).addEventListener('click', () => { btn.lock(); celebrate(); });
+    $('#beanShowWin', root).addEventListener('click', () => { btn.lock(); celebrate('new'); });
+    $('#beanShowOld', root).addEventListener('click', () => { btn.lock(); celebrate('old'); });
   }
   // the planet's own sound on arrival, if the sounds are on and the clips are there
   try { const z = MAZE_ASSETS && MAZE_ASSETS['planet-zee']; if (z && z.sounds) document.dispatchEvent(new CustomEvent('fv:sfx', { detail: { kind: 'planet', slug: 'planet-zee' } })); } catch (e) { }
   return () => {
-    dead = true; cancelAnimationFrame(idleRaf); cancelAnimationFrame(confettiRaf); tripStops.forEach(f => f());
+    dead = true; cancelAnimationFrame(idleRaf); cancelAnimationFrame(confettiRaf); stopAll();
     ['pointerdown', 'keydown', 'touchstart'].forEach(ev => removeEventListener(ev, kick)); document.removeEventListener('visibilitychange', kick);
     if (song) { try { song.pause(); } catch (e) { } song = null; bus.release('bean'); }
     try { Object.values(films).forEach(g => { g.pause(); g.removeAttribute('src'); g.load(); }); root.querySelectorAll('#beanWin video').forEach(v => { v.pause(); v.removeAttribute('src'); v.load(); }); } catch (e) { }

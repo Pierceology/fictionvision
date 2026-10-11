@@ -54,6 +54,7 @@
 .win .sky, .win .disco { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .win .sky { transform: scale(1.08); animation: beanSky 24s ease-in-out infinite alternate; }
 @keyframes beanSky { from { transform: scale(1.04) rotate(-1deg); } to { transform: scale(1.14) rotate(1.5deg); } }
+.win.v2 .trip { display: none; }
 .win .trip { position: absolute; inset: -20%; background: conic-gradient(from 0deg, rgba(255, 0, 128, .55), rgba(255, 200, 0, .55), rgba(0, 255, 160, .55), rgba(0, 160, 255, .55), rgba(170, 0, 255, .55), rgba(255, 0, 128, .55)); mix-blend-mode: screen; opacity: .55; animation: beanTrip 9s linear infinite, beanBreathe 3.1s ease-in-out infinite; filter: blur(40px); }
 @keyframes beanTrip { to { transform: rotate(360deg); } }
 @keyframes beanBreathe { 0%, 100% { opacity: .4; } 50% { opacity: .7; } }
@@ -66,7 +67,7 @@
 .win .f4 { right: 6%; bottom: 12%; --d: 7s; animation-delay: -1s; } .win .f5 { left: 50%; top: 4%; margin-left: calc(clamp(150px, 22vw, 340px) / -2); --d: 9s; animation-delay: -3s; }
 @keyframes beanFloat { from { transform: translateY(-14px) rotate(-3deg) scale(.98); } to { transform: translateY(16px) rotate(3deg) scale(1.04); } }
 .win .confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.win .wincopy { position: relative; z-index: 2; text-align: center; max-width: min(820px, 92vw); padding: 0 var(--gutter); text-shadow: 0 2px 24px rgba(0, 0, 0, .9), 0 0 60px rgba(0, 0, 0, .8); }
+.win .wincopy { position: relative; z-index: 9; text-align: center; max-width: min(820px, 92vw); padding: 0 var(--gutter); text-shadow: 0 2px 24px rgba(0, 0, 0, .9), 0 0 60px rgba(0, 0, 0, .8); }
 .win .kicker { display: block; font-size: var(--fs-small); letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
 .win h2 { margin: 0; font-size: clamp(44px, 9vw, 120px); line-height: .92; letter-spacing: .01em; color: #fff; animation: beanPulse 1.55s ease-in-out infinite; }
 @keyframes beanPulse { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(255, 200, 87, .5)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 30px rgba(255, 200, 87, .9)); } }
@@ -85,3 +86,33 @@
 .bean-art .odds small { font-size: .45em; font-weight: 500; opacity: .8; }
 .bean-art .ttl { position: absolute; z-index: 2; left: 6%; top: 9%; text-align: left; font: 700 clamp(16px, 7.2cqw, 36px)/.94 var(--display); letter-spacing: .02em; color: #fff; text-shadow: 0 2px 18px rgba(0, 0, 0, .8); }
 @container (max-width: 330px) { .bean-art .ttl { display: none; } }
+
+/* the new win (2026-10-10): the layers, bottom to top: sky, wash, cuts, the hit, smoke, flames, disco, floats, confetti, flash, copy */
+.win .sky { z-index: 0; }
+.win .wash { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; mix-blend-mode: overlay; opacity: 0; transition: opacity 1.4s; }
+.win.float .wash { opacity: .8; }
+.win .cuts { position: absolute; inset: 0; z-index: 2; }
+.win .cut, .win .hitv, .win .fx { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+.win .cut.on, .win .fx.on { opacity: 1; }
+.win .cut.light, .win .fx.light { mix-blend-mode: screen; }
+.win .cut.wide, .win .hitv { object-fit: contain; }
+.win .hitv { z-index: 3; }
+.win .hitv.on { opacity: 1; animation: beanSlam 3.8s cubic-bezier(.1, .8, .2, 1) forwards; }
+@keyframes beanSlam { 0% { transform: scale(1.5); } 12% { transform: scale(1); } 100% { transform: scale(1.12); } }
+.win .fx { z-index: 4; transition: opacity .6s; }
+.win .fx.smoke.on { opacity: .85; mix-blend-mode: screen; }
+.win .fx.fire.on { opacity: .9; }
+.win .disco { z-index: 5; }
+.win .orbit { z-index: 6; opacity: 0; transition: opacity 1s; }
+.win.float .orbit, .win.montage .orbit { opacity: 1; }
+.win:not(.v2) .orbit { opacity: 1; }
+.win .confetti { z-index: 7; }
+.win .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 8; }
+.win.hit .flash { animation: beanFlash .55s ease-out forwards; }
+@keyframes beanFlash { from { opacity: 1; } to { opacity: 0; } }
+.win.v2 .disco { opacity: 0; transition: opacity 1.2s; } .win.v2.float .disco { opacity: .78; }
+.win .wincopy { transition: transform .1s; } .win.beat .wincopy { transform: scale(1.03); }
+.win .fl video { transition: transform .1s; } .win.beat .fl video { transform: scale(1.06); }
+.win.hit h2, .win.montage h2 { font-size: clamp(52px, 11vw, 150px); }
+.win.hit p, .win.montage p { opacity: 0; } .win p { transition: opacity .8s; }
+@media (prefers-reduced-motion: reduce) { .win .hitv.on, .win.hit .flash { animation: none; } }
