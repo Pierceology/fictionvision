@@ -53,36 +53,34 @@ const ALMOST = [   // eleven, the ones Pierce kept (2026-10-10)
   { k: 'push', pam: 'This far. No further.', aside: 'She brought it over. She brought it back. That was the visit.' },
 ];
 const WIN = { pam: "That's a coffee. That's an actual coffee. CRAIG.", aside: 'Craig rang it up. Barry stood. The line applauded, because a thing had happened.' };
-/* the euphoria (2026-10-10): the hit, the montage on the beat, then the float. Every clip is Pierce's own, from his libraries. */
+/* the euphoria. The float (the old win) keeps the nebula, the disco and the five floating windows. The dance (2026-10-11, Pierce: "the old
+   version but fullscreen videos, fast paced") puts his dancers full screen and cuts between them on the beat of Pulse. */
 const TRIP = {
   sky: '0caac7_1ad5486d6a4e468085a5f03c1679f4dd',          // Planet Zee's nebula, from the Asteroid Show
   disco: '6c593b_d039e77764fb4c8cab94b3b64d26e2fc',        // aliens dancing under lasers
   floats: ['6c593b_848efa75153e463594cb32954850b167', '6c593b_8e01f70aaaef4430adffa4d43f10ff14', '6c593b_319ef0dbbf1f43859898065e2c6b03a1', '6c593b_b83415c9d2234dabac94b021f590f9d2', '6c593b_1a1e152c84ce4fca930b14d25b9e8d5b'],
   song: 'https://static.wixstatic.com/mp3/f08d21_c324c5edd2b84e20b2a926ccceb3ff13.mp3',   // "Pulse", Planet Zee Radio, Vol. 1
-  hit: '6c593b_a3182a06bc7040b3802ad6d1d0516dd0',          // Zombie Brew: SCREAM FOR YOUR CREAM
-  smoke: '6c593b_abef282565c447efb048ade54c8b33f9',        // green smoke rolling in
-  fire: '6c593b_a1b092584cb54e74a8f7b3a078707638',         // flames on black, lit over everything
-  wash: '6c593b_9f5a70e45b9644b389ef3acc6d279cf9',         // his retro colours, the trip layer
-  // the montage, in order: light = on black, lit over the sky; wide = a banner, shown whole
-  cuts: [
-    { id: '6c593b_127fa847c7df49e29c5766dd16da44c5' },                 // the beings, dancing
-    { id: '6c593b_02e3a036ea0d400bb2e3e7799d704d87', wide: 1 },        // the 753rd Planet Zee Beauty Pageant
-    { id: '6c593b_848efa75153e463594cb32954850b167' },                 // zombie one
-    { id: '6c593b_73afabfe66a44f2e8f95163f9259b7f1', light: 1 },       // DANCE, in neon
-    { id: '6c593b_f3250b9b96ff4d8787dcf9f693e8c63c' },                 // the beings' string section
-    { id: '6c593b_8e01f70aaaef4430adffa4d43f10ff14' },                 // zombie two
-    { id: '6c593b_a0134b02178c414a8edd35048809ea28', light: 1 },       // the robot in the shirt, dancing like a night
-    { id: '6c593b_79482a1e700843e08464c50db54f9f70' },                 // Planet Zee itself, molten, in a hand
-    { id: '6c593b_9153801ec9b84b9289002019c0bc9b17' },                 // the beings again
-    { id: '6c593b_319ef0dbbf1f43859898065e2c6b03a1' },                 // zombie three
-    { id: '6c593b_a79afa0b35784a178117cd9fb6fb2418', light: 1 },       // the dancing silhouettes
-    { id: '6c593b_b83415c9d2234dabac94b021f590f9d2' },                 // the guitar zombie
-    { id: '6c593b_39c7528dae6d4e9ea296433dd412d7a0' },                 // the universe, floating
-    { id: '6c593b_1a1e152c84ce4fca930b14d25b9e8d5b' },                 // the band
-    { id: '6c593b_d039e77764fb4c8cab94b3b64d26e2fc' },                 // the aliens' disco
-    { id: '6c593b_ef1e4bfb733646a588cbe60454428b4e', light: 1 },       // the robot again
-  ],
+  wash: '6c593b_9f5a70e45b9644b389ef3acc6d279cf9',         // his retro colours, the colour layer over the sky
 };
+/* the dancers, full screen: the eight Brain Bean zombie clips shot in Flow on 2026-10-11 (Veo 3.1, a chorus line with BRAIN BEAN cups) and
+   his six originals. Each clip was measured once (frame-to-frame motion at 12 fps): `peaks` are the seconds where its biggest moves
+   land, so a cut can start where the next big move falls on the next beat. Choreography by editing. The coffee zombies from Flow join here. */
+const DANCE = [
+  { id: '6c593b_f8a3952e1ab943f8847c781c5c659ea7', dur: 8, peaks: [3.42, 3.92, 4.5, 5.25] },   // Brain Bean zombies: the barista toast (Flow, 2026-10-11)
+  { id: '6c593b_499aaece47fc4bda80b1f100721e6c60', dur: 8, peaks: [1.08, 1.58, 1.92, 2.25, 2.92, 3.17, 3.92, 5.5, 6.08, 6.75, 7.33] },   // Brain Bean zombies: the dance-off, cups on heads (Flow, 2026-10-11)
+  { id: '6c593b_7e256ca099e7400d98cfb99fbe1f7fc1', dur: 8, peaks: [1.58, 3.92] },   // Brain Bean zombies: the overhead kaleidoscope (Flow, 2026-10-11)
+  { id: '6c593b_5ae53a3bb98b4291983e21045c31eff4', dur: 8, peaks: [2.42, 5.67, 6.67] },   // Brain Bean zombies: the body roll and the clap (Flow, 2026-10-11)
+  { id: '6c593b_fcf3b452cb7948a5a08d1aab1902870e', dur: 8, peaks: [1.83, 2.33, 3.0, 3.25, 3.67, 4.0, 4.83] },   // Brain Bean zombies: the confetti line (Flow, 2026-10-11)
+  { id: '6c593b_684c97c079584b1cbd55441c195e2651', dur: 8, peaks: [2.58, 3.42, 3.92, 5.92, 6.25, 7.25] },   // Brain Bean zombies: the gulp, arms up (Flow, 2026-10-11)
+  { id: '6c593b_4ad9cb9c146d4d0aae8f119b33f1684d', dur: 8, peaks: [2.25, 3.17, 4.0, 4.42, 4.92] },   // Brain Bean zombies: the shimmy, coffee flying (Flow, 2026-10-11)
+  { id: '6c593b_43b993b59e9c441e8128ce956fc090e3', dur: 8, peaks: [0.75, 1.33, 2.58, 3.5, 7.25] },   // Brain Bean zombies: the chorus line (Flow, 2026-10-11)
+  { id: '6c593b_848efa75153e463594cb32954850b167', dur: 5.3, peaks: [0.84, 1.35, 2.69, 3.2, 3.87, 4.71] },   // zombie one
+  { id: '6c593b_8e01f70aaaef4430adffa4d43f10ff14', dur: 10.7, peaks: [0.42, 0.75, 1.25, 1.67, 2.09, 3.51, 5.02, 5.43] },   // zombie two
+  { id: '6c593b_319ef0dbbf1f43859898065e2c6b03a1', dur: 5.3, peaks: [0.59, 0.93, 1.43, 1.93, 2.61, 3.03, 3.95, 4.29] },   // zombie three
+  { id: '6c593b_b83415c9d2234dabac94b021f590f9d2', dur: 10.7, peaks: [1.25, 1.67, 2.17, 3.09, 3.26, 3.68, 4.6, 8.61] },   // guitar zombie
+  { id: '6c593b_1a1e152c84ce4fca930b14d25b9e8d5b', dur: 20.5, peaks: [12.33, 12.67, 13.25, 13.5, 14.17, 14.58, 15.33, 15.83, 16.42, 17.25, 18.25, 18.75, 18.92, 19.25, 20.08] },   // the band
+  { id: '6c593b_d039e77764fb4c8cab94b3b64d26e2fc', dur: 10.5, peaks: [0.17, 1.0, 1.58, 2.0, 2.5, 3.42, 3.58, 4.83, 5.17, 5.92, 6.33, 8.42, 8.83, 9.25, 10.17] },   // aliens disco
+];
 
 /* the living button: thin white outline, transparent inside, white text; width animates on 400ms; a narrator. */
 function livingButton(host) {
@@ -114,25 +112,32 @@ function pingpong(v, isDead) {
   v.play().catch(() => { }); raf = requestAnimationFrame(tick);
   return () => cancelAnimationFrame(raf);
 }
-/* the beat of the song, read from the song itself: the file is fetched and decoded once, and every jump in energy that is at least
-   a quarter second after the last one is a beat. Null when the file cannot be read (then a clock at Pulse's tempo stands in). */
+/* the beat of the song, read from the song itself: the file is fetched and decoded once; every jump in energy at least a quarter second
+   after the last is an onset; the tempo is the median gap between onsets and the grid is phased to sit on as many onsets as it can.
+   Null when the file cannot be read (then a clock at Pulse's tempo stands in). */
 async function beatMap(url) {
   const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
   const buf = await (await fetch(url, { mode: 'cors' })).arrayBuffer();
   const ctx = new AC(); let audio; try { audio = await ctx.decodeAudioData(buf); } finally { try { ctx.close(); } catch (e) { } }
   const ch = audio.getChannelData(0), sr = audio.sampleRate, W = 1024, N = Math.floor(ch.length / W);
   const E = new Float32Array(N); for (let i = 0; i < N; i++) { let a = 0; for (let j = i * W, e = j + W; j < e; j++) a += ch[j] * ch[j]; E[i] = a / W; }
-  const beats = []; let avg = 0, last = -1;
-  for (let i = 0; i < N; i++) { const t = i * W / sr; avg = i < 20 ? (avg * i + E[i]) / (i + 1) : avg * 0.97 + E[i] * 0.03; if (E[i] > avg * 1.6 && E[i] > 1e-4 && t - last > 0.28) { beats.push(t); last = t; } }
-  return beats.length > 8 ? beats : null;
+  const on = []; let avg = 0, last = -1;
+  for (let i = 0; i < N; i++) { const t = i * W / sr; avg = i < 20 ? (avg * i + E[i]) / (i + 1) : avg * 0.97 + E[i] * 0.03; if (E[i] > avg * 1.6 && E[i] > 1e-4 && t - last > 0.28) { on.push(t); last = t; } }
+  if (on.length < 16) return null;
+  const gaps = on.slice(1).map((t, i) => t - on[i]).filter(g => g > 0.3 && g < 1.0).sort((a, b) => a - b);
+  if (!gaps.length) return null;
+  const period = gaps[Math.floor(gaps.length / 2)];
+  let best = 0, phase = 0;
+  for (let k = 0; k < 24; k++) { const ph = period * k / 24; let hits = 0; for (const t of on) { const d = Math.abs(((t - ph) % period + period) % period); if (Math.min(d, period - d) < 0.06) hits++; } if (hits > best) { best = hits; phase = ph; } }
+  return { period, phase, onsets: on.length };
 }
-/* onBeat on every beat of the playing song, or on a 128 bpm clock when the beats are not known; returns the stop */
-function beatClock(song, beats, onBeat, isDead) {
-  let raf = 0, timer = 0, k = 0;
-  if (beats && song) {
-    const tick = () => { if (isDead()) return; raf = requestAnimationFrame(tick); const t = song.currentTime; while (k < beats.length && beats[k] <= t) { k++; if (t - beats[k - 1] < 0.25) onBeat(); } };
+/* onBeat on every beat of the grid as the song plays, or on a 104 bpm clock when the song cannot be read; returns the stop */
+function beatClock(song, grid, onBeat, isDead) {
+  let raf = 0, timer = 0, n = -1;
+  if (grid && song) {
+    const tick = () => { if (isDead()) return; raf = requestAnimationFrame(tick); const t = song.currentTime; const k = Math.floor((t - grid.phase) / grid.period); if (k > n) { n = k; if (t - (grid.phase + k * grid.period) < 0.2) onBeat(); } };
     raf = requestAnimationFrame(tick);
-  } else { const T = 60000 / 128; const tick = () => { if (isDead()) return; onBeat(); timer = setTimeout(tick, T); }; timer = setTimeout(tick, T); }
+  } else { const T = 576; const tick = () => { if (isDead()) return; onBeat(); timer = setTimeout(tick, T); }; timer = setTimeout(tick, T); }
   return () => { cancelAnimationFrame(raf); clearTimeout(timer); };
 }
 const calmer = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -146,13 +151,13 @@ function deal(S) {
 
 export function mount(root, slug) {
   const test = slug === 'test';
-  const odds = test ? 5 : ODDS;
+  const odds = ODDS;   // the real odds in test mode too (Pierce, 2026-10-11); the win is on demand there anyway
   const S = { orders: store.get('orders', 0), wins: store.get('wins', 0), dry: store.get('dry', 0), deck: store.get('deck', null), last: store.get('last', '') };
   let dead = false;
   const filmKeys = Object.keys(FILMS).filter(k => FILMS[k]);
   root.innerHTML = `<div class="bean-page">
     <div class="bean-head"><span class="kicker">Planet Zee · Brain Bean Coffee</span><h1>BRAIN BEAN COFFEE</h1>
-      <p>One in a hundred customers gets the coffee. The wait has become the attraction.${test ? ' <b class="test">TEST MODE · 1 in 5</b>' : ''}</p></div>
+      <p>One in a hundred customers gets the coffee. The wait has become the attraction.${test ? ' <b class="test">TEST MODE</b>' : ''}</p></div>
     <div class="bean-stage">
       <div class="scene">
         <div class="pam-film" style="background-image:url(${PAM_STILL})">${filmKeys.map(k => `<video class="pamg${k === 'idle' ? ' on' : ''}" data-k="${k}" muted playsinline preload="${k === 'idle' ? 'auto' : 'metadata'}" src="${vurl(FILMS[k])}"></video>`).join('')}</div>
@@ -167,7 +172,7 @@ export function mount(root, slug) {
         <div class="say" id="beanSay" aria-live="polite"><span class="nm">Pam</span><p id="beanPam">What can I almost get you?</p><p class="aside" id="beanAside"></p></div>
         <div class="board"><span>Your orders <b id="beanOrders">${S.orders}</b></span><span>Your coffees <b id="beanWins">${S.wins}</b></span><span>The odds <b>1 in ${odds}</b></span></div>
         <div class="btnrow" id="beanBtn"></div>
-        ${test ? '<div class="sim"><button type="button" class="ghostbtn" id="beanSim">Run 1,000 customers</button><button type="button" class="ghostbtn" id="beanShowWin">Show me the win</button><button type="button" class="ghostbtn" id="beanShowOld">Show me the old win</button><span id="beanSimOut"></span></div>' : ''}
+        ${test ? '<div class="sim"><button type="button" class="ghostbtn" id="beanSim">Run 1,000 customers</button><button type="button" class="ghostbtn" id="beanSim2">Run 100,000 customers</button><button type="button" class="ghostbtn" id="beanShowWin">Show me the win</button><button type="button" class="ghostbtn" id="beanShowOld">Show me the old win</button><span id="beanSimOut"></span></div>' : ''}
       </div>
     </div>
     <div class="win" id="beanWin" hidden>
@@ -175,9 +180,6 @@ export function mount(root, slug) {
       <video class="wash" muted playsinline preload="none"></video>
       <div class="trip" aria-hidden="true"></div>
       <div class="cuts" aria-hidden="true"></div>
-      <video class="hitv" muted playsinline preload="none"></video>
-      <video class="fx smoke" muted playsinline preload="none"></video>
-      <video class="fx fire light" muted playsinline preload="none"></video>
       <video class="disco" muted playsinline preload="none"></video>
       <div class="orbit" aria-hidden="true">${TRIP.floats.map((id, i) => `<div class="fl f${i + 1}"><video muted playsinline preload="none" data-id="${id}"></video></div>`).join('')}</div>
       <canvas class="confetti" aria-hidden="true"></canvas>
@@ -258,25 +260,21 @@ export function mount(root, slug) {
     stage.classList.remove('serving');
   };
 
-  // ---- the euphoria. 'new' (2026-10-10): the flash and Zombie Brew with smoke and flames for eight beats, then the montage cut on the
-  // beat of Pulse, the floats arriving halfway, then everything at once. 'old': the float alone, kept so the two can be compared in test mode.
+  // ---- the euphoria. 'dance' (2026-10-11): his dancers full screen, cut on the beat of Pulse, fast: a beat a cut, half beats at the end
+  // of every bar, a two-beat hold now and then; each cut starts where the dancer's next big move lands on the next beat. 'old': the float
+  // alone (the nebula, the disco, the five windows), kept so the two can be compared in test mode.
   let tripStops = [], song = null, confettiRaf = 0;
   const stopAll = () => { tripStops.forEach(f => { try { f(); } catch (e) { } }); tripStops = []; };
-  const celebrate = async (mode = 'new') => {
+  const celebrate = async (mode = 'dance') => {
     const win = $('#beanWin', root); win.hidden = false;
-    win.classList.remove('hit', 'montage', 'float', 'sipped', 'beat'); win.classList.toggle('v2', mode === 'new');
+    win.classList.remove('float', 'dance', 'sipped', 'beat'); win.classList.toggle('v2', mode === 'dance');
     requestAnimationFrame(() => win.classList.add('on'));
     $('#beanWinNo', root).textContent = S.orders;
     const isDead = () => dead || win.hidden;
     const q = innerWidth < 760 ? 480 : 720;
-    const sky = $('.sky', win), disco = $('.disco', win), wash = $('.wash', win), hit = $('.hitv', win), smoke = $('.smoke', win), fire = $('.fire', win), cutsEl = $('.cuts', win);
+    const sky = $('.sky', win), disco = $('.disco', win), wash = $('.wash', win), cutsEl = $('.cuts', win);
     sky.src = vurl(TRIP.sky, q); tripStops.push(pingpong(sky, isDead));
-    let floated = false;
-    const floatsOn = () => {
-      if (floated) return; floated = true;
-      disco.src = vurl(TRIP.disco, q); tripStops.push(pingpong(disco, isDead));
-      win.querySelectorAll('.fl video').forEach((v, i) => { v.src = vurl(v.dataset.id, 480); setTimeout(() => { if (!isDead()) tripStops.push(pingpong(v, isDead)); }, 300 + i * 350); });
-    };
+    wash.src = vurl(TRIP.wash, 480); tripStops.push(pingpong(wash, isDead));
     // the song: Pulse, over everything else that was playing
     bus.claim('bean'); song = new Audio(TRIP.song); song.volume = 0;
     const songOn = song.play().then(() => { let v = 0; const f = setInterval(() => { v = Math.min(0.85, v + 0.05); if (song) song.volume = v; if (v >= 0.85 || isDead()) clearInterval(f); }, 80); return true; }).catch(() => false);
@@ -288,37 +286,51 @@ export function mount(root, slug) {
     draw();
     sfx('win'); setTimeout(() => sfx('chime'), 500);
     document.dispatchEvent(new CustomEvent('fv:unlock', { detail: { key: 'brain-bean' } }));
-    if (mode === 'new' && !calmer()) {
-      // THE HIT: the flash, Zombie Brew, the smoke, the flames
-      hit.src = vurl(TRIP.hit, q); smoke.src = vurl(TRIP.smoke, 480); fire.src = vurl(TRIP.fire, 480);
-      win.classList.add('hit');
-      [hit, smoke, fire].forEach(v => { v.classList.add('on'); v.loop = true; v.play().catch(() => { }); });
-      // the cuts, loading while the hit plays
-      const cuts = TRIP.cuts.slice(0, innerWidth < 760 ? 10 : TRIP.cuts.length).map(k => { const v = document.createElement('video'); v.className = 'cut' + (k.light ? ' light' : '') + (k.wide ? ' wide' : ''); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.loop = true; v.src = vurl(k.id, 480); cutsEl.appendChild(v); return v; });
-      let n = 0, i = -1, held = 0, phase = 'hit';
-      const show = k => cuts.forEach((v, j) => { v.classList.toggle('on', j === k); if (j === k) { try { v.currentTime = 0; } catch (e) { } v.play().catch(() => { }); } else if (!v.paused) v.pause(); });
-      const toMontage = () => { if (phase !== 'hit') return; phase = 'montage'; win.classList.remove('hit'); win.classList.add('montage'); hit.classList.remove('on'); smoke.classList.remove('on'); };
-      const toFloat = () => { if (phase === 'float') return; phase = 'float'; win.classList.remove('montage'); win.classList.add('float'); cuts.forEach(v => v.classList.remove('on')); fire.classList.remove('on'); floatsOn(); setTimeout(() => cuts.forEach(v => { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) { } v.remove(); }), 1400); };
+    const floatOn = () => {
+      win.classList.add('float');
+      disco.src = vurl(TRIP.disco, q); tripStops.push(pingpong(disco, isDead));
+      win.querySelectorAll('.fl video').forEach((v, i) => { v.src = vurl(v.dataset.id, 480); setTimeout(() => { if (!isDead()) tripStops.push(pingpong(v, isDead)); }, 300 + i * 350); });
+    };
+    if (mode === 'dance' && !calmer()) {
+      win.classList.add('dance');
+      const pool = DANCE.map(k => { const v = document.createElement('video'); v.className = 'cut'; v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = vurl(k.id, 480); cutsEl.appendChild(v); return { k, v }; });
+      let gap = 0.576, lastI = -1, nb = 0, pat = 0, hold = 0, ready = null, cur = null;
+      const BAR = [1, 1, 1, 1, 1, 1, 0.5, 0.5], BAR2 = [2, 1, 1, 1, 2, 1, 0.5, 0.5], LATE = [2, 2, 1, 1, 2, 2, 1, 1];
+      const pick = () => { let i; do { i = Math.floor(Math.random() * pool.length); } while (pool.length > 1 && i === lastI); lastI = i; return pool[i]; };
+      // a cut of `len` seconds, started so that one of the dancer's big moves lands one beat in
+      const prepare = len => {
+        const c = pick(), k = c.k;
+        const ok = k.peaks.filter(p => p - gap >= 0 && p - gap + len <= k.dur - 0.15);
+        const s = ok.length ? ok[Math.floor(Math.random() * ok.length)] - gap : Math.random() * Math.max(0, k.dur - len - 0.3);
+        try { c.v.currentTime = s; } catch (e) { }
+        return c;
+      };
+      const show = c => { pool.forEach(x => { if (x !== c) { x.v.classList.remove('on'); if (!x.v.paused) x.v.pause(); } }); c.v.classList.add('on'); c.v.play().catch(() => { }); cur = c; };
       const onBeat = () => {
-        if (isDead() || phase === 'float') return;
-        n++; win.classList.add('beat'); setTimeout(() => win.classList.remove('beat'), 110);
-        if (phase === 'hit') { if (n >= 8) toMontage(); return; }
-        if (held > 0) { held--; return; }
-        i++;
-        if (i === 7) floatsOn();                                   // the floats come in halfway through the montage
-        if (i >= cuts.length) { toFloat(); return; }
-        show(i); held = i < 6 ? 1 : 0;                             // two beats a cut, then one
+        if (isDead()) return;
+        nb++; win.classList.add('beat'); setTimeout(() => win.classList.remove('beat'), 100);
+        if (hold > 0) { hold--; return; }
+        const bar = nb > 64 ? LATE : (Math.floor(nb / 8) % 4 === 3 ? BAR2 : BAR);
+        const len = bar[pat % bar.length]; pat++;
+        if (len === 0.5) {
+          pat++;                                                   // the two halves of this beat
+          show(ready || prepare(gap / 2)); const half = prepare(gap / 2);
+          const t = setTimeout(() => { if (!isDead()) show(half); }, gap * 500); tripStops.push(() => clearTimeout(t));
+          ready = prepare(gap);
+        } else {
+          show(ready || prepare(gap * len)); hold = len - 1;
+          ready = prepare(gap * (bar[pat % bar.length] === 0.5 ? 0.5 : bar[pat % bar.length]));
+        }
       };
       const ok = await songOn; if (isDead()) return;
-      const beats = ok ? await beatMap(TRIP.song).catch(() => null) : null;
+      const grid = ok ? await beatMap(TRIP.song).catch(() => null) : null;
       if (isDead()) return;
-      tripStops.push(beatClock(ok ? song : null, beats, onBeat, isDead));
-      const t1 = setTimeout(toMontage, 6000), t2 = setTimeout(toFloat, 24000);   // whatever the song does, the montage starts by six seconds and ends by twenty-four
-      tripStops.push(() => { clearTimeout(t1); clearTimeout(t2); });
+      if (grid) gap = grid.period;
+      ready = prepare(gap); show(ready); ready = prepare(gap);
+      tripStops.push(beatClock(ok ? song : null, grid, onBeat, isDead));
     } else {
-      win.classList.add('float'); floatsOn();
+      floatOn();
     }
-    wash.src = vurl(TRIP.wash, 480); tripStops.push(pingpong(wash, isDead));
     const host = $('#beanWinBtn', win); host.innerHTML = '';
     const wb = livingButton(host); wb.reserve(['Drink it', 'Back to the line']); wb.next('Drink it');
     wb.press(async () => { await wb.say('Tastes like everything at once.'); win.classList.add('sipped'); wb.next('Back to the line'); wb.press(async () => { await comeDown(); }); });
@@ -327,7 +339,7 @@ export function mount(root, slug) {
       win.classList.remove('on'); await sleep(600); win.hidden = true;
       stopAll();
       win.querySelectorAll('video').forEach(v => { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) { } v.classList.remove('on'); }); cutsEl.innerHTML = '';
-      win.classList.remove('hit', 'montage', 'float', 'v2', 'beat', 'sipped');
+      win.classList.remove('float', 'dance', 'v2', 'beat', 'sipped');
       bus.release('bean');
       pamReset(); pamEl.textContent = 'What can I almost get you?'; asideEl.textContent = ''; btn.next('Order a coffee'); btn.unlock();
     };
@@ -356,11 +368,10 @@ export function mount(root, slug) {
   });
 
   if (test) {
-    $('#beanSim', root).addEventListener('click', () => {
-      let w = 0; const N = 1000; for (let i = 0; i < N; i++) if (roll(odds)) w++;
-      $('#beanSimOut', root).textContent = `${w} coffees in ${N} customers (expected about ${Math.round(N / odds)} at 1 in ${odds}). At the real 1 in 100, expect about 10.`;
-    });
-    $('#beanShowWin', root).addEventListener('click', () => { btn.lock(); celebrate('new'); });
+    const sim = N => { let w = 0; for (let i = 0; i < N; i++) if (roll(odds)) w++; $('#beanSimOut', root).textContent = `${w.toLocaleString()} coffees in ${N.toLocaleString()} customers at 1 in ${odds} (expect about ${(N / odds).toLocaleString()}, give or take ${Math.round(2 * Math.sqrt(N / odds))}).`; };
+    $('#beanSim', root).addEventListener('click', () => sim(1000));
+    $('#beanSim2', root).addEventListener('click', () => sim(100000));
+    $('#beanShowWin', root).addEventListener('click', () => { btn.lock(); celebrate('dance'); });
     $('#beanShowOld', root).addEventListener('click', () => { btn.lock(); celebrate('old'); });
   }
   // the planet's own sound on arrival, if the sounds are on and the clips are there

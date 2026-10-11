@@ -87,32 +87,17 @@
 .bean-art .ttl { position: absolute; z-index: 2; left: 6%; top: 9%; text-align: left; font: 700 clamp(16px, 7.2cqw, 36px)/.94 var(--display); letter-spacing: .02em; color: #fff; text-shadow: 0 2px 18px rgba(0, 0, 0, .8); }
 @container (max-width: 330px) { .bean-art .ttl { display: none; } }
 
-/* the new win (2026-10-10): the layers, bottom to top: sky, wash, cuts, the hit, smoke, flames, disco, floats, confetti, flash, copy */
+/* the dance (2026-10-11): the layers, bottom to top: sky, wash, the full-screen cuts, disco and the windows (the old float only), confetti, copy */
 .win .sky { z-index: 0; }
 .win .wash { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; mix-blend-mode: overlay; opacity: 0; transition: opacity 1.4s; }
-.win.float .wash { opacity: .8; }
-.win .cuts { position: absolute; inset: 0; z-index: 2; }
-.win .cut, .win .hitv, .win .fx { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
-.win .cut.on, .win .fx.on { opacity: 1; }
-.win .cut.light, .win .fx.light { mix-blend-mode: screen; }
-.win .cut.wide, .win .hitv { object-fit: contain; }
-.win .hitv { z-index: 3; }
-.win .hitv.on { opacity: 1; animation: beanSlam 3.8s cubic-bezier(.1, .8, .2, 1) forwards; }
-@keyframes beanSlam { 0% { transform: scale(1.5); } 12% { transform: scale(1); } 100% { transform: scale(1.12); } }
-.win .fx { z-index: 4; transition: opacity .6s; }
-.win .fx.smoke.on { opacity: .85; mix-blend-mode: screen; }
-.win .fx.fire.on { opacity: .9; }
-.win .disco { z-index: 5; }
-.win .orbit { z-index: 6; opacity: 0; transition: opacity 1s; }
-.win.float .orbit, .win.montage .orbit { opacity: 1; }
-.win:not(.v2) .orbit { opacity: 1; }
+.win.on .wash { opacity: .8; }
+.win .cuts { position: absolute; inset: 0; z-index: 2; transition: transform .08s; }
+.win .cut { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+.win .cut.on { opacity: 1; }
+.win.beat .cuts { transform: scale(1.03); }
+.win .disco { z-index: 5; } .win .orbit { z-index: 6; }
+.win.dance .disco, .win.dance .orbit { display: none; }
 .win .confetti { z-index: 7; }
-.win .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 8; }
-.win.hit .flash { animation: beanFlash .55s ease-out forwards; }
-@keyframes beanFlash { from { opacity: 1; } to { opacity: 0; } }
-.win.v2 .disco { opacity: 0; transition: opacity 1.2s; } .win.v2.float .disco { opacity: .78; }
 .win .wincopy { transition: transform .1s; } .win.beat .wincopy { transform: scale(1.03); }
-.win .fl video { transition: transform .1s; } .win.beat .fl video { transform: scale(1.06); }
-.win.hit h2, .win.montage h2 { font-size: clamp(52px, 11vw, 150px); }
-.win.hit p, .win.montage p { opacity: 0; } .win p { transition: opacity .8s; }
-@media (prefers-reduced-motion: reduce) { .win .hitv.on, .win.hit .flash { animation: none; } }
+.win.dance h2 { font-size: clamp(52px, 11vw, 150px); }
+.win.dance p { opacity: 0; } .win p { transition: opacity .8s; } .win.dance.sipped p { opacity: 1; }
