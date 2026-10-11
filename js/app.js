@@ -730,7 +730,7 @@ let showLoad = null;
 function loadShow() {
   if (!showLoad) showLoad = new Promise((res, rej) => {
     if (customElements.get('custom-asteroidshow')) return res();
-    const sc = document.createElement('script'); sc.src = new URL('patches/asteroid-show/patch.js', document.baseURI).href; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc);
+    const sc = document.createElement('script'); sc.src = new URL('patches/asteroid-show/patch.js?v=20261011', document.baseURI).href; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc);
   });
   return showLoad;
 }

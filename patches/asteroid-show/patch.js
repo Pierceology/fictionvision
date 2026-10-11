@@ -521,13 +521,25 @@ class AsteroidShow extends HTMLElement {
         90%  { opacity: 1; }
         100% { transform: translateX(100vw)  translateY(-70vh) translateZ(-20000px) scale(10.5) rotate(360deg); opacity: 0; }
       }
+        /* phones (2026-10-11): the desktop flight converges on the top-right corner, which on a 375px screen leaves only a streak in
+           that corner. Here the vanishing point sits mid-sky and the rocks rise from behind the horizon on one side, cross the
+           middle of the screen large, and shrink away up the other side. */
         @keyframes moveAsteroidMobile {
-        0%   { transform: translateX(-80vw)  translateY(65vh)  translateZ(500px)    scale(15)   rotate(0deg);   opacity: 1; }
-        90%  { opacity: 1; }
-        100% { transform: translateX(120vw)  translateY(-65vh) translateZ(-20000px) scale(10.5) rotate(360deg); opacity: 0; }
+        0%   { transform: translateX(-55vw) translateY(42vh)  translateZ(260px)   scale(6)   rotate(0deg);   opacity: 0; }
+        6%   { opacity: 1; }
+        88%  { opacity: 1; }
+        100% { transform: translateX(55vw)  translateY(-62vh) translateZ(-6500px) scale(4.5) rotate(300deg); opacity: 0; }
+      }
+        @keyframes moveAsteroidMobileR {
+        0%   { transform: translateX(55vw)  translateY(42vh)  translateZ(260px)   scale(6)   rotate(0deg);    opacity: 0; }
+        6%   { opacity: 1; }
+        88%  { opacity: 1; }
+        100% { transform: translateX(-55vw) translateY(-62vh) translateZ(-6500px) scale(4.5) rotate(-300deg); opacity: 0; }
       }
         @media (max-width: 768px) {
+        #container { perspective-origin: 50% 34%; }
         .asteroid { animation-name: moveAsteroidMobile; }
+        .asteroid.from-right { animation-name: moveAsteroidMobileR; }
         }
         /* the sky breathes with the hit */
         .nebula { transition: filter .09s ease-out; }
@@ -1203,7 +1215,7 @@ class AsteroidShow extends HTMLElement {
     const root = this.shadowRoot;
     const $ = (id) => root.getElementById(id);
     const $all = (sel) => Array.from(root.querySelectorAll(sel));
-        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+        const isMobile = /Mobi|Android/i.test(navigator.userAgent) || (window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
         
     // ── Performance / connection detection ──────────────────────────────────
     let performanceLevel = 'high';
@@ -1336,7 +1348,7 @@ class AsteroidShow extends HTMLElement {
     let musicMuted = false;
 
     const perfSettings = isMobile
-      ? { beatThreshold: 90, maxAsteroids: 20, asteroidSize: '50px', createDelay: 60, animDur: [2.2, 3.6] }
+      ? { beatThreshold: 90, maxAsteroids: 18, asteroidSize: '64px', createDelay: 60, animDur: [2.4, 3.8] }
       : { beatThreshold: 105, maxAsteroids: 32, asteroidSize: '100px', createDelay: 70, animDur: [1.8, 3.2] };
     // the beat is relative: a hit is bass well above its own running average, so a quiet song still throws rocks and a loud one does not throw them constantly (2026-10-08)
     let bassAvg = 0;
@@ -1549,8 +1561,9 @@ class AsteroidShow extends HTMLElement {
       div.style.width = div.style.height = perfSettings.asteroidSize;
       const dur = rnd(perfSettings.animDur[0], perfSettings.animDur[1]);
       div.style.animationDuration = dur + 's';
-      div.style.left = rnd(-100, window.innerWidth + 100) + 'px';
-      div.style.top = (isMobile ? rnd(window.innerHeight * 0.3, window.innerHeight * 0.7) : rnd(-100, window.innerHeight + 100)) + 'px';
+      if (isMobile && Math.random() < 0.5) div.classList.add('from-right');
+      div.style.left = (isMobile ? rnd(window.innerWidth * 0.15, window.innerWidth * 0.85) : rnd(-100, window.innerWidth + 100)) + 'px';
+      div.style.top = (isMobile ? rnd(window.innerHeight * 0.45, window.innerHeight * 0.8) : rnd(-100, window.innerHeight + 100)) + 'px';
       cont.appendChild(div);
       setTimeout(() => { try { div.remove(); } catch(e) {} }, dur * 1000);
     }

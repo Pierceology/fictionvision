@@ -739,6 +739,16 @@ body.ident-on .bar .brand .beams { opacity: 0; }
 .show-head .kicker { font-size: var(--fs-small); letter-spacing: .14em; text-transform: uppercase; color: var(--orange); text-shadow: 0 1px 6px #000; }
 .show-head b { font: 700 var(--fs-row)/1.1 var(--display); text-shadow: 0 1px 8px #000; }
 .show-wait { padding: clamp(40px, 8vw, 90px) var(--gutter); opacity: .7; }
+/* phones: the show is the whole screen and nothing moves but the rocks. The page is pinned (no scroll, no rubber band), the head is
+   just the way back so it never sits on the show's own controls, and the stage ignores stray touches. */
+@media (max-width: 760px) {
+  body.show-on { position: fixed; inset: 0; width: 100%; overflow: hidden; overscroll-behavior: none; }
+  body.show-on main { padding-bottom: 0; }
+  .show-page { min-height: calc(100dvh - var(--bar-h)); overflow: hidden; }
+  .show-head { top: calc(var(--bar-h) + 10px); left: 12px; max-width: calc(100vw - 130px); }
+  .show-head .kicker, .show-head b { display: none; }
+  .show-stage { touch-action: none; }
+}
 body.show-on #foot { display: none; }
 .show-art { position: absolute; inset: 0; overflow: hidden; background: #050812; }
 .show-art img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(1.15); }
