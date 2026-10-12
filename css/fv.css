@@ -44,7 +44,10 @@
 @media (min-width: 2200px) { :root { --n: 9; --nw: 6; } }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scrollbar-width: none; }
+html { -webkit-text-size-adjust: 100%; scrollbar-width: none; overflow-x: hidden; overscroll-behavior-x: none; }
+/* phones (2026-10-12): Safari zooms the whole page in when a text field under 16px is focused, and leaves it zoomed, so every page after
+   it pans around. No text field on this site is under 16px. */
+:where(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, select) { font-size: 16px; }
 html::-webkit-scrollbar { display: none; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
@@ -466,7 +469,7 @@ main { min-height: 100vh; }
 .sub-card h1 { margin: .25em 0 .3em; font-size: var(--fs-h1); line-height: 1.05; text-wrap: balance; }
 .sub-card p.help { margin: 0 0 1.2em; font-size: var(--fs-lead); line-height: 1.45; }
 .sub-card label { display: block; font-size: var(--fs-body); font-weight: 500; margin: 1em 0 .4em; }
-.sub-card input[type=text], .sub-card input[type=email], .sub-card textarea {
+.sub-card input[type=text], .sub-card input[type=email], .sub-card textarea { font-size: max(16px, var(--fs-body));
   width: 100%; font: 500 calc(var(--fs-body) * 1.2)/1.4 var(--ui); color: var(--ink); background: var(--bg-2); border: 1.5px solid rgba(255, 255, 255, .28); border-radius: 12px; padding: .8em 1em; outline: none; transition: border-color .15s;
 }
 .sub-card input::placeholder, .sub-card textarea::placeholder { color: rgba(255, 255, 255, .6); }

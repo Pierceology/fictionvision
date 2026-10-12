@@ -3,6 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <script>
+    // iPhone and iPad only: Safari's focus zoom is switched off (pinch zoom still works there), and if a page is ever left zoomed in, the
+    // next page change puts it back (2026-10-12, Pierce: "the board still moved around")
+    (function () {
+      var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (!ios) return;
+      var m = document.querySelector('meta[name="viewport"]');
+      var base = 'width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1';
+      m.setAttribute('content', base);
+      var reset = function () { if (window.visualViewport && window.visualViewport.scale > 1.02) { m.setAttribute('content', base + ', user-scalable=no'); setTimeout(function () { m.setAttribute('content', base); }, 60); } };
+      window.addEventListener('hashchange', function () { setTimeout(reset, 80); });
+      document.addEventListener('focusout', function () { setTimeout(reset, 200); });
+    })();
+  </script>
 <meta name="theme-color" content="#07070b">
 <title>FictionVision</title>
 <meta name="description" content="FictionVision is the streaming network of the Pool Table Universe, with ideas from anyone who has one.">
@@ -10,16 +24,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Outfit:wght@400..600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/fv.css?v=20261011b">
-<link rel="stylesheet" href="css/chess.css?v=20261011b">
-<link rel="stylesheet" href="css/maze.css?v=20261011b">
-<link rel="stylesheet" href="css/puzzle.css?v=20261011b">
-<link rel="stylesheet" href="css/bumper.css?v=20261011b">
-<link rel="stylesheet" href="css/trophy.css?v=20261011b">
-<link rel="stylesheet" href="css/clip.css?v=20261011b">
-<link rel="stylesheet" href="css/games2.css?v=20261011b">
-<link rel="stylesheet" href="css/tfrta.css?v=20261011b">
-<link rel="stylesheet" href="css/bean.css?v=20261011b">
+<link rel="stylesheet" href="css/fv.css?v=20261012">
+<link rel="stylesheet" href="css/chess.css?v=20261012">
+<link rel="stylesheet" href="css/maze.css?v=20261012">
+<link rel="stylesheet" href="css/puzzle.css?v=20261012">
+<link rel="stylesheet" href="css/bumper.css?v=20261012">
+<link rel="stylesheet" href="css/trophy.css?v=20261012">
+<link rel="stylesheet" href="css/clip.css?v=20261012">
+<link rel="stylesheet" href="css/games2.css?v=20261012">
+<link rel="stylesheet" href="css/tfrta.css?v=20261012">
+<link rel="stylesheet" href="css/bean.css?v=20261012">
 </head>
 <body>
 <a class="sr" href="#view">Skip to the titles</a>
@@ -52,6 +66,6 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="js/data.js"></script>
 <script src="js/music.js"></script>
-<script type="module" src="js/app.js?v=20261011b"></script>
+<script type="module" src="js/app.js?v=20261012"></script>
 </body>
 </html>
