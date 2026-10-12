@@ -6,7 +6,7 @@ import { bus } from './bus.js';
 import * as radio from './radio.js';
 import { otbCard, gameCards } from './cards.js';
 import * as solace from './bumper.js';
-import * as clippo from './clip.js';
+import * as agis from './pair.js?v=20261012d';   // AGI and ASI, the two guides; Clippo's list lives on inside them
 import * as sfx from './sfx.js';
 import { TFRTA } from './tfrta-data.js';
 import * as rick from './rick.js';
@@ -1217,5 +1217,5 @@ disc.visit();
 renderNav();
 route();
 ident();
-clippo.mount();
+agis.mount();
 sfx.mount();
