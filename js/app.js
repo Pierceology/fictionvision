@@ -91,12 +91,37 @@ const PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 const ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 const PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>';
 const ONDECK = `<span class="ondeck" title="On your list">${CHECK}</span>`;
+// ------------------------------------------------------------------ how many would watch: 4,000 across the whole catalogue (Pierce, 2026-10-12:
+// "spread the love"). Every title gets a floor; the rest goes by what it earned (tee-hees, pfffts, the top title of each genre, his originals),
+// with a fixed per-title jitter so nothing is round and the number is the same on every visit. It grows a little every day, and your own click adds one.
+const WATCH_TOTAL = 4000, WATCH_FLOOR = 8, WATCH_EPOCH = Date.UTC(2026, 9, 12);
+const h32 = str => { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+const WATCH = (() => {
+  const T = FV.titles || []; if (!T.length) return {};
+  const topOf = {}; T.forEach(t => { const g = t.genre || t.kind || '-'; const r = (t.teehees || 0) + (t.pffffts || 0) * 0.7; if (!topOf[g] || r > topOf[g].r) topOf[g] = { id: t.id, r }; });
+  const champs = new Set(Object.values(topOf).map(x => x.id));
+  const raw = {}; let sum = 0;
+  T.forEach(t => {
+    let w = 1 + (t.teehees || 0) * 0.9 + (t.pffffts || 0) * 0.6 + (champs.has(t.id) ? 3.5 : 0) + (t.src === 'original' ? 2.2 : 0) + (t.src === 'new' ? 0.6 : 0);
+    w *= 0.65 + (h32(t.id) % 1000) / 1000 * 0.8;      // jitter, 0.65 to 1.45
+    raw[t.id] = w; sum += w;
+  });
+  const pool = WATCH_TOTAL - WATCH_FLOOR * T.length, out = {}; let given = 0, top = T[0].id;
+  T.forEach(t => { const n = WATCH_FLOOR + Math.round(raw[t.id] / sum * pool); out[t.id] = n; given += n; if (n > out[top]) top = t.id; });
+  out[top] += WATCH_TOTAL - given;                       // the rounding goes to the leader, so the sum is exactly four thousand
+  return out;
+})();
+const watchDays = () => Math.max(0, (Date.now() - WATCH_EPOCH) / 864e5);
+function watchCount(id) { const base = WATCH[id] || 0; return base + Math.floor(watchDays() * base * 0.0028) + (list.has(id) ? 1 : 0); }
+const fmtN = n => n.toLocaleString('en-US');
+const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>';
+function wouldWatch(id) { return `<span class="wc" title="How many said they'd watch this">${EYE}<b>${fmtN(watchCount(id))}</b></span>`; }
 function watchBtn(id) { return `<button class="ghost watch" data-watch="${esc(id)}"></button>`; }
 function paintWatchBtn(b) {
   const on = list.has(b.dataset.watch);
   b.classList.toggle('on', on);
   b.setAttribute('aria-pressed', on);
-  b.innerHTML = on ? `${CHECK}<span>You'd watch this</span>` : `${PLUS}<span>I'd watch this</span>`;
+  b.innerHTML = (on ? `${CHECK}<span>You'd watch this</span>` : `${PLUS}<span>I'd watch this</span>`) + `<i class="wcn">${fmtN(watchCount(b.dataset.watch))}</i>`;
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-watch]');
@@ -130,12 +155,12 @@ function card(t, o = {}) {
   if (t.orient === 'l') {
     return `<a class="card t sl" href="#/t/${t.id}" data-id="${t.id}" style="--ar:${t.img.w}/${t.img.h};--c1:${t.img.c1}"${clone}>
       <span class="frame"><img class="poster" ${src}="${t.img.row}" alt="" width="${t.img.w}" height="${t.img.h}" loading="lazy" decoding="async" draggable="false">
-        <span class="panel"><i class="kick">${esc(t.genre || t.kind)}</i><b class="nm">${esc(t.title)}</b><i class="mt">${esc(t.kind)}</i>${rateBadge(t)}</span></span>${wl}</a>`;
+        <span class="panel"><i class="kick">${esc(t.genre || t.kind)}</i><b class="nm">${esc(t.title)}</b><i class="mt">${esc(t.kind)}</i>${rateBadge(t)}${wouldWatch(t.id)}</span></span>${wl}</a>`;
   }
   const sub = [w ? w.name : null, t.kind].filter(Boolean).join(' · ');
   const ic = w ? `<img src="${w.mark}" alt="" loading="lazy">` : '';
   return `<a class="card t p" href="#/t/${t.id}" data-id="${t.id}" style="--ce:${t.img.ce}"${clone}>
-    <span class="frame"><img class="poster" ${src}="${t.img.row}" alt="${esc(t.title)}" width="${t.img.w}" height="${t.img.h}" loading="lazy" decoding="async" draggable="false">${rateBadge(t)}</span>
+    <span class="frame"><img class="poster" ${src}="${t.img.row}" alt="${esc(t.title)}" width="${t.img.w}" height="${t.img.h}" loading="lazy" decoding="async" draggable="false">${rateBadge(t)}${wouldWatch(t.id)}</span>
     ${badgeHTML(t)}${o.xnum ? `<span class="xnum">Excurience ${t.slot}</span>` : ''}
     <span class="cap"><b>${esc(t.title)}</b><small>${ic}<span>${esc(sub)}</span></small></span>${wl}</a>`;
 }
@@ -758,6 +783,21 @@ function showPage(slug) {
     },
   };
 }
+// ---------- the fine print: credits, licences and the odds, out of the way, for anyone who wants to dig (Pierce, 2026-10-12)
+function info() {
+  return {
+    title: 'The fine print',
+    html: `<div class="page fine-page"><div class="page-head"><span class="kicker">For the diggers</span><h1>THE FINE PRINT</h1>
+      <p>Credits, licences and the odds. Out of the way on purpose; here for anyone who wants to look under the hood.</p></div>
+      <section class="fine" id="fineChessSec"><h2>Over the Board</h2><p>Chess against the thirteen beings of the Pool Table Universe. Each one plays its own way on top of an engine. The full credits and every licence:</p><div id="fineChess"><p class="empty">Loading the credits.</p></div></section>
+      <section class="fine"><h2>Brain Bean Coffee</h2><p>One in a hundred is an honest one in a hundred: a 32-bit random number from the browser, modulo 100, no streaks and no memory of your last order. <a href="#/games/brain-bean/test">Test mode</a> runs a thousand or a hundred thousand customers in front of you.</p></section>
+      <section class="fine"><h2>The counts</h2><p>"I'd watch this" tallies are kept per title and grow with the site. Yours is added the moment you tap it, and it stays on this device.</p></section>
+    </div>`,
+    after(root) {
+      import('./chess/credits.js').then(m => { const h = $('#fineChess', root); if (h) h.innerHTML = m.creditsHTML().replace('<details class="otb-credits">', '<details class="otb-credits" open>'); }).catch(() => { const h = $('#fineChess', root); if (h) h.innerHTML = '<p class="empty">The credits did not load.</p>'; });
+    },
+  };
+}
 function trophies() {
   const tr = FV.trophies, found = secretState();
   const live = tr.secret.filter(s => s.key);
@@ -1027,6 +1067,7 @@ function route() {
   else if (a === 'ideas') v = ideas(b);
   else if (a === 'list') v = myList();
   else if (a === 'trophies') v = trophies();
+  else if (a === 'info') v = info();
   else if (a === 'show') v = showPage(b);
   else if (a === 'games') v = games(b, parts[2]);
   else if (a === 'tfrta') v = b ? tfrtaPost(b) : tfrta();

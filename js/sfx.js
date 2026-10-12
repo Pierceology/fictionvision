@@ -98,7 +98,12 @@ export function planet(slug, o = {}) {
 }
 export function play(kind) { if (!on) return false; const f = SMALL[kind]; if (!f) return false; try { f(); } catch (e) { } return true; }
 export const isOn = () => on;
-export function set(v) { on = !!v; store.set(on); paint(); if (on) { warm(); play('chime'); } else if (clip) { try { clip.pause(); } catch (e) { } } }
+export function set(v) {
+  on = !!v; store.set(on); paint();
+  if (on) { warm(); play('chime'); } else if (clip) { try { clip.pause(); } catch (e) { } }
+  // the speaker in the bar is the one switch for every sound: the radio, the lullaby and the films listen (Pierce, 2026-10-12: "I can't get volume off")
+  document.dispatchEvent(new CustomEvent('fv:sound', { detail: { on } }));
+}
 
 /* ---- the switch in the top bar, and the listeners */
 let btn;

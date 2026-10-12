@@ -5,7 +5,6 @@ import { BEINGS, BY_ID, PIECE_NAME } from './beings.js';
 import { Engine } from './engine.js';
 import { Brain } from './brain.js';
 import * as fx from './fx.js';
-import { creditsHTML } from './credits.js';
 
 const CDN = {
   chess: 'https://cdn.jsdelivr.net/npm/chess.js@1.4.0/dist/esm/chess.js',
@@ -87,7 +86,7 @@ function ladderHTML() {
     <div class="otb-ladder">${BEINGS.map(card).join('')}</div>
     <div class="otb-foot">
       <button class="otb-preview" type="button" role="switch" aria-checked="${PROG.preview()}" id="otbPreview"><span class="knob" aria-hidden="true"></span><span>Preview mode: open all thirteen</span></button>
-      ${creditsHTML()}
+      <a class="otb-fine" href="#/info">Credits and licences are in the fine print</a>
     </div></div>`;
 }
 
@@ -135,7 +134,7 @@ function tableHTML(b) {
       </aside>
       <div class="otb-over" id="over" hidden role="region" aria-labelledby="overTitle"></div>
     </div>
-    <div class="otb-foot">${creditsHTML()}</div>
+    <div class="otb-foot"><a class="otb-fine" href="#/info">Credits and licences are in the fine print</a></div>
   </div>`;
 }
 

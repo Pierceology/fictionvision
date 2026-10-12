@@ -223,5 +223,6 @@ export function mount(root) {
   };
 }
 export function muteAll() { stages.forEach(s => s.soundOn && s.sound(false)); }
+document.addEventListener('fv:sound', e => { if (e.detail && e.detail.on === false) muteAll(); });
 bus.onTakeover = muteAll;
 export function anySound() { for (const s of stages) if (s.soundOn) return true; return false; }

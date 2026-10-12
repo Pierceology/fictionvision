@@ -210,3 +210,5 @@ body.has-player .otb-foot { padding-bottom: 96px; }
 /* the header has one more link now (Games): on a narrow laptop, the "I'd watch" label gives way so nothing is pushed off the bar */
 @media (min-width: 901px) and (max-width: 1040px) { .bar .mylist-link .lbl { display: none; } }
 @media (min-width: 901px) and (max-width: 940px) { .bar nav { gap: 10px; } }
+.otb-fine { display: inline-block; margin-top: 10px; font-size: var(--fs-small); opacity: .7; border-bottom: 1px solid rgba(255, 255, 255, .35); }
+.otb-fine:hover { opacity: 1; }

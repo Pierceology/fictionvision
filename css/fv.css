@@ -224,6 +224,14 @@ main { min-height: 100vh; }
 
 /* ---------------------------------------------------------------- dots (TEE-HEEs) */
 /* Rick's rating on every poster, as you'd expect: gold dots and the count, a pill in the corner */
+.card .wc { position: absolute; right: 6px; bottom: 6px; z-index: 2; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px 4px 7px; border-radius: 999px; background: rgba(0, 0, 0, .66); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); font: 600 11px/1 var(--ui); color: #fff; letter-spacing: .02em; }
+.card .wc svg { width: 13px; height: 13px; opacity: .85; }
+.card.t.sl .panel .wc { position: static; margin-top: 6px; width: max-content; }
+.watch .wcn { margin-left: .5em; padding-left: .55em; border-left: 1px solid rgba(255, 255, 255, .35); font-style: normal; font-weight: 600; font-variant-numeric: tabular-nums; }
+.fine-page .fine { max-width: 880px; margin: 0 auto 34px; }
+.fine-page .fine h2 { margin: 0 0 8px; font-size: clamp(22px, 2.6vw, 30px); }
+.fine-page .fine p { max-width: 70ch; line-height: 1.55; }
+.fine-page .fine a { border-bottom: 1px solid rgba(255, 255, 255, .4); }
 .card .rt { position: absolute; left: 6px; bottom: 6px; z-index: 2; display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px 4px 6px; border-radius: 999px; background: rgba(0, 0, 0, .66); backdrop-filter: blur(4px); color: var(--gold); font: 600 clamp(8px, 2.8cqw, 11px)/1 var(--ui); letter-spacing: .06em; white-space: nowrap; pointer-events: none; }
 .card .rt .dots { gap: 2px; } .card .rt .dots i { width: .72em; height: .72em; box-shadow: 0 0 5px rgba(255, 200, 87, .55); }
 .card .rt.pf { color: #ff9b7a; } .card .rt.pf .dots i { background: #ff9b7a; box-shadow: none; } .card .rt.pf .dots i.off { background: rgba(255, 155, 122, .25); }
@@ -620,15 +628,18 @@ main { transition: transform 1s; }
 
 /* ---------------------------------------------------------------- the player: a pill on a laptop, a bar on a phone */
 /* the player stays reachable while SOLACE's doors are on screen: above the elevator, below nothing that needs a tap (Pierce, 2026-10-08: "i play the radio and go to other pages but can't control the radio") */
-.fvp { position: fixed; z-index: 130; right: clamp(12px, 1.6vw, 28px); bottom: clamp(12px, 1.6vw, 28px); width: 360px; max-width: calc(100vw - 24px); }
+/* the mini radio (2026-10-12, Pierce: "a cool side panel attached center side when exploring so you can always get to controls"): a tab
+   on the right edge, halfway down, on every page from the first; tap it and the radio slides in from that side */
+.fvp { position: fixed; z-index: 130; right: 0; top: calc(50% - 90px); width: 60px; }   /* no transform here: the panel inside is fixed to the screen */
 .fvp[hidden] { display: none; }
-.fvp-bar { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; height: 64px; padding-right: 6px; border-radius: 14px; overflow: hidden; background: rgba(13, 13, 20, .96); border: 1px solid rgba(255, 255, 255, .2); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 18px 40px -16px #000; }
-.fvp-main { display: flex; align-items: center; gap: 10px; min-width: 0; height: 100%; padding: 0 8px; text-align: left; }
-.fvp-cover { flex: none; width: 48px; height: 48px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 0 1px rgba(255, 255, 255, .18); }
-.fvp-meta { display: grid; min-width: 0; gap: 1px; }
-.fvp-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 14.5px/1.2 var(--ui); }
-.fvp-s { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 400 12.5px/1.2 var(--ui); font-style: normal; }
-.fvp-btn { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: #fff; transition: background .15s; }
+.fvp-bar { position: relative; display: grid; justify-items: center; gap: 4px; width: 60px; padding: 10px 0 8px; border-radius: 18px 0 0 18px; overflow: hidden; background: rgba(13, 13, 20, .96); border: 1px solid rgba(255, 255, 255, .22); border-right: 0; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 18px 40px -16px #000; }
+.fvp-main { display: grid; justify-items: center; min-width: 0; width: 100%; padding: 0; text-align: center; }
+.fvp-cover { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px rgba(255, 255, 255, .18); }
+.fvp-ico { display: none; width: 42px; height: 42px; border-radius: 50%; place-items: center; background: rgba(255, 255, 255, .1); color: #fff; }
+.fvp-ico svg { width: 22px; height: 22px; }
+.fvp.idle .fvp-cover { display: none; } .fvp.idle .fvp-ico { display: grid; }
+.fvp-meta, .fvp-nx { display: none; }
+.fvp-btn { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; color: #fff; transition: background .15s; }
 .fvp-btn svg { width: 22px; height: 22px; }
 .fvp-btn:hover { background: rgba(255, 255, 255, .14); }
 .fvp-btn:disabled { opacity: .35; pointer-events: none; }
@@ -636,13 +647,26 @@ main { transition: transform 1s; }
 .fvp-btn.big:hover { background: #e8e8ee; }
 .fvp-btn.big svg { width: 28px; height: 28px; }
 .fvp-btn[hidden] { display: none; }
+.fvp-ex { width: 30px; height: 26px; opacity: .8; }
+.fvp-ex svg { transform: rotate(90deg); }
+.fvp.open .fvp-ex svg { transform: rotate(-90deg); }
 .fvp-prog { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255, 255, 255, .16); }
 .fvp-prog b { display: block; height: 100%; background: var(--green); transform-origin: 0 50%; transform: scaleX(0); }
-.fvp.amb .fvp-prog { display: none; }
+.fvp.amb .fvp-prog, .fvp.idle .fvp-prog { display: none; }
 .fvp.playing .fvp-cover { box-shadow: 0 0 0 1px rgba(44, 232, 128, .7), 0 0 14px rgba(44, 232, 128, .4); }
-.fvp-sheet { position: absolute; right: 0; bottom: calc(100% + 10px); width: min(400px, calc(100vw - 24px)); max-height: min(700px, calc(100vh - var(--bar-h) - 120px)); overflow-y: auto; scrollbar-width: none; border-radius: 16px; background: #0d0d14; border: 1px solid rgba(255, 255, 255, .2); box-shadow: 0 30px 70px -20px #000; }
+.fvp-sheet { position: fixed; top: var(--bar-h); right: 0; bottom: 0; width: min(390px, 92vw); overflow-y: auto; scrollbar-width: none; border-radius: 0; background: #0d0d14; border-left: 1px solid rgba(255, 255, 255, .2); box-shadow: -30px 0 70px -20px #000; padding-bottom: env(safe-area-inset-bottom, 0px); }
 .fvp-sheet::-webkit-scrollbar { display: none; }
 .fvp-sheet[hidden] { display: none; }
+.fvp.open .fvp-bar { visibility: hidden; }
+.np-off { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 14px; margin: 6px 0 10px; }
+.np-stop { padding: .5em 1.1em; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .3); font-size: 13.5px; font-weight: 500; }
+.np-stop:hover { border-color: var(--orange); color: var(--orange); }
+.np-vol { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; font-size: 12px; }
+.np-vol input { width: 100%; accent-color: var(--green); height: 20px; }
+.np-go { display: inline-flex; align-items: center; gap: 8px; padding: .6em 1.2em; border-radius: 999px; background: #fff; color: #111; font-weight: 600; }
+.np-go svg { width: 18px; height: 18px; }
+.np-go.ghosted { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, .35); }
+.np-note.small { font-size: 12.5px; opacity: .7; }
 .np-head { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; padding: 10px 10px 6px 16px; background: linear-gradient(180deg, #0d0d14 70%, rgba(13, 13, 20, 0)); }
 .np-body { padding: 4px 16px 18px; }
 .np-vid { border-radius: 10px; }
@@ -667,17 +691,8 @@ main { transition: transform 1s; }
 .np-strip button:hover { opacity: 1; transform: translateY(-2px); }
 .np-strip button[aria-current="true"] { opacity: 1; box-shadow: 0 0 0 2px var(--green); }
 .np-strip img { width: 100%; height: 100%; object-fit: cover; }
-body.has-player footer.site { padding-bottom: 100px; }
 @media (max-width: 700px) {
-  .fvp { left: 0; right: 0; bottom: 0; width: auto; max-width: none; padding-bottom: env(safe-area-inset-bottom, 0px); background: rgba(13, 13, 20, .98); border-top: 1px solid rgba(255, 255, 255, .2); }
-  .fvp-bar { height: 56px; border-radius: 0; border: 0; box-shadow: none; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
-  .fvp-cover { width: 40px; height: 40px; }
-  .fvp-btn { width: 44px; height: 44px; }
-  .fvp-sheet { position: fixed; inset: 0; width: auto; max-height: none; border-radius: 0; border: 0; z-index: 62; padding-top: env(safe-area-inset-top, 0px); }
-  .fvp.open .fvp-bar { visibility: hidden; }
-  body.has-player { padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
-  body.has-player footer.site { padding-bottom: 24px; }
-  body.has-player .toast { bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+  .fvp-sheet { width: 100vw; left: 0; z-index: 62; }
   body.np-open { overflow: hidden; }
 }
 

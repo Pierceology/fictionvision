@@ -26,6 +26,7 @@ export const album = slug => A[slug];
 export const songCount = a => playable(a).length;
 
 const I = {
+  note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>',
   play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>',
   pause: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h3.6v14H7zm6.4 0H17v14h-3.6z"/></svg>',
   next: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5.5v13l9-6.5zM16.5 5h2.5v14h-2.5z"/></svg>',
@@ -39,6 +40,8 @@ const S = {
   mode: null,            // 'radio' | 'ambient' | null
   slug: null, i: 0,      // the station and the song in it
   playing: false,        // the radio is audibly going
+  vol: 1,                // the radio's volume where the browser allows one
+  silenced: null,        // what was playing when the speaker in the bar was switched off
   ambOn: false, ambSlug: null, ambCur: 0, ambOK: false,
   planet: null,          // the planet of the page you are on, if it has one
   last: ls.get('lastPlanet', null),
@@ -103,7 +106,7 @@ export function startAlbum(slug, i = 0) {
 function load(play) {
   const t = cur(); if (!t) return;
   el.r.src = mp3(t.u);
-  if (volOK) el.r.volume = 1;
+  if (volOK) el.r.volume = S.vol;
   S.preFor = '';
   if (play) { const p = el.r.play(); if (p && p.catch) p.catch(() => { S.playing = false; paint(); }); }
   paint(); session();
@@ -181,6 +184,30 @@ export function stopAmbient(quiet) {
   if (!quiet) { paint(); session(); }
 }
 export function toggleAmbient() { S.ambOn ? stopAmbient() : startAmbient(); }
+/* everything off: the radio and the lullaby stop, the dock goes idle */
+export function stopAll() {
+  if (S.ambOn) stopAmbient(true);
+  if (el.r && !el.r.paused) el.r.pause();
+  S.mode = null; S.playing = false; S.ducked = null; S.silenced = null;
+  if (ui) ui.sheet.dataset.key = '';
+  paint(); if (S.sheet) paintSheet(true);
+}
+export function setVolume(v) { S.vol = clamp(v, 0, 1); if (el.r && volOK) el.r.volume = S.vol; }
+/* the speaker in the bar: off silences the radio and the lullaby and remembers them; on brings back what was playing */
+document.addEventListener('fv:sound', e => {
+  const on = !!(e.detail && e.detail.on);
+  if (!on) {
+    if (!S.mode) return;
+    S.silenced = { mode: S.mode, ambOn: S.ambOn, ambSlug: S.ambSlug, playing: S.playing || !!(el.r && !el.r.paused) };
+    if (S.ambOn) stopAmbient(true);
+    if (el.r && !el.r.paused) el.r.pause();
+    paint();
+  } else {
+    const was = S.silenced; S.silenced = null; if (!was) return;
+    if (was.mode === 'ambient' && was.ambOn) startAmbient(was.ambSlug || undefined);
+    else if (was.mode === 'radio' && was.playing && el.r) { const p = el.r.play(); if (p && p.catch) p.catch(() => { }); }
+  }
+});
 
 // the page you are on has a planet (or none): the lullaby follows
 export function setPlanet(slug) {
@@ -201,7 +228,7 @@ bus.onFirstClaim = () => {
 };
 bus.onLastRelease = () => {
   const d = S.ducked; S.ducked = null;
-  if (d === 'radio' && S.mode === 'radio') { if (volOK) el.r.volume = 0; const p = el.r.play(); if (p && p.catch) p.catch(() => { }); fade(el.r, 1, 700); }
+  if (d === 'radio' && S.mode === 'radio') { if (volOK) el.r.volume = 0; const p = el.r.play(); if (p && p.catch) p.catch(() => { }); fade(el.r, S.vol, 700); }
   else if (d === 'ambient' && S.mode === 'ambient' && S.ambOn) amb(S.ambSlug || S.planet || S.last || 'planet-zee', true);
   paint();
 };
@@ -231,7 +258,7 @@ function ensureUI() {
   const d = document.createElement('div');
   d.className = 'fvp'; d.id = 'fvp'; d.setAttribute('role', 'region'); d.setAttribute('aria-label', 'Music player');
   d.innerHTML = `<div class="fvp-bar">
-      <button class="fvp-main" id="fvpOpen" type="button" aria-expanded="false" aria-controls="fvpSheet" aria-label="Open the player"><img class="fvp-cover" alt="" width="48" height="48"><span class="fvp-meta"><b class="fvp-t"></b><i class="fvp-s"></i></span></button>
+      <button class="fvp-main" id="fvpOpen" type="button" aria-expanded="false" aria-controls="fvpSheet" aria-label="Open the radio"><span class="fvp-ico" aria-hidden="true">${I.note}</span><img class="fvp-cover" alt="" width="48" height="48"><span class="fvp-meta"><b class="fvp-t"></b><i class="fvp-s"></i></span></button>
       <button class="fvp-btn" id="fvpPlay" type="button" aria-label="Pause">${I.pause}</button>
       <button class="fvp-btn fvp-nx" id="fvpNext" type="button" aria-label="Next song">${I.next}</button>
       <button class="fvp-btn fvp-ex" id="fvpExp" type="button" aria-label="Expand the player">${I.up}</button>
@@ -243,7 +270,7 @@ function ensureUI() {
     root: d, bar: d.querySelector('.fvp-bar'), sheet: d.querySelector('#fvpSheet'), cover: d.querySelector('.fvp-cover'), t: d.querySelector('.fvp-t'), s: d.querySelector('.fvp-s'),
     play: d.querySelector('#fvpPlay'), next: d.querySelector('#fvpNext'), exp: d.querySelector('#fvpExp'), open: d.querySelector('#fvpOpen'), prog: d.querySelector('.fvp-prog b'), killVideo: null,
   };
-  ui.play.addEventListener('click', toggle);
+  ui.play.addEventListener('click', () => { if (!S.mode) playRadio(); else toggle(); });
   ui.next.addEventListener('click', () => { if (S.mode === 'radio') next(); });
   ui.open.addEventListener('click', () => sheet(!S.sheet));
   ui.exp.addEventListener('click', () => sheet(!S.sheet));
@@ -270,7 +297,21 @@ function paintSheet(rebuild) {
   if (!ui || !S.sheet) return;
   const amb = S.mode === 'ambient';
   const slug = amb ? S.ambSlug : S.slug;
-  const a = A[slug]; if (!a) return;
+  const a = S.mode ? A[slug] : null;
+  if (!a) {      // nothing playing: the panel offers the radio and the lullaby, and every station
+    if (ui.sheet.dataset.key !== 'idle') {
+      if (ui.killVideo) { ui.killVideo(); ui.killVideo = null; }
+      ui.sheet.dataset.key = 'idle';
+      ui.sheet.innerHTML = `<header class="np-head"><span class="kicker">PTU Radio HQ</span><button type="button" class="fvp-btn" id="npClose" aria-label="Close the radio">${I.down}</button></header>
+        <div class="np-body"><p class="np-note">Thirteen stations, one for each planet, and a lullaby that follows you from page to page.</p>
+        <div class="np-ctl"><button type="button" class="np-go" data-radio>${I.play}<span>Play the radio</span></button><button type="button" class="np-go ghosted" data-ambient><span>Ambient on</span></button></div>
+        <div class="np-strip" aria-label="Stations">${M.albums.map(b => `<button type="button" data-station="${b.slug}" aria-label="${esc(b.name)}"><img src="${b.coverS}" alt="" width="64" height="64" loading="lazy"></button>`).join('')}</div>
+        <p class="np-note small">The speaker in the top bar is the one switch for every sound on the site.</p></div>`;
+      ui.sheet.querySelector('#npClose').addEventListener('click', () => sheet(false));
+      ui.sheet.querySelector('.np-strip').addEventListener('click', e => { const b = e.target.closest('[data-station]'); if (b) startAlbum(b.dataset.station, 0); });
+    }
+    return;
+  }
   const key = (amb ? 'A:' : 'R:') + slug;
   if (rebuild || ui.sheet.dataset.key !== key) {
     if (ui.killVideo) { ui.killVideo(); ui.killVideo = null; }
@@ -283,6 +324,7 @@ function paintSheet(rebuild) {
       <div class="np-seek"${amb ? ' hidden' : ''}><span id="npCur">0:00</span><input id="npRange" type="range" min="0" max="1000" value="0" aria-label="Position in the song"><span id="npDur"></span></div>
       <div class="np-ctl"><button type="button" class="fvp-btn" id="npPrev" aria-label="Previous"${amb ? ' disabled' : ''}>${I.prev}</button><button type="button" class="fvp-btn big" id="npPlay" aria-label="Pause">${I.pause}</button><button type="button" class="fvp-btn" id="npNext" aria-label="Next song"${amb ? ' disabled' : ''}>${I.next}</button></div>
       <div class="np-mode" role="group" aria-label="What plays"><button type="button" data-mode="radio" aria-pressed="${!amb}">Radio</button><button type="button" data-mode="ambient" aria-pressed="${amb}">Ambient</button></div>
+      <div class="np-off"><button type="button" class="np-stop" id="npOff">Turn it off</button>${volOK ? `<label class="np-vol"><span>Volume</span><input id="npVol" type="range" min="0" max="100" value="${Math.round(S.vol * 100)}" aria-label="Volume"></label>` : ''}</div>
       ${amb ? `<p class="np-note">The lullaby of the planet you are on. It follows you from page to page.</p>` : `<ol class="tracks">${trackRows(a)}</ol>`}
       <div class="np-strip" aria-label="Stations">${M.albums.map(b => `<button type="button" data-station="${b.slug}" aria-label="${esc(b.name)}"${b.slug === slug ? ' aria-current="true"' : ''}><img src="${b.coverS}" alt="" width="64" height="64" loading="lazy"></button>`).join('')}</div>
       </div>`;
@@ -292,6 +334,8 @@ function paintSheet(rebuild) {
     q('#npNext').addEventListener('click', () => next());
     q('#npPrev').addEventListener('click', () => prev());
     q('#npRange').addEventListener('input', e => seek(e.target.value / 1000));
+    q('#npOff').addEventListener('click', () => stopAll());
+    const vol = q('#npVol'); if (vol) vol.addEventListener('input', e => setVolume(e.target.value / 100));
     q('.np-mode').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (!b) return; if (b.dataset.mode === 'ambient') { if (!S.ambOn) startAmbient(S.slug || undefined); } else if (S.ambOn) { stopAmbient(true); startAlbum(S.slug || defaultStation(), S.i || 0); } });
     q('.np-strip').addEventListener('click', e => { const b = e.target.closest('[data-station]'); if (!b) return; if (S.mode === 'ambient') { amb(b.dataset.station, false); } else startAlbum(b.dataset.station, 0); });
     ui.killVideo = mountMedia(ui.sheet);
@@ -321,10 +365,11 @@ function durations() { document.querySelectorAll('[data-dur]').forEach(n => { co
 export function paint() {
   if (!ui) return;
   const amb = S.mode === 'ambient';
-  const slug = amb ? S.ambSlug : S.slug, a = A[slug];
-  if (!a) return;
+  const slug = amb ? S.ambSlug : S.slug, a = S.mode ? A[slug] : null;
+  ui.root.hidden = false;
+  ui.root.classList.toggle('idle', !S.mode || !a);
+  if (!a) { ui.play.innerHTML = I.play; ui.play.setAttribute('aria-label', 'Play the radio'); ui.root.classList.remove('playing', 'amb'); if (S.sheet) paintSheet(false); return; }
   const t = cur();
-  ui.root.hidden = !S.mode;
   ui.root.classList.toggle('amb', amb);
   if (ui.cover.getAttribute('src') !== a.coverS) ui.cover.src = a.coverS;
   ui.t.textContent = S.err ? S.err : amb ? a.planet + ' lullaby' : (t ? t.t : a.name);
@@ -369,5 +414,5 @@ document.addEventListener('click', e => {
   if (S.mode === 'radio' && S.slug === sl && S.i === +i) toggle(); else startAlbum(sl, +i || 0);
 });
 
-export function mountPage() { paint(); durations(); }
+export function mountPage() { ensureUI(); paint(); durations(); }
 export const state = S;
