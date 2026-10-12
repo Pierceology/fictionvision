@@ -6,7 +6,7 @@ import { bus } from './bus.js';
 import * as radio from './radio.js';
 import { otbCard, gameCards } from './cards.js';
 import * as solace from './bumper.js';
-import * as agis from './pair.js?v=20261012d';   // AGI and ASI, the two guides; Clippo's list lives on inside them
+import * as agis from './pair.js?v=20261012e';   // AGI and ASI, the two guides; Clippo's list lives on inside them
 import * as sfx from './sfx.js';
 import { TFRTA } from './tfrta-data.js';
 import * as rick from './rick.js';
@@ -945,7 +945,7 @@ function games(game, being) {
         .catch(() => { if (!hold.dead) $('#gameRoot', root).innerHTML = `<div class="page"><div class="page-head"><h1>${name} did not load.</h1><p>Check your connection and <a href="#/games/${game}" style="color:var(--orange);border-bottom:1px solid currentColor">try again</a>.</p></div></div>`; });
     },
   });
-  if (game === 'dead-ends') return lazy('./maze/maze.js', 'DEAD ENDS', 'The maze');
+  if (game === 'dead-ends') return lazy('./maze/maze.js?v=20261012e', 'DEAD ENDS', 'The maze');
   if (game === 'in-pieces') return lazy('./puzzle/puzzle.js', 'IN PIECES', 'The puzzle');
   if (game === 'typecast') return lazy('./typecast/typecast.js', 'TYPECAST', 'The typing');
   if (game === 'name-that-planet') return lazy('./planet/planet.js', 'NAME THAT PLANET', 'The quiz');

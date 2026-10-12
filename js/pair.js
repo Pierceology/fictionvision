@@ -3,7 +3,7 @@
    the bubble, the disagreement, the ask box, the speech, and the rules that keep two guides from being the thing everybody hates:
    one exchange at a time, never two inside thirty seconds, each keyed exchange once per device, three dismissals and they go quiet
    for six hours. Nothing they say is needed to use the site. No API: the door is here and it is shut. */
-import { WHO, LADDER, ASI, NEXT, TALK, ANSWERS, doneSet, markDone, page } from './pair-brain.js?v=20261012d';
+import { WHO, LADDER, ASI, NEXT, TALK, ANSWERS, doneSet, markDone, page } from './pair-brain.js?v=20261012e';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -154,7 +154,7 @@ function hush() { queue = []; speaking = null; try { speechSynthesis.cancel(); }
 let el, timer, lastAt = -1e9, dismissals = 0, quiet = false, idleT, seen, born = false, retryT, routeT;
 const QUIET_AFTER = 3, GAP = 30000, IDLE = 45000;
 const progress = () => { const n = NEXT.filter(x => x.test()).length; return { n, of: NEXT.length }; };
-const mediaOn = () => page() === 'show' || !!document.getElementById('bumper') || !!document.getElementById('ident') || !!document.querySelector('.vbox') || [...document.querySelectorAll('video, audio')].some(m => !m.paused && !m.muted && !m.ended);
+const mediaOn = () => page() === 'show' || !!document.querySelector('.otb-boardwrap, .bean-stage') || !!document.getElementById('bumper') || !!document.getElementById('ident') || !!document.querySelector('.vbox') || [...document.querySelectorAll('video, audio')].some(m => !m.paused && !m.muted && !m.ended);
 function build() {
   if (el) return;
   el = document.createElement('div'); el.id = 'agis'; el.className = 'off';
@@ -199,6 +199,7 @@ function say(key, force) {
     if (quiet) return false;
     if (seen.has(key)) return false;
     if (!REACTIONS.has(key) && performance.now() - lastAt < GAP) return false;
+    if (!REACTIONS.has(key) && mediaOn()) return false;   // something is playing (a film, the show, a game on the table): they wait
     if (document.getElementById('bumper') || document.getElementById('ident')) { clearTimeout(retryT); retryT = setTimeout(() => say(key), 2500); return false; }   // the elevator or the logo is on screen: wait for them
   }
   show(turns);

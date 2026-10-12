@@ -272,6 +272,8 @@ class Table {
     e.disc.style.width = e.disc.style.height = (this.discR * 2) + 'px';
     e.mz.width = e.mz.height = Math.round(this.discR * 2 * dpr); e.mz.style.width = e.mz.style.height = (this.discR * 2) + 'px';
     e.ring.width = e.ring.height = Math.round(S * dpr); e.ring.style.width = e.ring.style.height = S + 'px';
+    // on a phone the row of faces sits on top, so the stage grows by the row (64px) and the whole disc shows under it
+    e.stage.style.height = this.phone ? (this.discR * 2 + 64) + 'px' : '';
     this.dpr = dpr; this.S = S;
     e.stage.classList.toggle('phone', this.phone);
     this.paintOrbit();
