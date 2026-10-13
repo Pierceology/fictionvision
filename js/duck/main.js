@@ -257,7 +257,6 @@ export default async function start(p0) {
     st.held = true; st.phase = 'held'; st.holdFor = 0; st.result = null; st.hand.set(h.x, h.z); st.y = -0.2 * S; st.vy = 0
     bubbles.visible = true; for (let i = 0; i < NB; i++) bLife[i] = -Math.random() * 1.5
     sounds.play('plunge', { volume: 0.7 }); bubbleLoop = sounds.play('bubbles', { volume: 0.25, loop: true })
-    sounds.play('quack-under', { volume: 0.55, rate: 0.95 + Math.random() * 0.15 })
     st.nextBell = 5; st.lastPanic = 0; st.flash = 0
   }
   function release(why) {
@@ -283,7 +282,7 @@ export default async function start(p0) {
   p0.on('pointerdown', e => { st.soundOn = true; if (DEBUG) { const p = p0.input.pointer; const v = new THREE.Vector3(st.x, WATER_Y, st.z).project(camera); p0.log('pointer', JSON.stringify({ p, e, w: p0.width, h: p0.height, duck: [(v.x + 1) / 2, (1 - v.y) / 2] })) } grab() })
   p0.on('pointerup', () => { if (st.phase === 'held') release('letgo') })
   p0.on('keydown', e => { st.soundOn = true; if (e && (e.code === 'KeyR' || e.code === 'Space')) { if (st.phase === 'shown' || st.phase === 'flying') { st.phase = 'ready'; st.result = null; drawBoard() } } })
-  p0.hud('THE DUCK\nPress on the duck and keep pressing: it fights to get away.\nKeep your pointer on it: the ring is your grip, and when it runs out the duck escapes. A bell rings every five seconds.\nLet go when you have to. Your time goes on the wall. R clears the board.')
+  p0.hud('THE DUCK\nPress on the duck and keep pressing: it fights to get away.\nKeep your pointer on it: the ring is your grip, and when it runs out the duck escapes.\nLet go when you have to. Your time goes on the wall. R clears the board.')
 
   /* ---- the loop ---- */
   let splashT = 9
@@ -295,8 +294,7 @@ export default async function start(p0) {
 
     if (st.phase === 'held') {
       st.holdFor += dt
-      if (st.holdFor >= st.nextBell) { sounds.play('bell', { volume: 0.55, rate: Math.min(2, 1 + (st.nextBell / 5 - 1) * 0.12) }); sounds.play('quack-under', { volume: 0.45, rate: 0.9 + Math.random() * 0.25 }); st.flash = 0.6; st.nextBell += 5; drawBoard() }
-      { const gl = 1 - Math.hypot(st.hand.x - st.x, st.hand.y - st.z) / (1.15 * S); if (gl < 0.3 && time - st.lastPanic > 0.45) { sounds.play('squeak', { volume: 0.4, rate: 1.35 + Math.random() * 0.2 }); st.lastPanic = time } }
+      if (st.holdFor >= st.nextBell) { st.flash = 0.6; st.nextBell += 5; drawBoard() }
       const h = pointerOnWater(); if (h) st.hand.set(h.x, h.z)
       // pushed down: the longer you hold, the deeper, up to the floor of the tub
       const target = -Math.min(1.5, 0.25 + st.holdFor * 0.22) * S
@@ -321,7 +319,7 @@ export default async function start(p0) {
       st.y += st.vy * dt
       if (st.phase === 'flying' && st.y <= 0.02 * S && st.vy < 0 && splashT > 0.5) {
         splashT = 0; sounds.play('splash', { volume: 0.6 }); waterUniforms.uSplashAt.value.set(st.x, -st.z); st.phase = 'shown'; st.shownFor = 0; drawBoard()
-        if (st.result && st.result.newBest) { sounds.play('fanfare', { volume: 0.85 }); burst(); st.spin = 1.4 } else sounds.play('quack', { volume: 0.75, rate: 0.92 + Math.random() * 0.2 })
+        if (st.result && st.result.newBest) { burst(); st.spin = 1.4 }
       }
       st.x += (Math.sin(st.noiseA * 0.3) * 0.08 * S - st.x * 0.05) * dt; st.z += (Math.cos(st.noiseB * 0.3) * 0.08 * S - st.z * 0.05) * dt
       st.wobble = Math.max(0, st.wobble - dt * 2)
