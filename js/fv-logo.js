@@ -306,6 +306,7 @@ export function mount(el, options = {}) {
   // A bar sits at depth z (1 = in the V, -> 0 = at the viewer). Screen distance = rho * VH / z from its
   // own origin, which is scattered over a disc the size of the V, so the field is loosely radial, not a
   // starburst on one point. z shrinks exponentially: bars drift at an even pace instead of whipping past.
+  let rayK = 1, rayTo = 1, rayRate = 0;   // the page can fade the rays (ctl.rays)
   let introOn = false, born = 0, rand = rng(7), streaks = [], t = 0, S = 1, jumpEnv = 0;
   let pulseAt = -99, nextPulse = 0, volleyDue = false, kickAt = -99, nextSweep = 0, sweepAt = -99, flashAt = -99;
   let spot = [0, 0], spotTarget = [0, 0], spotI = 0, spotITarget = 0;
@@ -345,6 +346,7 @@ export function mount(el, options = {}) {
   function step(dt) {
     const intro = introOn && t < 6;
     t += dt;
+    if (rayK !== rayTo) rayK = rayRate <= 0 ? rayTo : rayK + Math.sign(rayTo - rayK) * Math.min(Math.abs(rayTo - rayK), dt / rayRate);
     jumpEnv = intro ? (t < T_JUMP ? 0 : t < T_JUMP + 0.3 ? smooth(T_JUMP, T_JUMP + 0.08, t) : Math.exp(-(t - T_JUMP - 0.3) / 0.5)) : 0;
     const base = calm() ? 0.22 : 0.55 + 0.35 * opt.idle;
     S = base + 9 * jumpEnv + (calm() ? 0.3 : 1.6) * kickEnv();
@@ -382,7 +384,7 @@ export function mount(el, options = {}) {
       const hl = Math.max(s.asp - 1, 0.5) * rad * stretch;
       const soft = 0.6 * dpr + Math.max(0, sc - 0.95) * rad * 0.9;     // depth of field on the near ones
       const hr = 0.8 * rad + 1.5 * dpr;
-      let I = s.I * smooth(0, s.kick ? 0.06 : 0.35, t - s.born) * (calm() ? 0.75 : 1);
+      let I = s.I * smooth(0, s.kick ? 0.06 : 0.35, t - s.born) * (calm() ? 0.75 : 1) * rayK;
       if (sc > 1.1) I *= 1.1 / sc * 0.3 + 0.7;                          // blurred ones spread, not brighten
       if (I < 0.01) continue;
       const A = hl + rad + hr * 3.5, B = rad + hr * 3.5;
@@ -421,6 +423,7 @@ export function mount(el, options = {}) {
     let a = 1, sc = 1;
     if (introOn) { a = easeOut((t - T_SHOW) / 0.42); sc = 1 + 0.07 * (1 - easeOut((t - T_SHOW) / (T_SETTLE - T_SHOW))); }
     else if (calm() && opt.intro) a = smooth(born, born + 1.6, t);
+    if (opt.mark === false) a = 0;
     const w = L.w * sc, h = L.h * sc;
     const x = L.vpx - (L.vpx - L.x) * sc, y = L.vpy - (L.vpy - L.y) * sc;
     return { x, y, w, h, a, k: w / GEOM.w };
@@ -549,6 +552,8 @@ export function mount(el, options = {}) {
     ready: loaded,
     replay() { reset(!calm()); start(); },
     burst() { triggerBurst(); },
+    // fade the rays to k (0..1) over secs: the page dims them before the logo folds into a corner
+    rays(k, secs = 0.3) { rayTo = clamp(k, 0, 1); rayRate = secs; },
     set(o) { Object.assign(opt, o); layout(); if ('intro' in o || 'reducedMotion' in o) reset(opt.intro && !calm()); if (ready && !running) render(); },
     pause() { paused = true; },
     play() { paused = false; start(); },

@@ -949,7 +949,7 @@ function games(game, being) {
   if (game === 'typecast') return lazy('./typecast/typecast.js', 'TYPECAST', 'The typing');
   if (game === 'name-that-planet') return lazy('./planet/planet.js', 'NAME THAT PLANET', 'The quiz');
   if (game === 'brain-bean') return lazy('./bean/bean.js', 'BRAIN BEAN COFFEE', 'The coffee');
-  if (game === 'the-duck') return lazy('./duck/duck.js?v=20261012j', 'THE DUCK', 'The Duck');
+  if (game === 'the-duck') return lazy('./duck/duck.js?v=20261012k', 'THE DUCK', 'The Duck');
   if (game === 'over-the-board') {
     return {
       title: 'OVER THE BOARD',
@@ -1174,6 +1174,30 @@ addEventListener('keydown', e => {
   if (typed === 'flip') { document.body.classList.add('flipped'); unlock('flip'); setTimeout(() => document.body.classList.remove('flipped'), 2600); }
 });
 
+// ------------------------------------------------------------------ the logo fires: a laser volley from the bar logo when something big happens
+// (Pierce, 2026-10-12: "get the lasers to fire when something important happens"): a trophy, a secret, a coffee, a new best on the Duck
+let volleyOn = false;
+async function laserVolley() {
+  if (volleyOn || document.body.classList.contains('ident-on') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const img = $('#brand img'); if (!img) return;
+  const r = img.getBoundingClientRect(); if (!r.width) return;
+  volleyOn = true;
+  const box = document.createElement('div'), W = 1400, H = 900;
+  box.className = 'logo-volley';
+  box.style.cssText = `position:fixed;left:${r.left + r.width / 2 - W / 2}px;top:${r.top + r.height / 2 - H / 2}px;width:${W}px;height:${H}px;pointer-events:none;z-index:60`;
+  document.body.appendChild(box);
+  let logo = null;
+  try {
+    const mod = await import('./fv-logo.js?v=20261012k');
+    logo = mod.mount(box, { intro: false, interactive: false, background: 'transparent', size: r.width, idle: 0, mark: false });
+    await Promise.race([logo.ready || Promise.resolve(), new Promise(res => setTimeout(res, 1500))]);
+    logo.burst(); setTimeout(() => { try { logo.burst() } catch (e) { } }, 380);
+    setTimeout(() => { try { logo.rays(0, 0.6) } catch (e) { } }, 1700);
+  } catch (e) { }
+  setTimeout(() => { try { logo && logo.destroy() } catch (e) { } box.remove(); volleyOn = false; }, 2600);
+}
+document.addEventListener('fv:event', e => { const d = e.detail || {}; if (d.kind === 'award' || d.kind === 'secret' || (d.kind === 'duck' && d.best)) laserVolley(); });
+
 // ------------------------------------------------------------------ the network ident: plays on arrival, then folds into the top bar
 async function ident() {
   // every arrival and every reload gets the reveal (Pierce, 2026-10-07: "every page reload must always give the logo reveal")
@@ -1187,7 +1211,7 @@ async function ident() {
   const size = W < 700 ? W * 0.86 : Math.min(W * 0.6, 1100);
   let logo;
   try {
-    const mod = await import('./fv-logo.js');
+    const mod = await import('./fv-logo.js?v=20261012k');
     logo = mod.mount(stage, { intro: true, interactive: false, background: 'transparent', size, idle: 0.9 });
   } catch (e) { el.remove(); document.body.classList.remove('ident-on'); return; }
   let folded = false;
@@ -1197,6 +1221,7 @@ async function ident() {
     const x = (W - sw) / 2, y = (H - sh) / 2;
     const r = $('#brand img').getBoundingClientRect();
     const s = r.width / sw;
+    try { logo.rays(0, 0.25); } catch (e) { }
     el.classList.add('folding');
     stage.style.transform = `translate(${r.left - x * s}px, ${r.top - y * s}px) scale(${s})`;
     setTimeout(() => { document.body.classList.remove('ident-on'); stage.style.opacity = '0'; }, 860);

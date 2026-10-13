@@ -48,9 +48,9 @@ export function mount(root) {
     hud(text) { hudEl.textContent = String(text).split('\n').slice(1).join(' ').replace(/\s*Click or press any key for sound\.?/, '') },
     log() { },
     score(ms) {
-      const best = Math.max(lsGet(BEST, 0), ms); lsSet(BEST, best)
+      const was = lsGet(BEST, 0), best = Math.max(was, ms); lsSet(BEST, best)
       setTimeout(() => emit('reward', { kind: 'score', ok: true, score: ms, best, place: null }), 0)
-      document.dispatchEvent(new CustomEvent('fv:event', { detail: { kind: 'duck', ms } }))
+      document.dispatchEvent(new CustomEvent('fv:event', { detail: { kind: 'duck', ms, best: was > 0 && ms > was } }))
     },
     sound: {
       play(path, o = {}) {
@@ -87,7 +87,7 @@ export function mount(root) {
   canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up)
   window.addEventListener('keydown', key); window.addEventListener('keyup', keyUp)
 
-  import('./main.js?v=20261012j').then(async m => {
+  import('./main.js?v=20261012k').then(async m => {
     if (dead) return
     await m.default(p0)
     // the best you set on this device before shows on the wall from the start
