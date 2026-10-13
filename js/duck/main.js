@@ -194,7 +194,13 @@ export default async function start(p0) {
   }
   let table = p0.table || []
   p0.on('table', t => { table = t; if (st.phase !== 'held') drawBoard() })
-  p0.on('reward', r => { if (r.kind === 'score' && r.ok) { st.best = Math.max(st.best, r.best || 0); st.place = r.place; drawBoard() } })
+  // the badges (items 372 and 373, made for this lot): Held It Under for ten seconds, As Long As You Had To for the top of the week
+  const BADGE = { under: 372, top: 373 }
+  const give = id => { try { if (p0.items && p0.items.give) p0.items.give(id) } catch (e) { } }
+  p0.on('reward', r => {
+    if (r.kind === 'score' && r.ok) { st.best = Math.max(st.best, r.best || 0); st.place = r.place; if (r.place === 1) give(BADGE.top); drawBoard() }
+    if (r.kind === 'item' && r.ok && r.item && st.result) { st.result.badge = r.item.name || ''; drawBoard() }
+  })
 
   const ms = t => (t / 1000).toFixed(2) + ' s'
   const secs = t => (t / 1000).toFixed(2)
@@ -209,6 +215,7 @@ export default async function start(p0) {
       say(c, st.result.tag, cx, 178, { size: st.result.newBest ? 44 : 34, font: SANS, weight: 500, color: GOLD, space: 14 })
       clockFace(c, secs(st.result.t), cx, 330, 220, st.result.newBest ? GOLD : IVORY, 200)
       say(c, st.result.line, cx, 510, { size: 54, style: 'italic', color: IVORY })
+      if (st.result.badge) say(c, 'BADGE · ' + st.result.badge.toUpperCase(), cx, 610, { size: 34, font: SANS, weight: 500, color: GOLD, space: 12, fit: 1400 })
     } else {
       say(c, 'Press on the duck and hold it under.', cx, 330, { size: 62, style: 'italic', color: IVORY, fit: 1400 })
       say(c, 'Keep your hand on it. The ring is your grip.', cx, 420, { size: 42, style: 'italic', color: MUTED, fit: 1400 })
@@ -276,6 +283,7 @@ export default async function start(p0) {
     bubbles.visible = false
     sounds.play('squeak', { volume: 0.8, rate: 0.9 + Math.random() * 0.2 })
     try { p0.score(t) } catch (e) { }
+    if (t >= 10000) give(BADGE.under)
     st.shownFor = 0; drawBoard()
   }
   const DEBUG = false
