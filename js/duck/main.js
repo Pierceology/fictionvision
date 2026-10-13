@@ -62,8 +62,6 @@ export default async function start(p0) {
     QUOTE_TALL.forEach((l, i) => say(c, l, 768, 120 + i * 140, { size, style: 'italic', color: IVORY }))
     quoteTall.done()
   }
-  const quoteTallMesh = wallText(quoteTall.texture, 7.4 * S, 7.4 * S * 800 / 1536)
-  quoteTallMesh.position.set(0, 6.25 * S, -lot.depth / 2 + 0.34); quoteTallMesh.visible = false; scene.add(quoteTallMesh)
   const board = plate(1536, 768)
   const boardMesh = wallText(board.texture, 6.0 * S, 3.0 * S)
   boardMesh.position.set(0, 2.09 * S, -lot.depth / 2 + 0.34); scene.add(boardMesh)
@@ -84,9 +82,11 @@ export default async function start(p0) {
   // the water: a real moving surface. Slow swells, rings that spread from the duck (stronger the harder it fights), a splash ring;
   // seen from above you look into it (teal, deeper in the middle), at a slant it turns to a dark mirror of the room,
   // and the lamp's highlight rides the waves. A thin bright line where it meets the porcelain.
-  const waterUniforms = { uTime: { value: 0 }, uDuck: { value: new THREE.Vector2(0, 0) }, uDepth: { value: 0 }, uSplash: { value: 0 }, uSplashAt: { value: new THREE.Vector2(0, 0) }, uLamp: { value: new THREE.Vector3(0.9 * S, 11 * S, 3.6 * S) } }
-  const RAD = (R + 0.05 * S).toFixed(3), SS = S.toFixed(3)
-  const water = new THREE.Mesh(new THREE.PlaneGeometry(2 * (R + 0.05 * S), 2 * (R + 0.05 * S), 56, 56), new THREE.ShaderMaterial({
+  const waterUniforms = { uTime: { value: 0 }, uDuck: { value: new THREE.Vector2(0, 0) }, uDepth: { value: 0 }, uSplash: { value: 0 }, uSplashAt: { value: new THREE.Vector2(0, 0) }, uLamp: { value: new THREE.Vector3(0.9 * S, 11 * S, 3.6 * S) }, uGlint: { value: 1 } }
+  // the water meets the tub's sloped wall where the wall actually is at the waterline (seen from above, a smaller disc left a slot)
+  const WR = R + 0.1 * S + 0.25 * S * (WATER_Y - 0.2 * S) / (1.5 * S)
+  const RAD = WR.toFixed(3), SS = S.toFixed(3)
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(2 * WR, 2 * WR, 56, 56), new THREE.ShaderMaterial({
     uniforms: waterUniforms, transparent: true, depthWrite: false,
     vertexShader: `uniform float uTime, uDepth, uSplash; uniform vec2 uDuck, uSplashAt;
       varying vec2 vP; varying vec3 vW, vN;
@@ -106,7 +106,7 @@ export default async function start(p0) {
         vec4 w = modelMatrix * vec4(p, h, 1.0); vW = w.xyz;
         gl_Position = projectionMatrix * viewMatrix * w;
       }`,
-    fragmentShader: `uniform vec3 uLamp; uniform float uTime; varying vec2 vP; varying vec3 vW, vN;
+    fragmentShader: `uniform vec3 uLamp; uniform float uTime, uGlint; varying vec2 vP; varying vec3 vW, vN;
       void main() {
         float r = length(vP) / ${RAD}; if (r > 1.0) discard;
         vec3 N = normalize(vN + vec3(sin(vP.x * 23.0 + uTime * 2.3) * sin(vP.y * 7.0 - uTime) * 0.025, 0.0, cos(vP.y * 19.0 - uTime * 1.9) * sin(vP.x * 9.0 + uTime * 1.3) * 0.025)), V = normalize(cameraPosition - vW);
@@ -115,7 +115,7 @@ export default async function start(p0) {
         vec3 Rf = reflect(-V, N);
         vec3 env = mix(vec3(0.025, 0.03, 0.035), vec3(0.17, 0.16, 0.14), smoothstep(-0.1, 0.6, Rf.y));
         float l = max(dot(Rf, normalize(uLamp - vW)), 0.0);
-        float spec = pow(l, 500.0) * 5.0 + pow(l, 60.0) * 0.35;
+        float spec = pow(l, 500.0) * 5.0 * uGlint + pow(l, 60.0) * 0.35 * mix(0.3, 1.0, uGlint);
         vec3 col = mix(body, env, fres) + vec3(1.0, 0.9, 0.74) * spec;
         col += vec3(0.55, 0.66, 0.66) * smoothstep(0.975, 1.0, r) * 0.35;
         float a = clamp(mix(0.8, 0.98, fres) + spec + smoothstep(0.6, 1.0, r) * 0.15, 0.0, 1.0);
@@ -200,39 +200,97 @@ export default async function start(p0) {
   /* ---- camera ---- */
   camera.near = 0.1; camera.far = 200
   // a wide screen sees the whole wall at 64 degrees from eye height.
-  // A phone held upright looks down into the tub from above, like a phone held over a bath: the week's best,
-  // the quote in short lines and the board stack up the wall, and the lens opens just enough to hold
-  // the wall's top and the tub's near rim, and the whole tub from side to side.
+  // A phone held upright looks down into the tub from above, like a phone held over a bath. Its words are sized to the
+  // screen, not to the far wall (there they were too small to read): the same plates, hung just in front of the lens,
+  // across the top of the screen, and the tub fills everything under them.
   const camAt = new THREE.Vector3(), look = new THREE.Vector3()
   let tallView = false, boardReady = false
+  scene.add(camera)
+  const hudPlane = (tex, hw) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1, hw), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false, toneMapped: false }))
+    m.renderOrder = 20; m.visible = false; m.userData.hw = hw; camera.add(m); return m
+  }
+  const hudQuote = hudPlane(quoteTall.texture, 800 / 1536), hudBoard = hudPlane(board.texture, 0.5)
+  const hudMine = hudPlane(mine.texture, 0.75), hudWeek = hudPlane(week.texture, 0.75)
+  // where the words end on a phone, in screen widths from the top: the tub starts under it
+  const HUD_BOTTOM = 0.98
+  // a plate `w` screen-widths wide, centred at `cx` (0 to 1 across), its top `top` screen-widths down from the top edge
+  const hudK = () => Math.min(1, 0.6 / (HUD_BOTTOM * p0.width / Math.max(1, p0.height)))   // a short screen gives the words at most 60% of its height
+  function putHud(m, w, cx, top) {
+    const aspect = p0.width / Math.max(1, p0.height), vh = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2), vw = vh * aspect, k = hudK()
+    w *= k; top *= k; cx = 0.5 + (cx - 0.5) * k
+    m.scale.setScalar(w * vw); m.position.set((cx - 0.5) * vw, vh * (0.5 - (top + w * m.userData.hw / 2) * aspect), -1)
+  }
+  // at rest: the week's best, the quote, then how to play. Holding or after a round, the clock and the verdict take the quote's place.
+  function placeHud() {
+    const on = tallView
+    for (const m of [hudQuote, hudBoard, hudMine, hudWeek]) m.visible = on
+    if (!on) return
+    const rest = !st.held && !st.result, both = st.best > 0
+    // clear of the city's corner button, top left
+    if (both) { putHud(hudMine, 0.5, 0.26, 0.06); putHud(hudWeek, 0.5, 0.74, 0.06) } else putHud(hudWeek, 0.56, 0.5, 0.05)
+    hudMine.visible = both
+    hudQuote.visible = rest
+    putHud(hudQuote, 0.94, 0.5, 0.31)
+    putHud(hudBoard, 0.94, 0.5, rest ? 0.645 : 0.33)
+  }
   function layout() {
     const aspect = p0.width / Math.max(1, p0.height), wallZ = -lot.depth / 2 + 0.34
     const tall = aspect < 0.85, was = tallView
     tallView = tall
-    quoteMesh.visible = !tall; quoteTallMesh.visible = tall
+    // on a phone the wall keeps no words: they are on the screen
+    quoteMesh.visible = boardMesh.visible = mineMesh.visible = weekMesh.visible = !tall
+    // from straight above the lamp's hard glint breaks into white flecks: a phone keeps only the soft sheen
+    waterUniforms.uGlint.value = tall ? 0.12 : 1
     if (!tall) {
       camera.fov = 64
       camAt.set(0, 5.7 * S, Math.min(lot.depth / 2 - 0.3, 5.6 * S)); look.set(0, 2.75 * S, -1.6 * S)
       boardMesh.position.set(0, 2.09 * S, wallZ); boardMesh.scale.setScalar(1)
       mineMesh.position.set(-3.95 * S, 2.3 * S, wallZ); weekMesh.position.set(3.95 * S, 2.3 * S, wallZ); mineMesh.scale.setScalar(1); weekMesh.scale.setScalar(1)
     } else {
-      boardMesh.position.set(0, 2.85 * S, wallZ); boardMesh.scale.setScalar(1.2)
-      mineMesh.position.set(-1.72 * S, 9.0 * S, wallZ); weekMesh.position.set(1.72 * S, 9.0 * S, wallZ); mineMesh.scale.setScalar(1.08); weekMesh.scale.setScalar(1.08)
-      camAt.set(0, 10 * S, Math.min(lot.depth / 2 - 0.3, 5.7 * S))
-      const top = Math.atan2(10.25 * S - camAt.y, camAt.z - wallZ)                   // the top of the week's best
-      const bottom = Math.atan2(1.95 * S - camAt.y, camAt.z - (R + 0.55 * S))       // the near rim
-      const vNeed = (top - bottom) * 1.06
-      const dist = Math.hypot(camAt.y - WATER_Y, camAt.z)
-      const hNeed = 2 * Math.atan((R + 0.75 * S) / dist) * 1.08                       // the whole tub, side to side
-      const vFromH = 2 * Math.atan(Math.tan(hNeed / 2) / aspect)
-      const vFov = Math.max(vNeed, vFromH)
-      camera.fov = THREE.MathUtils.radToDeg(vFov)
-      // the near rim sits just inside the bottom edge; any spare height goes to the dark wall above
-      const pitch = bottom + vFov / 2 - 0.03
-      look.set(0, camAt.y + Math.sin(pitch) * 10 * S, camAt.z - Math.cos(pitch) * 10 * S)
+      // the far rim sits just under the words, the near rim just above the bottom edge; the camera rises until the tub fits side to side
+      const zc = Math.min(lot.depth / 2 - 0.3, 5.7 * S), rr = R + 0.55 * S, rimY = 1.9 * S
+      const topF = Math.min(0.62, HUD_BOTTOM * aspect * hudK() + 0.01), botF = 0.975, a = 0.5 - topF, b = 0.5 - botF
+      const v = new THREE.Vector3()
+      camera.aspect = aspect
+      const aim = (h, pitch, T) => {
+        camera.fov = THREE.MathUtils.radToDeg(2 * Math.atan(T))
+        camAt.set(0, h, zc); look.set(0, h + Math.sin(pitch) * 10 * S, zc - Math.cos(pitch) * 10 * S)
+        camera.position.copy(camAt); camera.lookAt(look); camera.updateProjectionMatrix(); camera.updateMatrixWorld()
+        let wide = 0
+        for (let i = 0; i < 24; i++) { const t = i / 24 * Math.PI * 2; v.set(Math.cos(t) * rr, rimY, Math.sin(t) * rr).project(camera); wide = Math.max(wide, Math.abs(v.x)) }
+        return wide
+      }
+      // screen y (0 at the top) = 0.5 - tan(e - pitch) / (2 tan(fov / 2)): find the pitch that puts the two rims where they belong.
+      // A camera too low has none (the tub spans too wide an angle), so it rises and tries again.
+      const solve = h => {
+        const e1 = Math.atan2(rimY - h, zc + rr), e2 = Math.atan2(rimY - h, zc - rr)
+        const f = q => Math.tan(e1 - q) * b - Math.tan(e2 - q) * a
+        for (let q = e2 + 0.01, prev = f(q); q < Math.PI / 2 + e2 - 0.02; q += 0.002) {
+          const cur = f(q + 0.002)
+          if (Math.sign(cur) !== Math.sign(prev)) { const pitch = q + 0.001, T = Math.tan(e2 - pitch) / (2 * b); return T > 0.1 && T < 2.2 ? { pitch, T, e2 } : null }
+          prev = cur
+        }
+        return null
+      }
+      let ok = false
+      for (let h = 9 * S; h <= 24 * S && !ok; h += 0.5 * S) { const r = solve(h); if (r && aim(h, r.pitch, r.T) <= 0.92) ok = true }
+      if (!ok) {
+        // a narrow screen: the tub can't fit side to side at that height, so the lens opens until it does, the near rim
+        // pinned just above the bottom edge, and the dark wall takes the extra room above it
+        const h = 14 * S, e2 = Math.atan2(rimY - h, zc - rr)
+        let T = 0.7
+        for (let i = 0; i < 12; i++) {
+          const pitch = e2 - Math.atan(2 * T * b), wide = aim(h, pitch, T)
+          if (wide <= 0.92) { ok = true; break }
+          T *= wide / 0.92 * 1.02
+        }
+        if (!ok) { camera.fov = 70; camAt.set(0, 16 * S, zc); look.set(0, 0, -1.5 * S) }   // never edge-on
+      }
     }
     camera.updateProjectionMatrix()
     camera.position.copy(camAt); camera.lookAt(look)
+    if (boardReady) placeHud()
     if (boardReady && was !== tall) drawBoard()
   }
   layout()
@@ -246,7 +304,7 @@ export default async function start(p0) {
     held: false, holdFor: 0, hand: new THREE.Vector2(0, 0),
     phase: 'ready',        // ready · held · flying · shown
     shownFor: 0, result: null, best: 0, nextBell: 5, lastPanic: 0, flash: 0, spin: 0, lastSent: 0, soundOn: false, wobble: 0,
-    noiseA: Math.random() * 6, noiseB: Math.random() * 6,
+    noiseA: Math.random() * 6, noiseB: Math.random() * 6, lift: 0, liftTo: 0,
   }
   let table = p0.table || []
   p0.on('table', t => { table = t; if (st.phase !== 'held') drawBoard() })
@@ -266,7 +324,7 @@ export default async function start(p0) {
   const CH_WIDE = { x: 768 - 250, y: 528, w: 500, h: 64 }, CH_TALL = { x: 768 - 380, y: 580, w: 760, h: 110 }
   function onChallenge() {
     const p = p0.input.pointer; ndc.set((p.x / p0.width) * 2 - 1, -(p.y / p0.height) * 2 + 1); ray.setFromCamera(ndc, camera)
-    const h = ray.intersectObject(boardMesh, false)[0]; if (!h || !h.uv) return false
+    const h = ray.intersectObject(tallView ? hudBoard : boardMesh, false)[0]; if (!h || !h.uv) return false
     const x = h.uv.x * 1536, y = (1 - h.uv.y) * 768
     const m = tallView ? 60 : 10        // a thumb on a phone needs more room than a mouse
     return x > CH.x - m && x < CH.x + CH.w + m && y > CH.y - m && y < CH.y + CH.h + m
@@ -321,11 +379,13 @@ export default async function start(p0) {
   const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th')
   drawBoard()
   boardReady = true
+  placeHud()
 
   const ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -WATER_Y), hit = new THREE.Vector3(), ndc = new THREE.Vector2()
-  function pointerOnWater() {
+  // `lift`: pixels above the finger. On a phone the duck rides just above your thumb, where you can see it
+  function pointerOnWater(lift) {
     const p = p0.input.pointer
-    ndc.set((p.x / p0.width) * 2 - 1, -(p.y / p0.height) * 2 + 1)
+    ndc.set((p.x / p0.width) * 2 - 1, -((p.y - (lift || 0)) / p0.height) * 2 + 1)
     ray.setFromCamera(ndc, camera)
     return ray.ray.intersectPlane(plane, hit) ? hit : null
   }
@@ -342,6 +402,7 @@ export default async function start(p0) {
     const dx = h.x - st.x, dz = h.z - st.z
     if (Math.hypot(dx, dz) > 1.1 * S) return           // you have to press on the duck
     st.held = true; st.phase = 'held'; st.holdFor = 0; st.result = null; st.hand.set(h.x, h.z); st.y = -0.2 * S; st.vy = 0
+    st.lift = 0; st.liftTo = tallView ? Math.min(90, p0.height * 0.12) : 0
     bubbles.visible = true; for (let i = 0; i < NB; i++) bLife[i] = -Math.random() * 1.5
     sounds.play('plunge', { volume: 0.7 }); startBubbles()
     st.nextBell = 5; st.lastPanic = 0; st.flash = 0
@@ -376,6 +437,7 @@ export default async function start(p0) {
   /* ---- the loop ---- */
   let splashT = 9
   p0.loop((dt, time) => {
+    if (tallView) placeHud()
     if (bubbleLoop != null && st.phase !== 'held') stopBubbles()
     dt = Math.min(dt, 0.05)
     waterUniforms.uTime.value = time
@@ -385,7 +447,14 @@ export default async function start(p0) {
     if (st.phase === 'held') {
       st.holdFor += dt
       if (st.holdFor >= st.nextBell) { st.flash = 0.6; st.nextBell += 5; drawBoard() }
-      const h = pointerOnWater(); if (h) st.hand.set(h.x, h.z)
+      // on a phone the duck glides up out from under your thumb as you press, and rides there
+      if (st.lift < st.liftTo) {
+        const a = pointerOnWater(st.lift); const ax = a ? a.x : 0, az = a ? a.z : 0
+        const next = Math.min(st.liftTo, st.lift + dt * st.liftTo / 0.25)
+        const b = pointerOnWater(next)
+        if (a && b && Math.hypot(st.x + b.x - ax, st.z + b.z - az) < R - 0.9 * S) { st.x += b.x - ax; st.z += b.z - az; st.lift = next } else st.liftTo = st.lift
+      }
+      const h = pointerOnWater(st.lift); if (h) st.hand.set(h.x, h.z)
       // pushed down: the longer you hold, the deeper, up to the floor of the tub
       const target = -Math.min(1.5, 0.25 + st.holdFor * 0.22) * S
       st.y += (target - st.y) * Math.min(1, dt * 4)

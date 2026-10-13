@@ -89,7 +89,7 @@ export function mount(root) {
   canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up)
   window.addEventListener('keydown', key); window.addEventListener('keyup', keyUp)
 
-  import('./main.js?v=20261013f').then(async m => {
+  import('./main.js?v=20261013h').then(async m => {
     if (dead) return
     await m.default(p0)
     // the best you set on this device before shows on the wall from the start
