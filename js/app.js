@@ -4,9 +4,8 @@ import { emblem } from './emblems.js';
 import { mount as mountMedia, speakerHTML, vplayHTML } from './media.js';
 import { bus } from './bus.js';
 import * as radio from './radio.js';
-import { otbCard, gameCards } from './cards.js';
+import { otbCard, gameCards } from './cards.js?v=20261012g';
 import * as solace from './bumper.js';
-import * as agis from './pair.js?v=20261012e';   // AGI and ASI, the two guides; Clippo's list lives on inside them
 import * as sfx from './sfx.js';
 import { TFRTA } from './tfrta-data.js';
 import * as rick from './rick.js';
@@ -950,6 +949,7 @@ function games(game, being) {
   if (game === 'typecast') return lazy('./typecast/typecast.js', 'TYPECAST', 'The typing');
   if (game === 'name-that-planet') return lazy('./planet/planet.js', 'NAME THAT PLANET', 'The quiz');
   if (game === 'brain-bean') return lazy('./bean/bean.js', 'BRAIN BEAN COFFEE', 'The coffee');
+  if (game === 'the-duck') return lazy('./duck/duck.js?v=20261012g', 'THE DUCK', 'The Duck');
   if (game === 'over-the-board') {
     return {
       title: 'OVER THE BOARD',
@@ -964,7 +964,7 @@ function games(game, being) {
   }
   return {
     title: 'Games',
-    html: `<div class="page games-page"><div class="page-head"><span class="kicker">Games</span><h1>Games</h1><p>Six things to play on FictionVision. The thirteen beings of the Pool Table Universe host every one, and Pam pours the coffee.</p></div>
+    html: `<div class="page games-page"><div class="page-head"><span class="kicker">Games</span><h1>Games</h1><p>Seven things to play on FictionVision. The thirteen beings of the Pool Table Universe host six of them, Pam pours the coffee, and the Duck fights back.</p></div>
       <div class="gcards">${gameCards()}</div></div>`,
   };
 }
@@ -1217,5 +1217,4 @@ disc.visit();
 renderNav();
 route();
 ident();
-agis.mount();
 sfx.mount();

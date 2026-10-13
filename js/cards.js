@@ -59,6 +59,14 @@ export function beanCard(o = {}) {
     <span class="cap"><b>Play BRAIN BEAN COFFEE</b><small><span>Order a coffee on Planet Zee. One in a hundred gets it. Pam almost hands it over a dozen ways</span></small></span></a>`;
 }
 
+/* THE DUCK: Pierce's quote room, the same game as his Project 0 lot. The card is the room mid-hold. */
+export function duckCard(o = {}) {
+  const clone = o.clone ? ' aria-hidden="true" tabindex="-1"' : '';
+  return `<a class="card tile gcard" href="#/games/the-duck"${clone}>
+    <span class="frame"><span class="duck-art" aria-hidden="true"><img src="img/duck/room.webp" alt="" width="960" height="540" loading="lazy" decoding="async"><span class="ttl">THE<br>DUCK</span></span></span>
+    <span class="cap"><b>Hold THE DUCK under</b><small><span>Press on it and hold it under. It fights. Let go when you have to. Your time goes on the wall</span></small></span></a>`;
+}
+
 /* the Asteroid Show: Pierce's own, thirteen skies; the card wears Planet Zee's nebula */
 export function showCard(o = {}) {
   const clone = o.clone ? ' aria-hidden="true" tabindex="-1"' : '';
@@ -67,6 +75,6 @@ export function showCard(o = {}) {
     <span class="cap"><b>Watch the Asteroid Show</b><small><span>Thirteen skies, one per planet. The rocks fly to the music; drag the planet around</span></small></span></a>`;
 }
 
-/* all seven, for the Games page and the home row */
-export function gameCards(o = {}) { return otbCard(o) + deadEndsCard(o) + inPiecesCard(o) + typecastCard(o) + planetCard(o) + beanCard(o) + showCard(o); }
+/* all eight, for the Games page and the home row */
+export function gameCards(o = {}) { return otbCard(o) + deadEndsCard(o) + inPiecesCard(o) + typecastCard(o) + planetCard(o) + beanCard(o) + duckCard(o) + showCard(o); }
 export { otbCard };
