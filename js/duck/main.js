@@ -119,8 +119,31 @@ export default async function start(p0) {
   }
   const duck = makeDuck(yellow); scene.add(duck)
   const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.8 * S, 32), new THREE.MeshBasicMaterial({ color: 0x03242c, transparent: true, opacity: 0.0 })); shadow.rotation.x = -Math.PI / 2; shadow.position.y = WATER_Y + 0.01; scene.add(shadow)
-  // the hand: a soft ring that follows your pointer on the water while you hold
-  const hand = new THREE.Mesh(new THREE.RingGeometry(0.78 * S, 0.88 * S, 48), new THREE.MeshBasicMaterial({ color: 0xf4ead2, transparent: true, opacity: 0.0, side: THREE.DoubleSide, depthWrite: false })); hand.rotation.x = -Math.PI / 2; hand.position.y = WATER_Y + 0.02; scene.add(hand)
+  // the hand: a pale hand lying on the water, fingers away from you. A faint one follows your pointer to say "press here";
+  // it turns solid while you hold the duck under.
+  const skin = new THREE.MeshStandardMaterial({ color: 0xe6c2a6, roughness: 0.6, transparent: true, opacity: 0 })
+  const hand = new THREE.Group()
+  { const add = (g, x, y, z, rx, rz) => { const m = new THREE.Mesh(g, skin); m.position.set(x, y, z); m.rotation.set(rx || 0, 0, rz || 0); hand.add(m) }
+    const palm = new THREE.SphereGeometry(0.42, 24, 16); palm.scale(1, 0.26, 1.12); add(palm, 0, 0, 0)
+    ;[-0.25, -0.085, 0.085, 0.25].forEach((x, k) => { const len = [0.3, 0.4, 0.44, 0.38][k]; const f = new THREE.CapsuleGeometry(0.075, len, 4, 10); add(f, x * 1.05, 0.02, -0.5 - len / 2, -Math.PI / 2) })
+    const thumb = new THREE.CapsuleGeometry(0.085, 0.3, 4, 10); add(thumb, -0.47, 0.02, -0.05, -Math.PI / 2, 0.9)
+    const wrist = new THREE.SphereGeometry(0.3, 20, 12); wrist.scale(1, 0.3, 0.9); add(wrist, 0, 0.01, 0.42) }
+  hand.scale.setScalar(S * 1.15); hand.visible = false; hand.traverse(m => { m.renderOrder = 6 }); scene.add(hand)
+  // the grip: a ring round your hand on the water that drains as the duck slips away from it. Empty ring, the duck is gone.
+  const gripU = { uFill: { value: 1 }, uTime: { value: 0 } }
+  const grip = new THREE.Mesh(new THREE.RingGeometry(1.02 * S, 1.12 * S, 96, 1), new THREE.ShaderMaterial({
+    uniforms: gripU, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+    vertexShader: `varying vec2 vP; void main(){ vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    fragmentShader: `uniform float uFill, uTime; varying vec2 vP;
+      void main(){
+        float a = fract(atan(vP.x, vP.y) / 6.2831853 + 0.5);              // 0..1 round the ring, starting at the far side
+        float on = step(a, uFill);
+        vec3 full = vec3(0.79, 0.66, 0.42), empty = vec3(0.93, 0.33, 0.25);
+        vec3 col = mix(empty, full, smoothstep(0.15, 0.6, uFill));
+        float pulse = uFill < 0.35 ? 0.65 + 0.35 * sin(uTime * 18.0) : 1.0;
+        gl_FragColor = vec4(mix(vec3(1.0), col, on), (on * 0.92 * pulse) + (1.0 - on) * 0.14);
+      }`,
+  })); grip.rotation.x = -Math.PI / 2; grip.position.y = WATER_Y + 0.03; grip.visible = false; grip.renderOrder = 5; scene.add(grip)
   // bubbles while under: round and soft
   const dot = plate(64, 64)
   { const g = dot.ctx.createRadialGradient(32, 32, 2, 32, 32, 30); g.addColorStop(0, 'rgba(255,255,255,0.95)'); g.addColorStop(0.6, 'rgba(220,245,255,0.5)'); g.addColorStop(1, 'rgba(220,245,255,0)'); dot.ctx.fillStyle = g; dot.ctx.fillRect(0, 0, 64, 64); dot.done() }
@@ -186,7 +209,7 @@ export default async function start(p0) {
       say(c, st.result.line, cx, 510, { size: 54, style: 'italic', color: IVORY })
     } else {
       say(c, 'Press on the duck and hold it under.', cx, 330, { size: 62, style: 'italic', color: IVORY, fit: 1400 })
-      say(c, 'It fights. Let go when you have to.', cx, 420, { size: 42, style: 'italic', color: MUTED, fit: 1400 })
+      say(c, 'Keep your hand on it. The ring is your grip.', cx, 420, { size: 42, style: 'italic', color: MUTED, fit: 1400 })
     }
     board.done()
     // your best this week
@@ -249,10 +272,10 @@ export default async function start(p0) {
     st.shownFor = 0; drawBoard()
   }
   const DEBUG = false
-  p0.on('pointerdown', e => { st.soundOn = true; hand.material.opacity = 0; if (DEBUG) { const p = p0.input.pointer; const v = new THREE.Vector3(st.x, WATER_Y, st.z).project(camera); p0.log('pointer', JSON.stringify({ p, e, w: p0.width, h: p0.height, duck: [(v.x + 1) / 2, (1 - v.y) / 2] })) } grab() })
+  p0.on('pointerdown', e => { st.soundOn = true; if (DEBUG) { const p = p0.input.pointer; const v = new THREE.Vector3(st.x, WATER_Y, st.z).project(camera); p0.log('pointer', JSON.stringify({ p, e, w: p0.width, h: p0.height, duck: [(v.x + 1) / 2, (1 - v.y) / 2] })) } grab() })
   p0.on('pointerup', () => { if (st.phase === 'held') release('letgo') })
   p0.on('keydown', e => { st.soundOn = true; if (e && (e.code === 'KeyR' || e.code === 'Space')) { if (st.phase === 'shown' || st.phase === 'flying') { st.phase = 'ready'; st.result = null; drawBoard() } } })
-  p0.hud('THE DUCK\nPress on the duck and hold it under. It fights.\nLet go when you have to, or lose it. Your time goes on the wall.\nR clears the board. Click or press any key for sound.')
+  p0.hud('THE DUCK\nPress on the duck. Your hand holds it under while it fights to get away.\nKeep your hand on it: the ring is your grip, and when it runs out the duck escapes.\nLet go when you have to. Your time goes on the wall. R clears the board.')
 
   /* ---- the loop ---- */
   let splashT = 9
@@ -299,7 +322,19 @@ export default async function start(p0) {
     duck.position.set(st.x, WATER_Y + st.y - 0.25 * S, st.z)
     duck.rotation.set(Math.sin(time * 2.1) * 0.06 + st.wobble * Math.sin(time * 17) * 0.35, Math.atan2(st.hand.x - st.x, st.hand.y - st.z) * (st.held ? 1 : 0) + Math.sin(time * 0.7) * 0.4, Math.sin(time * 1.6) * 0.05 + st.wobble * Math.cos(time * 13) * 0.3)
     shadow.position.set(st.x, WATER_Y + 0.01, st.z); shadow.material.opacity = Math.min(0.55, depth * 0.5)
-    hand.position.set(st.hand.x, WATER_Y + 0.02, st.hand.y); hand.material.opacity = st.held ? 0.85 : Math.max(0, hand.material.opacity - dt * 3)
+    // the hand: solid on the duck while you hold; a faint "press here" hand under your pointer otherwise
+    if (st.held) {
+      hand.visible = true; hand.position.set(st.hand.x, WATER_Y + 0.08 * S, st.hand.y); skin.opacity = Math.min(1, skin.opacity + dt * 6); skin.depthWrite = skin.opacity > 0.95
+    } else {
+      const h = pointerOnWater(), over = h && Math.hypot(h.x, h.z) < R
+      if (over) hand.position.set(h.x, WATER_Y + 0.2 * S, h.z)
+      const want = over && (st.phase === 'ready' || st.phase === 'shown') ? 0.3 : 0
+      skin.opacity += (want - skin.opacity) * Math.min(1, dt * 8); skin.depthWrite = false; hand.visible = skin.opacity > 0.01
+    }
+    // the grip meter
+    const gripLeft = st.held ? Math.max(0, 1 - Math.hypot(st.hand.x - st.x, st.hand.y - st.z) / (1.15 * S)) : 0
+    grip.visible = st.held; grip.position.set(st.hand.x, WATER_Y + 0.03, st.hand.y)
+    gripU.uFill.value += (gripLeft - gripU.uFill.value) * Math.min(1, dt * 12); gripU.uTime.value = time
     if (bubbles.visible) {
       for (let i = 0; i < NB; i++) {
         bLife[i] += dt * (0.8 + (i % 5) * 0.15)

@@ -949,7 +949,7 @@ function games(game, being) {
   if (game === 'typecast') return lazy('./typecast/typecast.js', 'TYPECAST', 'The typing');
   if (game === 'name-that-planet') return lazy('./planet/planet.js', 'NAME THAT PLANET', 'The quiz');
   if (game === 'brain-bean') return lazy('./bean/bean.js', 'BRAIN BEAN COFFEE', 'The coffee');
-  if (game === 'the-duck') return lazy('./duck/duck.js?v=20261012g', 'THE DUCK', 'The Duck');
+  if (game === 'the-duck') return lazy('./duck/duck.js?v=20261012i', 'THE DUCK', 'The Duck');
   if (game === 'over-the-board') {
     return {
       title: 'OVER THE BOARD',
