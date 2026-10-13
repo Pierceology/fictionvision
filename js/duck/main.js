@@ -70,29 +70,45 @@ export default async function start(p0) {
   const tubBottom = new THREE.Mesh(new THREE.CylinderGeometry(R + 0.1 * S, R + 0.1 * S, 0.1 * S, 48), new THREE.MeshStandardMaterial({ color: 0x6f8b92, roughness: 0.6 })); tubBottom.position.y = 0.25 * S; scene.add(tubBottom)
   const rim = new THREE.Mesh(new THREE.TorusGeometry(R + 0.35 * S, 0.2 * S, 12, 48), porcelain); rim.rotation.x = Math.PI / 2; rim.position.y = 1.7 * S; scene.add(rim)
   const band = new THREE.Mesh(new THREE.TorusGeometry(R + 0.3 * S, 0.035 * S, 6, 48), brass); band.rotation.x = Math.PI / 2; band.position.y = 1.42 * S; scene.add(band)
-  // the water: deep in the middle, pale at the edge, a slow shimmer, a glint from the lamp, thin rings round the duck
-  const waterUniforms = { uTime: { value: 0 }, uDuck: { value: new THREE.Vector2(0, 0) }, uDepth: { value: 0 }, uSplash: { value: 0 }, uSplashAt: { value: new THREE.Vector2(0, 0) } }
-  const RAD = (R + 0.05 * S).toFixed(3)
-  const water = new THREE.Mesh(new THREE.CircleGeometry(R + 0.05 * S, 64), new THREE.ShaderMaterial({
+  // the water: a real moving surface. Slow swells, rings that spread from the duck (stronger the harder it fights), a splash ring;
+  // seen from above you look into it (teal, deeper in the middle), at a slant it turns to a dark mirror of the room,
+  // and the lamp's highlight rides the waves. A thin bright line where it meets the porcelain.
+  const waterUniforms = { uTime: { value: 0 }, uDuck: { value: new THREE.Vector2(0, 0) }, uDepth: { value: 0 }, uSplash: { value: 0 }, uSplashAt: { value: new THREE.Vector2(0, 0) }, uLamp: { value: new THREE.Vector3(0.9 * S, 11 * S, 3.6 * S) } }
+  const RAD = (R + 0.05 * S).toFixed(3), SS = S.toFixed(3)
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(2 * (R + 0.05 * S), 2 * (R + 0.05 * S), 56, 56), new THREE.ShaderMaterial({
     uniforms: waterUniforms, transparent: true, depthWrite: false,
-    vertexShader: `varying vec2 vP; void main(){ vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
-    fragmentShader: `uniform float uTime, uDepth, uSplash; uniform vec2 uDuck, uSplashAt; varying vec2 vP;
-      void main(){
-        float RAD = ${RAD};
-        float r = length(vP) / RAD;
-        vec3 deep = vec3(0.035, 0.22, 0.29), shallow = vec3(0.24, 0.58, 0.64);
-        vec3 col = mix(deep, shallow, smoothstep(0.1, 1.0, r));
-        float w = sin(vP.x * 2.1 + uTime * 0.6) * sin(vP.y * 2.5 - uTime * 0.5) + sin((vP.x + vP.y) * 3.3 + uTime * 0.9);
-        col += w * 0.018;
-        float g = pow(max(0.0, 1.0 - length(vP - vec2(0.9, 0.2) * ${S.toFixed(3)}) / (RAD * 0.95)), 5.0);
-        col += vec3(1.0, 0.92, 0.76) * g * 0.28;
-        float d = length(vP - uDuck);
-        float ring = pow(0.5 + 0.5 * sin(d * 9.0 - uTime * 7.0), 5.0) * smoothstep(2.6, 0.0, d) * (0.18 + uDepth * 0.8);
-        float sd = length(vP - uSplashAt);
-        float sring = smoothstep(0.12, 0.0, abs(sd - uSplash * 3.2)) * max(0.0, 1.0 - uSplash);
-        col = mix(col, vec3(0.88, 0.97, 1.0), clamp(ring * 0.55 + sring, 0.0, 1.0));
-        col = mix(col, vec3(0.92, 0.98, 1.0), smoothstep(0.955, 1.0, r) * 0.55);
-        gl_FragColor = vec4(col, mix(0.74, 0.9, smoothstep(0.2, 1.0, r)));
+    vertexShader: `uniform float uTime, uDepth, uSplash; uniform vec2 uDuck, uSplashAt;
+      varying vec2 vP; varying vec3 vW, vN;
+      float hgt(vec2 p) {
+        float h = sin(p.x * 1.3 + uTime * 0.9) * 0.012 + sin(p.y * 1.7 - uTime * 0.7) * 0.010 + sin((p.x + p.y) * 2.9 + uTime * 1.6) * 0.006 + sin((p.x - p.y) * 4.3 - uTime * 2.1) * 0.004;
+        float d = length(p - uDuck);
+        h += sin(d * 7.0 - uTime * 6.0) * 0.03 * (0.25 + uDepth) * exp(-d * 0.9);
+        float sd = length(p - uSplashAt);
+        h += sin(sd * 6.0 - uSplash * 14.0) * 0.08 * max(0.0, 1.0 - uSplash) * exp(-abs(sd - uSplash * 3.2) * 1.5);
+        return h * ${SS} * smoothstep(${RAD}, ${RAD} * 0.9, length(p));
+      }
+      void main() {
+        vec2 p = position.xy; vP = p;
+        float e = 0.05, h = hgt(p);
+        float gx = (hgt(p + vec2(e, 0.0)) - hgt(p - vec2(e, 0.0))) / (2.0 * e), gy = (hgt(p + vec2(0.0, e)) - hgt(p - vec2(0.0, e))) / (2.0 * e);
+        vN = normalize(vec3(-gx, 1.0, gy));                                   // the plane lies flat: local y is world -z
+        vec4 w = modelMatrix * vec4(p, h, 1.0); vW = w.xyz;
+        gl_Position = projectionMatrix * viewMatrix * w;
+      }`,
+    fragmentShader: `uniform vec3 uLamp; uniform float uTime; varying vec2 vP; varying vec3 vW, vN;
+      void main() {
+        float r = length(vP) / ${RAD}; if (r > 1.0) discard;
+        vec3 N = normalize(vN + vec3(sin(vP.x * 23.0 + uTime * 2.3) * sin(vP.y * 7.0 - uTime) * 0.025, 0.0, cos(vP.y * 19.0 - uTime * 1.9) * sin(vP.x * 9.0 + uTime * 1.3) * 0.025)), V = normalize(cameraPosition - vW);
+        float fres = 0.02 + 0.98 * pow(1.0 - max(dot(N, V), 0.0), 5.0);
+        vec3 body = mix(vec3(0.02, 0.13, 0.17), vec3(0.09, 0.33, 0.37), smoothstep(0.25, 1.0, r));
+        vec3 Rf = reflect(-V, N);
+        vec3 env = mix(vec3(0.025, 0.03, 0.035), vec3(0.17, 0.16, 0.14), smoothstep(-0.1, 0.6, Rf.y));
+        float l = max(dot(Rf, normalize(uLamp - vW)), 0.0);
+        float spec = pow(l, 500.0) * 5.0 + pow(l, 60.0) * 0.35;
+        vec3 col = mix(body, env, fres) + vec3(1.0, 0.9, 0.74) * spec;
+        col += vec3(0.55, 0.66, 0.66) * smoothstep(0.975, 1.0, r) * 0.35;
+        float a = clamp(mix(0.8, 0.98, fres) + spec + smoothstep(0.6, 1.0, r) * 0.15, 0.0, 1.0);
+        gl_FragColor = vec4(col, a);
       }`
   }))
   water.rotation.x = -Math.PI / 2; water.position.y = WATER_Y; scene.add(water)
@@ -299,7 +315,8 @@ export default async function start(p0) {
   p0.on('pointerdown', e => { st.soundOn = true; if (DEBUG) { const p = p0.input.pointer; const v = new THREE.Vector3(st.x, WATER_Y, st.z).project(camera); p0.log('pointer', JSON.stringify({ p, e, w: p0.width, h: p0.height, duck: [(v.x + 1) / 2, (1 - v.y) / 2] })) } grab() })
   p0.on('pointerup', () => { if (st.phase === 'held') release('letgo') })
   p0.on('keydown', e => { st.soundOn = true; if (e && (e.code === 'KeyR' || e.code === 'Space')) { if (st.phase === 'shown' || st.phase === 'flying') { st.phase = 'ready'; st.result = null; drawBoard() } } })
-  p0.hud('THE DUCK\nPress on the duck and keep pressing: it fights to get away.\nKeep your pointer on it: the ring is your grip, and when it runs out the duck escapes.\nLet go when you have to. Your time goes on the wall. R clears the board.')
+  // the city's How to play box is plain text at a width we don't set: every line short enough that it never wraps to leave one word alone
+  p0.hud('THE DUCK\nPress on the duck and keep pressing.\nIt fights. The gold ring is your grip.\nLet go when you have to.\nYour time goes on the wall. R starts over.')
 
   /* ---- the loop ---- */
   let splashT = 9
@@ -335,7 +352,7 @@ export default async function start(p0) {
       if (st.y > 0) st.vy -= 9.8 * S * dt * 0.6         // above water: only gravity pulls it down
       st.y += st.vy * dt
       if (st.phase === 'flying' && st.y <= 0.02 * S && st.vy < 0 && splashT > 0.5) {
-        splashT = 0; sounds.play('splash', { volume: 0.6 }); waterUniforms.uSplashAt.value.set(st.x, -st.z); st.phase = 'shown'; st.shownFor = 0; drawBoard()
+        splashT = 0; sounds.play('splash', { volume: 0.6 }); setTimeout(() => sounds.play('quack' + (1 + Math.floor(Math.random() * 3)), { volume: 0.75, rate: 0.95 + Math.random() * 0.1 }), 160);   // a real mallard's quack as it breaks the surface waterUniforms.uSplashAt.value.set(st.x, -st.z); st.phase = 'shown'; st.shownFor = 0; drawBoard()
         if (st.result && st.result.newBest) { burst(); st.spin = 1.4 }
       }
       st.x += (Math.sin(st.noiseA * 0.3) * 0.08 * S - st.x * 0.05) * dt; st.z += (Math.cos(st.noiseB * 0.3) * 0.08 * S - st.z * 0.05) * dt

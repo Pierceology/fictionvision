@@ -11,7 +11,8 @@ const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)) } cat
 export function mount(root) {
   root.innerHTML = `<div class="duck-page">
     <div class="duck-stage"><canvas class="duck-canvas" aria-label="The Duck: press on the duck and hold it under"></canvas>
-      <p class="duck-hud" aria-live="polite"></p></div></div>`
+      <p class="duck-hud" aria-live="polite"></p></div>
+    <p class="duck-credit">Quacks: a female mallard at Rye Grove, Surrey. British Library, via Wikimedia Commons, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>.</p></div>`
   const stage = root.querySelector('.duck-stage'), canvas = root.querySelector('.duck-canvas'), hudEl = root.querySelector('.duck-hud')
   let dead = false, raf = 0, last = 0, t0 = performance.now()
   const handlers = {}, loops = []
@@ -88,7 +89,7 @@ export function mount(root) {
   canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up)
   window.addEventListener('keydown', key); window.addEventListener('keyup', keyUp)
 
-  import('./main.js?v=20261013b').then(async m => {
+  import('./main.js?v=20261013c').then(async m => {
     if (dead) return
     await m.default(p0)
     // the best you set on this device before shows on the wall from the start
