@@ -1338,6 +1338,7 @@ class AsteroidShow extends HTMLElement {
       }
     } catch (_) {}
     let asteroidUrls = planetData[currentPlanetIndex].asteroids;
+    try { preloadRocks(asteroidUrls); } catch (e) {}
         let isPlaying = false;
         let lastBeatTime = 0;
     const beatInterval = 160;          // ms between beats; the ear hears about six a second at most
@@ -1538,6 +1539,13 @@ class AsteroidShow extends HTMLElement {
 
     // ── Helpers ──────────────────────────────────────────────────────────────
     function rnd(a, b) { return Math.random() * (b - a) + a; }
+    // the rocks as Wix serves them resized: a 640px WebP keeps the transparency and is about a sixth of the 1200px PNG,
+    // so the big rocks stay big and stop stalling the frame; each planet's set is fetched ahead, so the first hit is never late
+    function rockSrc(u) {
+      const m = String(u).match(/static\.wixstatic\.com\/media\/([^/]+?)~mv2\.png$/);
+      return m ? `https://static.wixstatic.com/media/${m[1]}~mv2.png/v1/fit/w_640,h_640,q_90,enc_webp/${m[1]}~mv2.webp` : u;
+    }
+    function preloadRocks(list) { const seen = preloadRocks.seen || (preloadRocks.seen = new Set()); (list || []).forEach(u => { const s = rockSrc(u); if (seen.has(s)) return; seen.add(s); const im = new Image(); im.decoding = 'async'; im.src = s; }); }
     function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
     const CHROME_HIDDEN = 'asteroidshow--chrome-hidden';
 
@@ -1557,11 +1565,11 @@ class AsteroidShow extends HTMLElement {
       if (!cont || cont.children.length >= perfSettings.maxAsteroids) return;
       const div = document.createElement('div');
       div.className = 'asteroid';
-      div.style.backgroundImage = `url(${pick(asteroidUrls)})`;
+      div.style.backgroundImage = `url(${rockSrc(pick(asteroidUrls))})`;
       div.style.width = div.style.height = perfSettings.asteroidSize;
       const dur = rnd(perfSettings.animDur[0], perfSettings.animDur[1]);
       div.style.animationDuration = dur + 's';
-      if (isMobile && Math.random() < 0.5) div.classList.add('from-right');
+      // every rock flies one way, bottom left to top right, on phones as on desktop (Pierce, 2026-10-12: not criss-cross)
       div.style.left = (isMobile ? rnd(window.innerWidth * 0.15, window.innerWidth * 0.85) : rnd(-100, window.innerWidth + 100)) + 'px';
       div.style.top = (isMobile ? rnd(window.innerHeight * 0.45, window.innerHeight * 0.8) : rnd(-100, window.innerHeight + 100)) + 'px';
       cont.appendChild(div);
@@ -1653,7 +1661,7 @@ class AsteroidShow extends HTMLElement {
           }
         } catch (_) {}
         updatePlanetCard(planet);
-        asteroidUrls = planet.asteroids;
+        asteroidUrls = planet.asteroids; preloadRocks(asteroidUrls);
 
         const srcEl = $('nebula-source'); const vid = $('nebula-video');
         if (srcEl && vid) {
