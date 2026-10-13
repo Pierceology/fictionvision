@@ -119,16 +119,6 @@ export default async function start(p0) {
   }
   const duck = makeDuck(yellow); scene.add(duck)
   const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.8 * S, 32), new THREE.MeshBasicMaterial({ color: 0x03242c, transparent: true, opacity: 0.0 })); shadow.rotation.x = -Math.PI / 2; shadow.position.y = WATER_Y + 0.01; scene.add(shadow)
-  // the hand: a pale hand lying on the water, fingers away from you. A faint one follows your pointer to say "press here";
-  // it turns solid while you hold the duck under.
-  const skin = new THREE.MeshStandardMaterial({ color: 0xe6c2a6, roughness: 0.6, transparent: true, opacity: 0 })
-  const hand = new THREE.Group()
-  { const add = (g, x, y, z, rx, rz) => { const m = new THREE.Mesh(g, skin); m.position.set(x, y, z); m.rotation.set(rx || 0, 0, rz || 0); hand.add(m) }
-    const palm = new THREE.SphereGeometry(0.42, 24, 16); palm.scale(1, 0.26, 1.12); add(palm, 0, 0, 0)
-    ;[-0.25, -0.085, 0.085, 0.25].forEach((x, k) => { const len = [0.3, 0.4, 0.44, 0.38][k]; const f = new THREE.CapsuleGeometry(0.075, len, 4, 10); add(f, x * 1.05, 0.02, -0.5 - len / 2, -Math.PI / 2) })
-    const thumb = new THREE.CapsuleGeometry(0.085, 0.3, 4, 10); add(thumb, -0.47, 0.02, -0.05, -Math.PI / 2, 0.9)
-    const wrist = new THREE.SphereGeometry(0.3, 20, 12); wrist.scale(1, 0.3, 0.9); add(wrist, 0, 0.01, 0.42) }
-  hand.scale.setScalar(S * 1.15); hand.visible = false; hand.traverse(m => { m.renderOrder = 6 }); scene.add(hand)
   // the grip: a ring round your hand on the water that drains as the duck slips away from it. Empty ring, the duck is gone.
   const gripU = { uFill: { value: 1 }, uTime: { value: 0 } }
   const grip = new THREE.Mesh(new THREE.RingGeometry(1.02 * S, 1.12 * S, 96, 1), new THREE.ShaderMaterial({
@@ -150,6 +140,18 @@ export default async function start(p0) {
   const NB = 60, bubbleGeo = new THREE.BufferGeometry(), bPos = new Float32Array(NB * 3), bLife = new Float32Array(NB)
   bubbleGeo.setAttribute('position', new THREE.BufferAttribute(bPos, 3))
   const bubbles = new THREE.Points(bubbleGeo, new THREE.PointsMaterial({ map: dot.texture, color: 0xffffff, size: 0.2 * S, transparent: true, opacity: 0.9, depthWrite: false })); bubbles.visible = false; scene.add(bubbles)
+  // confetti for a new best: gold and cream sparks that burst up from the duck and fall back
+  const NC = 90, confGeo = new THREE.BufferGeometry(), cPos = new Float32Array(NC * 3), cVel = new Float32Array(NC * 3), cCol = new Float32Array(NC * 3)
+  confGeo.setAttribute('position', new THREE.BufferAttribute(cPos, 3)); confGeo.setAttribute('color', new THREE.BufferAttribute(cCol, 3))
+  const confetti = new THREE.Points(confGeo, new THREE.PointsMaterial({ map: dot.texture, size: 0.24 * S, vertexColors: true, transparent: true, depthWrite: false }))
+  confetti.visible = false; confetti.renderOrder = 7; confetti.frustumCulled = false; scene.add(confetti)
+  let confT = 9
+  function burst() {
+    confT = 0; confetti.visible = true; confetti.material.opacity = 1
+    const pal = [[1, 0.82, 0.3], [1, 0.95, 0.75], [0.79, 0.66, 0.42], [1, 0.62, 0.22]]
+    for (let i = 0; i < NC; i++) { const a = Math.random() * Math.PI * 2, sp = (0.8 + Math.random() * 2.2) * S; cPos.set([st.x, WATER_Y + 0.4 * S, st.z], i * 3); cVel.set([Math.cos(a) * sp, (3.5 + Math.random() * 4) * S, Math.sin(a) * sp], i * 3); cCol.set(pal[i % 4], i * 3) }
+    confGeo.attributes.color.needsUpdate = true
+  }
 
 
   /* ---- other players' ducks ---- */
@@ -187,7 +189,7 @@ export default async function start(p0) {
     y: 0, vy: 0,           // height of its waterline above rest: negative is under
     held: false, holdFor: 0, hand: new THREE.Vector2(0, 0),
     phase: 'ready',        // ready · held · flying · shown
-    shownFor: 0, result: null, best: 0, lastSent: 0, soundOn: false, wobble: 0,
+    shownFor: 0, result: null, best: 0, nextBell: 5, lastPanic: 0, flash: 0, spin: 0, lastSent: 0, soundOn: false, wobble: 0,
     noiseA: Math.random() * 6, noiseB: Math.random() * 6,
   }
   let table = p0.table || []
@@ -201,11 +203,11 @@ export default async function start(p0) {
     const c = board.ctx, cx = 768
     board.clear()
     if (st.phase === 'held') {
-      clockFace(c, secs(st.holdFor * 1000), cx, 330, 300, IVORY, 200)
+      clockFace(c, secs(st.holdFor * 1000), cx, 330, 300, st.flash > 0 ? GOLD : IVORY, 200)
       say(c, 'SECONDS', cx, 540, { size: 30, font: SANS, weight: 500, color: GOLD, space: 14 })
     } else if (st.result) {
-      say(c, st.result.tag, cx, 178, { size: 34, font: SANS, weight: 500, color: GOLD, space: 14 })
-      clockFace(c, secs(st.result.t), cx, 330, 220, IVORY, 200)
+      say(c, st.result.tag, cx, 178, { size: st.result.newBest ? 44 : 34, font: SANS, weight: 500, color: GOLD, space: 14 })
+      clockFace(c, secs(st.result.t), cx, 330, 220, st.result.newBest ? GOLD : IVORY, 200)
       say(c, st.result.line, cx, 510, { size: 54, style: 'italic', color: IVORY })
     } else {
       say(c, 'Press on the duck and hold it under.', cx, 330, { size: 62, style: 'italic', color: IVORY, fit: 1400 })
@@ -255,6 +257,8 @@ export default async function start(p0) {
     st.held = true; st.phase = 'held'; st.holdFor = 0; st.result = null; st.hand.set(h.x, h.z); st.y = -0.2 * S; st.vy = 0
     bubbles.visible = true; for (let i = 0; i < NB; i++) bLife[i] = -Math.random() * 1.5
     sounds.play('plunge', { volume: 0.7 }); bubbleLoop = sounds.play('bubbles', { volume: 0.25, loop: true })
+    sounds.play('quack-under', { volume: 0.55, rate: 0.95 + Math.random() * 0.15 })
+    st.nextBell = 5; st.lastPanic = 0; st.flash = 0
   }
   function release(why) {
     if (st.phase !== 'held') return
@@ -265,6 +269,10 @@ export default async function start(p0) {
     st.result = why === 'slipped'
       ? { tag: 'IT GOT AWAY', t, line: 'As long as you could.' }
       : { tag: 'YOU LET GO', t, line: 'As long as you had to.' }
+    // a new best (yours, or the week's) is a celebration when it surfaces
+    const weekTop = table.length ? Math.max(...table.map(r => r.score || 0)) : 0
+    if (st.best > 0 && t > st.best) { st.result.newBest = true; st.result.tag = t > weekTop && weekTop > 0 ? 'TOP OF THE WEEK' : 'NEW BEST' }
+    st.best = Math.max(st.best, t)
     if (bubbleLoop) { try { p0.sound.stop(bubbleLoop) } catch (e) { } bubbleLoop = null }
     bubbles.visible = false
     sounds.play('squeak', { volume: 0.8, rate: 0.9 + Math.random() * 0.2 })
@@ -275,7 +283,7 @@ export default async function start(p0) {
   p0.on('pointerdown', e => { st.soundOn = true; if (DEBUG) { const p = p0.input.pointer; const v = new THREE.Vector3(st.x, WATER_Y, st.z).project(camera); p0.log('pointer', JSON.stringify({ p, e, w: p0.width, h: p0.height, duck: [(v.x + 1) / 2, (1 - v.y) / 2] })) } grab() })
   p0.on('pointerup', () => { if (st.phase === 'held') release('letgo') })
   p0.on('keydown', e => { st.soundOn = true; if (e && (e.code === 'KeyR' || e.code === 'Space')) { if (st.phase === 'shown' || st.phase === 'flying') { st.phase = 'ready'; st.result = null; drawBoard() } } })
-  p0.hud('THE DUCK\nPress on the duck. Your hand holds it under while it fights to get away.\nKeep your hand on it: the ring is your grip, and when it runs out the duck escapes.\nLet go when you have to. Your time goes on the wall. R clears the board.')
+  p0.hud('THE DUCK\nPress on the duck and keep pressing: it fights to get away.\nKeep your pointer on it: the ring is your grip, and when it runs out the duck escapes. A bell rings every five seconds.\nLet go when you have to. Your time goes on the wall. R clears the board.')
 
   /* ---- the loop ---- */
   let splashT = 9
@@ -287,6 +295,8 @@ export default async function start(p0) {
 
     if (st.phase === 'held') {
       st.holdFor += dt
+      if (st.holdFor >= st.nextBell) { sounds.play('bell', { volume: 0.55, rate: Math.min(2, 1 + (st.nextBell / 5 - 1) * 0.12) }); sounds.play('quack-under', { volume: 0.45, rate: 0.9 + Math.random() * 0.25 }); st.flash = 0.6; st.nextBell += 5; drawBoard() }
+      { const gl = 1 - Math.hypot(st.hand.x - st.x, st.hand.y - st.z) / (1.15 * S); if (gl < 0.3 && time - st.lastPanic > 0.45) { sounds.play('squeak', { volume: 0.4, rate: 1.35 + Math.random() * 0.2 }); st.lastPanic = time } }
       const h = pointerOnWater(); if (h) st.hand.set(h.x, h.z)
       // pushed down: the longer you hold, the deeper, up to the floor of the tub
       const target = -Math.min(1.5, 0.25 + st.holdFor * 0.22) * S
@@ -302,6 +312,7 @@ export default async function start(p0) {
       if (Math.hypot(st.hand.x - st.x, st.hand.y - st.z) > 1.15 * S) release('slipped')
       if (Math.floor(st.holdFor * 10) !== Math.floor((st.holdFor - dt) * 10)) drawBoard()
       st.wobble = depth
+      if (st.flash > 0) { st.flash = Math.max(0, st.flash - dt); if (st.flash === 0) drawBoard() }
     } else {
       // free: buoyancy brings it back to the waterline, with a bob
       const k = 28, c = 3.2
@@ -310,6 +321,7 @@ export default async function start(p0) {
       st.y += st.vy * dt
       if (st.phase === 'flying' && st.y <= 0.02 * S && st.vy < 0 && splashT > 0.5) {
         splashT = 0; sounds.play('splash', { volume: 0.6 }); waterUniforms.uSplashAt.value.set(st.x, -st.z); st.phase = 'shown'; st.shownFor = 0; drawBoard()
+        if (st.result && st.result.newBest) { sounds.play('fanfare', { volume: 0.85 }); burst(); st.spin = 1.4 } else sounds.play('quack', { volume: 0.75, rate: 0.92 + Math.random() * 0.2 })
       }
       st.x += (Math.sin(st.noiseA * 0.3) * 0.08 * S - st.x * 0.05) * dt; st.z += (Math.cos(st.noiseB * 0.3) * 0.08 * S - st.z * 0.05) * dt
       st.wobble = Math.max(0, st.wobble - dt * 2)
@@ -322,14 +334,11 @@ export default async function start(p0) {
     duck.position.set(st.x, WATER_Y + st.y - 0.25 * S, st.z)
     duck.rotation.set(Math.sin(time * 2.1) * 0.06 + st.wobble * Math.sin(time * 17) * 0.35, Math.atan2(st.hand.x - st.x, st.hand.y - st.z) * (st.held ? 1 : 0) + Math.sin(time * 0.7) * 0.4, Math.sin(time * 1.6) * 0.05 + st.wobble * Math.cos(time * 13) * 0.3)
     shadow.position.set(st.x, WATER_Y + 0.01, st.z); shadow.material.opacity = Math.min(0.55, depth * 0.5)
-    // the hand: solid on the duck while you hold; a faint "press here" hand under your pointer otherwise
-    if (st.held) {
-      hand.visible = true; hand.position.set(st.hand.x, WATER_Y + 0.08 * S, st.hand.y); skin.opacity = Math.min(1, skin.opacity + dt * 6); skin.depthWrite = skin.opacity > 0.95
-    } else {
-      const h = pointerOnWater(), over = h && Math.hypot(h.x, h.z) < R
-      if (over) hand.position.set(h.x, WATER_Y + 0.2 * S, h.z)
-      const want = over && (st.phase === 'ready' || st.phase === 'shown') ? 0.3 : 0
-      skin.opacity += (want - skin.opacity) * Math.min(1, dt * 8); skin.depthWrite = false; hand.visible = skin.opacity > 0.01
+    if (st.spin > 0) { st.spin = Math.max(0, st.spin - dt); const k = 1 - st.spin / 1.4, e = k * k * (3 - 2 * k); duck.rotation.y += e * Math.PI * 4; duck.position.y += Math.sin(k * Math.PI) * 0.6 * S }
+    if (confetti.visible) {
+      confT += dt
+      for (let i = 0; i < NC; i++) { cVel[i * 3 + 1] -= 7.5 * S * dt; cPos[i * 3] += cVel[i * 3] * dt; cPos[i * 3 + 1] += cVel[i * 3 + 1] * dt; cPos[i * 3 + 2] += cVel[i * 3 + 2] * dt }
+      confGeo.attributes.position.needsUpdate = true; confetti.material.opacity = Math.max(0, 1 - Math.max(0, confT - 1.2) / 1.3); if (confT > 2.5) confetti.visible = false
     }
     // the grip meter
     const gripLeft = st.held ? Math.max(0, 1 - Math.hypot(st.hand.x - st.x, st.hand.y - st.z) / (1.15 * S)) : 0
