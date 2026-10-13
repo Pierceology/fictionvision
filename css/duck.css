@@ -9,6 +9,8 @@
 .duck-canvas { display: block; width: 100%; height: 100%; cursor: pointer; touch-action: none; }
 .duck-hud { position: absolute; left: 0; right: 0; bottom: 14px; margin: 0; padding: 0 16px; text-align: center; font: 400 14px/1.4 var(--body, sans-serif); color: rgba(236, 228, 211, .62); pointer-events: none; }
 @media (max-width: 700px) { .duck-stage { height: calc(100svh - 120px); min-height: 0; } }
+/* how to play sits under the stage, never over the tub (the wall already says what to do) */
+.duck-page > .duck-hud { position: static; margin: 14px auto 0; max-width: 62ch; }
 
 /* the quacks' credit, quiet under the stage */
 .duck-credit { margin: 10px auto 0; max-width: 62ch; text-align: center; font-size: 12px; line-height: 1.4; color: rgba(236, 228, 211, 0.5); }

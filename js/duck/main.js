@@ -6,6 +6,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { plate, say, clockFace, SERIF, SANS } from './text.js'
 
 const QUOTE = ['There are two types of people in the world:', 'those who hold their breath for as long as they can,', 'and those who hold their breath for as long as they have to.']
+// the same words for a phone held upright: short lines, one size, so they read across a narrow screen
+const QUOTE_TALL = ['There are two types of people in the world:', 'those who hold their breath', 'for as long as they can,', 'and those who hold their breath', 'for as long as they have to.']
 const IVORY = '#ece4d3', GOLD = '#c9a96a', MUTED = 'rgba(236,228,211,0.62)'
 
 export default async function start(p0) {
@@ -52,6 +54,16 @@ export default async function start(p0) {
   const wallText = (tex, w, h) => new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, toneMapped: false }))
   const quoteMesh = wallText(quote.texture, 9.6 * S, 3.0 * S)
   quoteMesh.position.set(0, 4.12 * S, -lot.depth / 2 + 0.34); scene.add(quoteMesh)
+  const quoteTall = plate(1536, 800)
+  {
+    const c = quoteTall.ctx
+    c.font = `italic 400 84px ${SERIF}`
+    const size = Math.floor(84 * Math.min(1, 1460 / Math.max(...QUOTE_TALL.map(l => c.measureText(l).width))))
+    QUOTE_TALL.forEach((l, i) => say(c, l, 768, 120 + i * 140, { size, style: 'italic', color: IVORY }))
+    quoteTall.done()
+  }
+  const quoteTallMesh = wallText(quoteTall.texture, 7.4 * S, 7.4 * S * 800 / 1536)
+  quoteTallMesh.position.set(0, 6.25 * S, -lot.depth / 2 + 0.34); quoteTallMesh.visible = false; scene.add(quoteTallMesh)
   const board = plate(1536, 768)
   const boardMesh = wallText(board.texture, 6.0 * S, 3.0 * S)
   boardMesh.position.set(0, 2.09 * S, -lot.depth / 2 + 0.34); scene.add(boardMesh)
@@ -187,24 +199,44 @@ export default async function start(p0) {
 
   /* ---- camera ---- */
   camera.near = 0.1; camera.far = 200
-  // a wide screen sees the whole wall at 64 degrees. A tall phone widens the lens until the quote fits,
-  // and the two columns move up above the quote, where a tall screen has room.
+  // a wide screen sees the whole wall at 64 degrees from eye height.
+  // A phone held upright looks down into the tub from above, like a phone held over a bath: the week's best,
+  // the quote in short lines and the board stack up the wall, and the lens opens just enough to hold
+  // the wall's top and the tub's near rim, and the whole tub from side to side.
+  const camAt = new THREE.Vector3(), look = new THREE.Vector3()
+  let tallView = false, boardReady = false
   function layout() {
     const aspect = p0.width / Math.max(1, p0.height), wallZ = -lot.depth / 2 + 0.34
-    if (aspect >= 1) {
+    const tall = aspect < 0.85, was = tallView
+    tallView = tall
+    quoteMesh.visible = !tall; quoteTallMesh.visible = tall
+    if (!tall) {
       camera.fov = 64
-      mineMesh.position.set(-3.95 * S, 2.3 * S, wallZ); weekMesh.position.set(3.95 * S, 2.3 * S, wallZ)
+      camAt.set(0, 5.7 * S, Math.min(lot.depth / 2 - 0.3, 5.6 * S)); look.set(0, 2.75 * S, -1.6 * S)
+      boardMesh.position.set(0, 2.09 * S, wallZ); boardMesh.scale.setScalar(1)
+      mineMesh.position.set(-3.95 * S, 2.3 * S, wallZ); weekMesh.position.set(3.95 * S, 2.3 * S, wallZ); mineMesh.scale.setScalar(1); weekMesh.scale.setScalar(1)
     } else {
-      camera.fov = Math.min(100, Math.max(64, THREE.MathUtils.radToDeg(2 * Math.atan(0.44 / aspect))))
-      mineMesh.position.set(-1.7 * S, 5.98 * S, wallZ); weekMesh.position.set(1.7 * S, 5.98 * S, wallZ)
+      boardMesh.position.set(0, 2.85 * S, wallZ); boardMesh.scale.setScalar(1.2)
+      mineMesh.position.set(-1.72 * S, 9.0 * S, wallZ); weekMesh.position.set(1.72 * S, 9.0 * S, wallZ); mineMesh.scale.setScalar(1.08); weekMesh.scale.setScalar(1.08)
+      camAt.set(0, 10 * S, Math.min(lot.depth / 2 - 0.3, 5.7 * S))
+      const top = Math.atan2(10.25 * S - camAt.y, camAt.z - wallZ)                   // the top of the week's best
+      const bottom = Math.atan2(1.95 * S - camAt.y, camAt.z - (R + 0.55 * S))       // the near rim
+      const vNeed = (top - bottom) * 1.06
+      const dist = Math.hypot(camAt.y - WATER_Y, camAt.z)
+      const hNeed = 2 * Math.atan((R + 0.75 * S) / dist) * 1.08                       // the whole tub, side to side
+      const vFromH = 2 * Math.atan(Math.tan(hNeed / 2) / aspect)
+      const vFov = Math.max(vNeed, vFromH)
+      camera.fov = THREE.MathUtils.radToDeg(vFov)
+      // the near rim sits just inside the bottom edge; any spare height goes to the dark wall above
+      const pitch = bottom + vFov / 2 - 0.03
+      look.set(0, camAt.y + Math.sin(pitch) * 10 * S, camAt.z - Math.cos(pitch) * 10 * S)
     }
     camera.updateProjectionMatrix()
+    camera.position.copy(camAt); camera.lookAt(look)
+    if (boardReady && was !== tall) drawBoard()
   }
   layout()
   p0.on('resize', layout)
-  const camAt = new THREE.Vector3(0, 5.7 * S, Math.min(lot.depth / 2 - 0.3, 5.6 * S))
-  const look = new THREE.Vector3(0, 2.75 * S, -1.6 * S)
-  camera.position.copy(camAt); camera.lookAt(look)
   p0.me.position = { x: camAt.x, y: camAt.y, z: camAt.z }
 
   /* ---- the game ---- */
@@ -230,11 +262,14 @@ export default async function start(p0) {
   const secs = t => (t / 1000).toFixed(2)
   // the board on the wall: big quiet numerals while you hold, the verdict after, the week's best under it
   const canChallenge = typeof p0.invite === 'function', CH = { x: 768 - 250, y: 528, w: 500, h: 64 }
+  // a phone reads the wall from farther off: the verdict and the button grow, and the button stays easy to hit
+  const CH_WIDE = { x: 768 - 250, y: 528, w: 500, h: 64 }, CH_TALL = { x: 768 - 380, y: 580, w: 760, h: 110 }
   function onChallenge() {
     const p = p0.input.pointer; ndc.set((p.x / p0.width) * 2 - 1, -(p.y / p0.height) * 2 + 1); ray.setFromCamera(ndc, camera)
     const h = ray.intersectObject(boardMesh, false)[0]; if (!h || !h.uv) return false
     const x = h.uv.x * 1536, y = (1 - h.uv.y) * 768
-    return x > CH.x - 10 && x < CH.x + CH.w + 10 && y > CH.y - 10 && y < CH.y + CH.h + 10
+    const m = tallView ? 60 : 10        // a thumb on a phone needs more room than a mouse
+    return x > CH.x - m && x < CH.x + CH.w + m && y > CH.y - m && y < CH.y + CH.h + m
   }
   function challenge() {
     const t = st.result ? st.result.t : st.best
@@ -247,15 +282,18 @@ export default async function start(p0) {
       clockFace(c, secs(st.holdFor * 1000), cx, 330, 300, st.flash > 0 ? GOLD : IVORY, 200)
       say(c, 'SECONDS', cx, 540, { size: 30, font: SANS, weight: 500, color: GOLD, space: 14 })
     } else if (st.result) {
-      say(c, st.result.tag, cx, 130, { size: st.result.newBest ? 44 : 34, font: SANS, weight: 500, color: GOLD, space: 14 })
-      if (st.result.badge) say(c, 'BADGE · ' + st.result.badge.toUpperCase(), cx, 182, { size: 28, font: SANS, weight: 500, color: GOLD, space: 10, fit: 1400 })
-      clockFace(c, secs(st.result.t), cx, 320, 210, st.result.newBest ? GOLD : IVORY, 200)
-      say(c, st.result.line, cx, 470, { size: 54, style: 'italic', color: IVORY })
+      const T = tallView
+      Object.assign(CH, T ? CH_TALL : CH_WIDE)
+      say(c, st.result.tag, cx, T ? 70 : 130, { size: T ? (st.result.newBest ? 64 : 54) : (st.result.newBest ? 44 : 34), font: SANS, weight: 500, color: GOLD, space: 14, fit: 1460 })
+      if (st.result.badge) say(c, 'BADGE · ' + st.result.badge.toUpperCase(), cx, T ? 140 : 182, { size: T ? 40 : 28, font: SANS, weight: 500, color: GOLD, space: 10, fit: 1400 })
+      clockFace(c, secs(st.result.t), cx, T ? 310 : 320, T ? 250 : 210, st.result.newBest ? GOLD : IVORY, 200)
+      say(c, st.result.line, cx, T ? 495 : 470, { size: T ? 76 : 54, style: 'italic', color: IVORY, fit: 1460 })
       // one tap sends this time to the whole city: the city's own invitation card, with the time on it, to World chat
-      if (canChallenge) { const hot = st.challengeHot, col = hot ? '#e6c88a' : GOLD; c.strokeStyle = col; c.lineWidth = 2; c.strokeRect(CH.x, CH.y, CH.w, CH.h); say(c, 'CHALLENGE THE CITY', cx, CH.y + CH.h / 2 + 2, { size: 30, font: SANS, weight: 500, color: col, space: 12 }) }
+      if (canChallenge) { const hot = st.challengeHot, col = hot ? '#e6c88a' : GOLD; c.strokeStyle = col; c.lineWidth = T ? 3 : 2; c.strokeRect(CH.x, CH.y, CH.w, CH.h); say(c, 'CHALLENGE THE CITY', cx, CH.y + CH.h / 2 + 2, { size: T ? 46 : 30, font: SANS, weight: 500, color: col, space: 12 }) }
     } else {
-      say(c, 'Press on the duck and hold it under.', cx, 330, { size: 62, style: 'italic', color: IVORY, fit: 1400 })
-      say(c, 'Keep your hand on it. The ring is your grip.', cx, 420, { size: 42, style: 'italic', color: MUTED, fit: 1400 })
+      // a phone sees the wall from farther off: the same two lines, larger
+      say(c, 'Press on the duck and hold it under.', cx, 330, { size: tallView ? 96 : 62, style: 'italic', color: IVORY, fit: 1460 })
+      say(c, 'Keep your hand on it. The ring is your grip.', cx, tallView ? 450 : 420, { size: tallView ? 64 : 42, style: 'italic', color: MUTED, fit: 1460 })
     }
     board.done()
     // your best this week
@@ -282,6 +320,7 @@ export default async function start(p0) {
   }
   const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th')
   drawBoard()
+  boardReady = true
 
   const ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -WATER_Y), hit = new THREE.Vector3(), ndc = new THREE.Vector2()
   function pointerOnWater() {
