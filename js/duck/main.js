@@ -2,6 +2,7 @@
 // "There are two types of people in the world: those who hold their breath for as long as they can,
 //  and those who hold their breath for as long as they have to." — Pierce
 import * as THREE from 'three'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { plate, say, clockFace, SERIF, SANS } from './text.js'
 
 const QUOTE = ['There are two types of people in the world:', 'those who hold their breath for as long as they can,', 'and those who hold their breath for as long as they have to.']
@@ -96,13 +97,21 @@ export default async function start(p0) {
   }))
   water.rotation.x = -Math.PI / 2; water.position.y = WATER_Y; scene.add(water)
 
-  /* ---- the duck: glossy, with a proper flat bill ---- */
+  /* ---- the duck: Pierce's own painted Meshy duck (assets/duck.glb, sized and turned to fit); the drawn one below only if it fails to load ---- */
+  let duckModel = null
+  try { const gl = await new GLTFLoader().loadAsync(p0.asset('assets/duck.glb')); gl.scene.traverse(o => { if (o.isMesh && !duckModel) duckModel = o }) } catch (e) { p0.log('duck model did not load', String(e)) }
   const yellow = new THREE.MeshStandardMaterial({ color: 0xffc21a, roughness: 0.36, emissive: 0x6a4600, emissiveIntensity: 0.55 })   // a rubber duck stays yellow in its own shadow
   const orange = new THREE.MeshStandardMaterial({ color: 0xff7a12, roughness: 0.35 })
   const black = new THREE.MeshStandardMaterial({ color: 0x14100c, roughness: 0.2 })
   const white = new THREE.MeshBasicMaterial({ color: 0xffffff })
   function makeDuck(mat) {
     const g = new THREE.Group()
+    if (duckModel) {
+      const m = duckModel.clone()
+      if (mat && mat !== yellow) m.material = mat
+      else { m.material = duckModel.material.clone(); m.material.roughness = 0.26; m.material.emissive = new THREE.Color(0xffffff); m.material.emissiveMap = m.material.map; m.material.emissiveIntensity = 0.22 }   // a rubber duck stays yellow in its own shadow
+      g.add(m); g.scale.setScalar(S); return g
+    }
     const ball = (r, sx, sy, sz, m, x, y, z, rz) => { const o = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 16), m); o.scale.set(sx, sy, sz); o.position.set(x, y, z); if (rz) o.rotation.z = rz; g.add(o); return o }
     ball(0.62, 1.3, 0.84, 1, mat, 0, 0, 0)                          // body
     ball(0.27, 1.25, 0.72, 0.85, mat, -0.6, 0.3, 0, 0.9)             // tail, flicked up, grown into the body

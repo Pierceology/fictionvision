@@ -43,6 +43,7 @@ export function mount(root) {
     room: { send() { } },
     input: { keys: new Set(), isDown: c => p0.input.keys.has(c), pointer },
     table: [],
+    asset: path => new URL('./' + path, import.meta.url).href,
     on(ev, f) { (handlers[ev] = handlers[ev] || []).push(f) },
     loop(f) { loops.push(f) },
     hud(text) { hudEl.textContent = String(text).split('\n').slice(1).join(' ').replace(/\s*Click or press any key for sound\.?/, '') },
@@ -87,7 +88,7 @@ export function mount(root) {
   canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up)
   window.addEventListener('keydown', key); window.addEventListener('keyup', keyUp)
 
-  import('./main.js?v=20261013a').then(async m => {
+  import('./main.js?v=20261013b').then(async m => {
     if (dead) return
     await m.default(p0)
     // the best you set on this device before shows on the wall from the start
