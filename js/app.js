@@ -883,7 +883,7 @@ function submit() {
           <div class="price-tag"><b>$29</b><span>one time</span></div>
           <ol class="next-list">
             <li><span class="n">1</span><span><b>We make up to 3 posters from your words.</b> You pick the one that's yours.</span></li>
-            <li><span class="n">2</span><span><b>Your idea goes on FictionVision</b> with your poster, in front of studio buyers who are looking for ideas.</span></li>
+            <li><span class="n">2</span><span><b>Your idea goes on FictionVision</b> with your poster, out where people who make movies and shows can find it.</span></li>
             <li><span class="n">3</span><span><b>If a buyer wants it, they come to you through us, and we take a cut of the sale.</b> Your idea stays yours. We can't promise anyone will buy it.</span></li>
             <li><span class="n">4</span><span><b>Every title here streams somewhere in the Pool Table Universe.</b> We'll find yours a planet.</span></li>
           </ol>${navHTML('Sounds good')}`,
