@@ -230,6 +230,17 @@ export default async function start(p0) {
   const ms = t => (t / 1000).toFixed(2) + ' s'
   const secs = t => (t / 1000).toFixed(2)
   // the board on the wall: big quiet numerals while you hold, the verdict after, the week's best under it
+  const canChallenge = typeof p0.invite === 'function', CH = { x: 768 - 250, y: 528, w: 500, h: 64 }
+  function onChallenge() {
+    const p = p0.input.pointer; ndc.set((p.x / p0.width) * 2 - 1, -(p.y / p0.height) * 2 + 1); ray.setFromCamera(ndc, camera)
+    const h = ray.intersectObject(boardMesh, false)[0]; if (!h || !h.uv) return false
+    const x = h.uv.x * 1536, y = (1 - h.uv.y) * 768
+    return x > CH.x - 10 && x < CH.x + CH.w + 10 && y > CH.y - 10 && y < CH.y + CH.h + 10
+  }
+  function challenge() {
+    const t = st.result ? st.result.t : st.best
+    try { p0.invite({ kind: 'team', note: t > 0 ? `I held the duck under for ${secs(t)} seconds. Hold it longer.` : 'Hold the duck under. It fights.' }) } catch (e) { }
+  }
   function drawBoard() {
     const c = board.ctx, cx = 768
     board.clear()
@@ -237,10 +248,12 @@ export default async function start(p0) {
       clockFace(c, secs(st.holdFor * 1000), cx, 330, 300, st.flash > 0 ? GOLD : IVORY, 200)
       say(c, 'SECONDS', cx, 540, { size: 30, font: SANS, weight: 500, color: GOLD, space: 14 })
     } else if (st.result) {
-      say(c, st.result.tag, cx, 178, { size: st.result.newBest ? 44 : 34, font: SANS, weight: 500, color: GOLD, space: 14 })
-      clockFace(c, secs(st.result.t), cx, 330, 220, st.result.newBest ? GOLD : IVORY, 200)
-      say(c, st.result.line, cx, 510, { size: 54, style: 'italic', color: IVORY })
-      if (st.result.badge) say(c, 'BADGE · ' + st.result.badge.toUpperCase(), cx, 610, { size: 34, font: SANS, weight: 500, color: GOLD, space: 12, fit: 1400 })
+      say(c, st.result.tag, cx, 130, { size: st.result.newBest ? 44 : 34, font: SANS, weight: 500, color: GOLD, space: 14 })
+      if (st.result.badge) say(c, 'BADGE · ' + st.result.badge.toUpperCase(), cx, 182, { size: 28, font: SANS, weight: 500, color: GOLD, space: 10, fit: 1400 })
+      clockFace(c, secs(st.result.t), cx, 320, 210, st.result.newBest ? GOLD : IVORY, 200)
+      say(c, st.result.line, cx, 470, { size: 54, style: 'italic', color: IVORY })
+      // one tap sends this time to the whole city: the city's own invitation card, with the time on it, to World chat
+      if (canChallenge) { const hot = st.challengeHot, col = hot ? '#e6c88a' : GOLD; c.strokeStyle = col; c.lineWidth = 2; c.strokeRect(CH.x, CH.y, CH.w, CH.h); say(c, 'CHALLENGE THE CITY', cx, CH.y + CH.h / 2 + 2, { size: 30, font: SANS, weight: 500, color: col, space: 12 }) }
     } else {
       say(c, 'Press on the duck and hold it under.', cx, 330, { size: 62, style: 'italic', color: IVORY, fit: 1400 })
       say(c, 'Keep your hand on it. The ring is your grip.', cx, 420, { size: 42, style: 'italic', color: MUTED, fit: 1400 })
@@ -279,7 +292,11 @@ export default async function start(p0) {
     return ray.ray.intersectPlane(plane, hit) ? hit : null
   }
   const sounds = { play(name, o) { if (!st.soundOn) return; try { return p0.sound.play('assets/' + name + '.wav', o || {}) } catch (e) { return null } } }
+  // the bubbles' loop runs only while the duck is held: stopped on release, and again every frame it is not held, whatever form
+  // the city's handle takes (an id, 0, or a promise of one), so it can never run on after a round
   let bubbleLoop = null
+  function startBubbles() { stopBubbles(); const r = sounds.play('bubbles', { volume: 0.25, loop: true }); if (r == null) return; bubbleLoop = r; if (typeof r.then === 'function') r.then(id => { if (bubbleLoop === r) bubbleLoop = id; else { try { p0.sound.stop(id) } catch (e) { } } }) }
+  function stopBubbles() { const b = bubbleLoop; bubbleLoop = null; if (b == null) return; if (typeof b.then === 'function') b.then(id => { try { p0.sound.stop(id) } catch (e) { } }); else { try { p0.sound.stop(b) } catch (e) { } } }
 
   function grab() {
     if (st.phase !== 'ready' && st.phase !== 'shown') return
@@ -288,7 +305,7 @@ export default async function start(p0) {
     if (Math.hypot(dx, dz) > 1.1 * S) return           // you have to press on the duck
     st.held = true; st.phase = 'held'; st.holdFor = 0; st.result = null; st.hand.set(h.x, h.z); st.y = -0.2 * S; st.vy = 0
     bubbles.visible = true; for (let i = 0; i < NB; i++) bLife[i] = -Math.random() * 1.5
-    sounds.play('plunge', { volume: 0.7 }); bubbleLoop = sounds.play('bubbles', { volume: 0.25, loop: true })
+    sounds.play('plunge', { volume: 0.7 }); startBubbles()
     st.nextBell = 5; st.lastPanic = 0; st.flash = 0
   }
   function release(why) {
@@ -304,7 +321,7 @@ export default async function start(p0) {
     const weekTop = table.length ? Math.max(...table.map(r => r.score || 0)) : 0
     if (st.best > 0 && t > st.best) { st.result.newBest = true; st.result.tag = t > weekTop && weekTop > 0 ? 'TOP OF THE WEEK' : 'NEW BEST' }
     st.best = Math.max(st.best, t)
-    if (bubbleLoop) { try { p0.sound.stop(bubbleLoop) } catch (e) { } bubbleLoop = null }
+    stopBubbles()
     bubbles.visible = false
     sounds.play('squeak', { volume: 0.8, rate: 0.9 + Math.random() * 0.2 })
     try { p0.score(t) } catch (e) { }
@@ -312,7 +329,7 @@ export default async function start(p0) {
     st.shownFor = 0; drawBoard()
   }
   const DEBUG = false
-  p0.on('pointerdown', e => { st.soundOn = true; if (DEBUG) { const p = p0.input.pointer; const v = new THREE.Vector3(st.x, WATER_Y, st.z).project(camera); p0.log('pointer', JSON.stringify({ p, e, w: p0.width, h: p0.height, duck: [(v.x + 1) / 2, (1 - v.y) / 2] })) } grab() })
+  p0.on('pointerdown', e => { st.soundOn = true; if (canChallenge && st.result && st.phase !== 'held' && onChallenge()) { challenge(); return } if (DEBUG) { const p = p0.input.pointer; const v = new THREE.Vector3(st.x, WATER_Y, st.z).project(camera); p0.log('pointer', JSON.stringify({ p, e, w: p0.width, h: p0.height, duck: [(v.x + 1) / 2, (1 - v.y) / 2] })) } grab() })
   p0.on('pointerup', () => { if (st.phase === 'held') release('letgo') })
   p0.on('keydown', e => { st.soundOn = true; if (e && (e.code === 'KeyR' || e.code === 'Space')) { if (st.phase === 'shown' || st.phase === 'flying') { st.phase = 'ready'; st.result = null; drawBoard() } } })
   // the city's How to play box is plain text at a width we don't set: every line short enough that it never wraps to leave one word alone
@@ -321,6 +338,7 @@ export default async function start(p0) {
   /* ---- the loop ---- */
   let splashT = 9
   p0.loop((dt, time) => {
+    if (bubbleLoop != null && st.phase !== 'held') stopBubbles()
     dt = Math.min(dt, 0.05)
     waterUniforms.uTime.value = time
     st.noiseA += dt * 1.7; st.noiseB += dt * 2.3
@@ -357,7 +375,7 @@ export default async function start(p0) {
       }
       st.x += (Math.sin(st.noiseA * 0.3) * 0.08 * S - st.x * 0.05) * dt; st.z += (Math.cos(st.noiseB * 0.3) * 0.08 * S - st.z * 0.05) * dt
       st.wobble = Math.max(0, st.wobble - dt * 2)
-      if (st.phase === 'shown') { st.shownFor += dt; if (st.shownFor > 9) { st.phase = 'ready'; st.result = null; drawBoard() } }
+      if (st.phase === 'shown') { st.shownFor += dt; if (st.shownFor > 14) { st.phase = 'ready'; st.result = null; drawBoard() } }
     }
     splashT += dt; waterUniforms.uSplash.value = Math.min(1.2, splashT * 1.6)
     waterUniforms.uDuck.value.set(st.x, -st.z); waterUniforms.uDepth.value = Math.min(1, depth)
