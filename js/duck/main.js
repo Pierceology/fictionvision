@@ -45,9 +45,8 @@ export default async function start(p0) {
   const quote = plate(2048, 640)
   {
     const c = quote.ctx
-    QUOTE.forEach((l, i) => say(c, l, 1024, 110 + i * 100, { size: 68, style: 'italic', color: IVORY, fit: 1900 }))
-    c.fillStyle = GOLD; c.fillRect(1024 - 50, 392, 100, 2)
-    say(c, '— Pierce', 1024, 450, { size: 46, style: 'italic', color: GOLD })
+    QUOTE.forEach((l, i) => say(c, l, 1024, 200 + i * 100, { size: 68, style: 'italic', color: IVORY, fit: 1900 }))
+    // unsigned, at his word: the line is the room's, not a man quoting himself
     quote.done()
   }
   const wallText = (tex, w, h) => new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, toneMapped: false }))
