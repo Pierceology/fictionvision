@@ -477,11 +477,15 @@ export default async function start(p0) {
       if (st.y > 0) st.vy -= 9.8 * S * dt * 0.6         // above water: only gravity pulls it down
       st.y += st.vy * dt
       if (st.phase === 'flying' && st.y <= 0.02 * S && st.vy < 0 && splashT > 0.5) {
-        splashT = 0; sounds.play('splash', { volume: 0.6 }); setTimeout(() => sounds.play('quack' + (1 + Math.floor(Math.random() * 3)), { volume: 0.75, rate: 0.95 + Math.random() * 0.1 }), 160);   // a real mallard's quack as it breaks the surface waterUniforms.uSplashAt.value.set(st.x, -st.z); st.phase = 'shown'; st.shownFor = 0; drawBoard()
+        splashT = 0; sounds.play('splash', { volume: 0.6 }); setTimeout(() => sounds.play('quack' + (1 + Math.floor(Math.random() * 3)), { volume: 0.75, rate: 0.95 + Math.random() * 0.1 }), 160);
+        // a real mallard's quack as it breaks the surface (this comment once sat mid-line and switched off the end of the round)
+        waterUniforms.uSplashAt.value.set(st.x, -st.z); st.phase = 'shown'; st.shownFor = 0; drawBoard()
         if (st.result && st.result.newBest) { burst(); st.spin = 1.4 }
       }
       st.x += (Math.sin(st.noiseA * 0.3) * 0.08 * S - st.x * 0.05) * dt; st.z += (Math.cos(st.noiseB * 0.3) * 0.08 * S - st.z * 0.05) * dt
       st.wobble = Math.max(0, st.wobble - dt * 2)
+      // a safety net: if the splash never comes, the round still ends, so a press can start the next one (a phone has no R)
+      if (st.phase === 'flying') { st.shownFor += dt; if (st.shownFor > 5) { st.phase = 'shown'; st.shownFor = 0; drawBoard() } }
       if (st.phase === 'shown') { st.shownFor += dt; if (st.shownFor > 14) { st.phase = 'ready'; st.result = null; drawBoard() } }
     }
     splashT += dt; waterUniforms.uSplash.value = Math.min(1.2, splashT * 1.6)
