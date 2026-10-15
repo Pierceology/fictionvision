@@ -4,6 +4,9 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { plate, say, clockFace, SERIF, SANS } from './text.js'
+import { phoneCard } from './phone-card.js'
+// a phone or a small tablet, read from the browser's own name (the city gives a game no device flag)
+const isPhone = () => { try { const ua = (self.navigator && self.navigator.userAgent) || ''; return /iPhone|iPod|Android.+Mobile|Windows Phone|webOS|BlackBerry/i.test(ua) } catch (e) { return false } }
 
 const QUOTE = ['There are two types of people in the world:', 'those who hold their breath for as long as they can,', 'and those who hold their breath for as long as they have to.']
 // the same words for a phone held upright: short lines, one size, so they read across a narrow screen
@@ -11,6 +14,8 @@ const QUOTE_TALL = ['There are two types of people in the world:', 'those who ho
 const IVORY = '#ece4d3', GOLD = '#c9a96a', MUTED = 'rgba(236,228,211,0.62)'
 
 export default async function start(p0) {
+  // phones get the card: the game is made for a mouse on a desktop (Pierce, 2026-10-13)
+  if (isPhone()) return phoneCard(p0)
   const lot = p0.lot
   const S = Math.min(lot.width, lot.depth) / 12          // everything is drawn for a 12 m lot and scaled
   const H = lot.height
@@ -69,6 +74,68 @@ export default async function start(p0) {
   const mine = plate(1024, 768), week = plate(1024, 768)
   const mineMesh = wallText(mine.texture, 3.2 * S, 2.4 * S), weekMesh = wallText(week.texture, 3.2 * S, 2.4 * S)
   mineMesh.position.set(-3.95 * S, 2.3 * S, -lot.depth / 2 + 0.34); weekMesh.position.set(3.95 * S, 2.3 * S, -lot.depth / 2 + 0.34); scene.add(mineMesh, weekMesh)
+
+  const SHOW_POSTERS = false   // parked: the side walls sit at a grazing angle, so the posters came out skewed and small; see NOW.md Front 5
+  /* ---- two posters, one on each side wall: a mock ad for hold-under kits, and a WANTED poster for the week's longest hold ---- */
+  const PAPER = '#e8dcc0', INK = '#1d1a14', RED = '#a8321f', DEEP = '#2a6f86'
+  const adL = plate(768, 1056), adR = plate(768, 1056)
+  const poster = (pl, draw) => {
+    const c = pl.ctx; c.clearRect(0, 0, 768, 1056)
+    c.fillStyle = PAPER; c.fillRect(0, 0, 768, 1056)
+    c.strokeStyle = INK; c.lineWidth = 6; c.strokeRect(22, 22, 724, 1012); c.lineWidth = 2; c.strokeRect(36, 36, 696, 984)
+    draw(c); pl.done()
+  }
+  // a flat little rubber duck, drawn in code: round body, round head, orange bill
+  const duckArt = (c, x, y, k, tilt) => {
+    c.save(); c.translate(x, y); c.rotate(tilt || 0); c.scale(k, k)
+    c.fillStyle = '#f4b61c'; c.beginPath(); c.ellipse(0, 0, 120, 84, 0, 0, 7); c.fill()
+    c.beginPath(); c.ellipse(-92, -34, 40, 20, -0.5, 0, 7); c.fill()                         // tail
+    c.beginPath(); c.arc(62, -96, 60, 0, 7); c.fill()                                        // head
+    c.fillStyle = '#e8870f'; c.beginPath(); c.ellipse(120, -86, 40, 17, 0.08, 0, 7); c.fill() // bill
+    c.fillStyle = INK; c.beginPath(); c.arc(78, -112, 8, 0, 7); c.fill()
+    c.fillStyle = '#e0a00e'; c.beginPath(); c.ellipse(-10, 6, 52, 36, -0.2, 0, 7); c.fill()   // wing
+    c.restore()
+  }
+  poster(adL, c => {
+    say(c, 'NEW!', 384, 120, { size: 44, font: SANS, weight: 700, color: RED, space: 12 })
+    say(c, 'SUBMERGE', 384, 205, { size: 128, weight: 700, color: INK, fit: 660 })
+    say(c, 'The Rubber Duck Hold-Under Kit', 384, 285, { size: 40, style: 'italic', color: INK, fit: 660 })
+    // the picture: a duck peeking over a wave, bubbles rising, the body down in the blue
+    c.fillStyle = DEEP; c.fillRect(70, 560, 628, 270)
+    duckArt(c, 380, 590, 1.35, 0)
+    c.fillStyle = DEEP; c.beginPath(); c.moveTo(70, 560); for (let i = 0; i <= 28; i++) c.lineTo(70 + i * 22.4, 560 + Math.sin(i * 1.4) * 16); c.lineTo(698, 640); c.lineTo(70, 640); c.fill()
+    c.fillStyle = 'rgba(255,255,255,0.7)'; for (const [bx, by, br] of [[520, 520, 16], [560, 460, 22], [505, 400, 12], [585, 370, 18], [540, 320, 10]]) { c.beginPath(); c.arc(bx, by, br, 0, 7); c.fill() }
+    say(c, '"Blub."', 560, 345, { size: 44, style: 'italic', color: INK })
+    say(c, 'Now with 40% more bubbles.', 384, 890, { size: 44, weight: 700, color: INK, fit: 660 })
+    say(c, 'The duck is fine. The duck is always fine.', 384, 950, { size: 28, style: 'italic', color: INK, fit: 660 })
+    say(c, 'Rubber ducks only. Void where prohibited by ducks.', 384, 992, { size: 22, font: SANS, color: 'rgba(29,26,20,0.7)', fit: 660 })
+  })
+  function drawWanted() {
+    const top = (table || [])[0]
+    poster(adR, c => {
+      say(c, 'WANTED', 384, 150, { size: 150, weight: 700, color: RED, fit: 660, space: 6 })
+      say(c, 'for holding it under', 384, 245, { size: 46, style: 'italic', color: INK, fit: 660 })
+      c.fillStyle = INK; c.fillRect(90, 290, 588, 3)
+      duckArt(c, 384, 520, 1.5, -0.08)
+      c.fillStyle = INK; c.fillRect(90, 690, 588, 3)
+      say(c, 'LONGEST HOLD THIS WEEK', 384, 745, { size: 30, font: SANS, weight: 700, color: INK, space: 8, fit: 660 })
+      say(c, top ? String(top.name || 'someone').slice(0, 16) : 'someone patient', 384, 835, { size: 90, weight: 700, color: INK, fit: 640 })
+      say(c, top ? ms(top.score) : 'not yet', 384, 920, { size: 70, font: SANS, weight: 300, color: RED, fit: 640 })
+      say(c, 'REWARD: the badge, and bragging rights.', 384, 985, { size: 28, style: 'italic', color: INK, fit: 660 })
+    })
+  }
+  const posterMat = t => new THREE.MeshBasicMaterial({ map: t, color: 0xb9b4a8, toneMapped: false })
+  const posterL = new THREE.Mesh(new THREE.PlaneGeometry(3.3 * S, 4.54 * S), posterMat(adL.texture)), posterR = new THREE.Mesh(new THREE.PlaneGeometry(3.3 * S, 4.54 * S), posterMat(adR.texture))
+  posterL.rotation.y = Math.PI / 2; posterL.position.set(-lot.width / 2 + 0.34, 4.6 * S, -2.2 * S)
+  posterR.rotation.y = -Math.PI / 2; posterR.position.set(lot.width / 2 - 0.34, 4.6 * S, -2.2 * S)
+  // a brass frame and a small lamp over each, so they read as hung, not stuck on
+  for (const pm of [posterL, posterR]) {
+    if (!SHOW_POSTERS) continue
+    const fr = new THREE.Mesh(new THREE.BoxGeometry(0.06, 4.7 * S, 3.46 * S), brass); fr.position.copy(pm.position); fr.position.x += pm.position.x < 0 ? -0.04 : 0.04; scene.add(fr)
+    const lamp = new THREE.PointLight(0xffe2b0, 5, 7 * S, 1.6); lamp.position.set(pm.position.x + (pm.position.x < 0 ? 0.9 : -0.9), pm.position.y + 2.6 * S, pm.position.z); scene.add(lamp)
+  }
+  posterL.visible = posterR.visible = SHOW_POSTERS
+  scene.add(posterL, posterR)
 
   /* ---- the tub: ivory porcelain, a brass band, deep water ---- */
   const R = 3.2 * S, WATER_Y = 1.15 * S
@@ -239,7 +306,7 @@ export default async function start(p0) {
     const tall = aspect < 0.85, was = tallView
     tallView = tall
     // on a phone the wall keeps no words: they are on the screen
-    quoteMesh.visible = boardMesh.visible = mineMesh.visible = weekMesh.visible = !tall
+    quoteMesh.visible = boardMesh.visible = mineMesh.visible = weekMesh.visible = posterL.visible = posterR.visible = !tall && SHOW_POSTERS
     // from straight above the lamp's hard glint breaks into white flecks: a phone keeps only the soft sheen
     waterUniforms.uGlint.value = tall ? 0.12 : 1
     if (!tall) {
@@ -347,7 +414,15 @@ export default async function start(p0) {
       clockFace(c, secs(st.result.t), cx, T ? 310 : 320, T ? 250 : 210, st.result.newBest ? GOLD : IVORY, 200)
       say(c, st.result.line, cx, T ? 495 : 470, { size: T ? 76 : 54, style: 'italic', color: IVORY, fit: 1460 })
       // one tap sends this time to the whole city: the city's own invitation card, with the time on it, to World chat
-      if (canChallenge) { const hot = st.challengeHot, col = hot ? '#e6c88a' : GOLD; c.strokeStyle = col; c.lineWidth = T ? 3 : 2; c.strokeRect(CH.x, CH.y, CH.w, CH.h); say(c, 'CHALLENGE THE CITY', cx, CH.y + CH.h / 2 + 2, { size: T ? 46 : 30, font: SANS, weight: 500, color: col, space: 12 }) }
+      if (canChallenge) {
+        // the box is measured from its own words (letter spacing and all), so no letter can ever sit outside its border
+        const hot = st.challengeHot, col = hot ? '#e6c88a' : GOLD, label = 'CHALLENGE THE CITY', size = T ? 46 : 30, sp = T ? 14 : 12
+        c.font = `500 ${size}px ${SANS}`; try { c.letterSpacing = `${sp}px` } catch (e) { }
+        const tw = c.measureText(label).width; try { c.letterSpacing = '0px' } catch (e) { }
+        CH.w = Math.min(1460, Math.round(tw + size * 2.2)); CH.x = Math.round(cx - CH.w / 2)
+        c.strokeStyle = col; c.lineWidth = T ? 3 : 2; c.strokeRect(CH.x, CH.y, CH.w, CH.h)
+        say(c, label, cx, CH.y + CH.h / 2 + 2, { size, font: SANS, weight: 500, color: col, space: sp })
+      }
     } else {
       // a phone sees the wall from farther off: the same two lines, larger
       say(c, 'Press on the duck and hold it under.', cx, 330, { size: tallView ? 96 : 62, style: 'italic', color: IVORY, fit: 1460 })
@@ -369,12 +444,19 @@ export default async function start(p0) {
       say(week.ctx, 'THIS WEEK', 512, 190, { size: 46, font: SANS, weight: 500, color: GOLD, space: 16 })
       rows.forEach((r, i) => {
         const ry = 330 + i * 118, col = r.you ? GOLD : IVORY
-        say(week.ctx, String(i + 1), 110, ry, { size: 58, font: SANS, weight: 300, color: GOLD, align: 'right' })
-        say(week.ctx, (r.you ? 'You' : (r.name || 'someone')).slice(0, 16), 160, ry, { size: 68, color: col, align: 'left', fit: 470 })
-        say(week.ctx, ms(r.score), 960, ry, { size: 60, font: SANS, weight: 300, color: col, align: 'right' })
+        // a medal for each of the three: gold, silver, bronze, with a crown on the first
+        const M = [['#f3d27a', '#b8892a', '#8a6414'], ['#eef2f6', '#aab4bf', '#6f7a86'], ['#e3a574', '#b0693a', '#7a431f']][i], mc = week.ctx
+        const gr = mc.createRadialGradient(92, ry - 12, 4, 96, ry, 40); gr.addColorStop(0, M[0]); gr.addColorStop(0.6, M[1]); gr.addColorStop(1, M[2])
+        mc.fillStyle = gr; mc.beginPath(); mc.arc(96, ry, 38, 0, 7); mc.fill(); mc.strokeStyle = M[2]; mc.lineWidth = 3; mc.stroke()
+        say(mc, String(i + 1), 96, ry + 2, { size: 46, font: SERIF, weight: 700, color: '#2a1d08' })
+        if (i === 0) { mc.fillStyle = M[0]; mc.beginPath(); mc.moveTo(66, ry - 46); mc.lineTo(72, ry - 76); mc.lineTo(84, ry - 58); mc.lineTo(96, ry - 80); mc.lineTo(108, ry - 58); mc.lineTo(120, ry - 76); mc.lineTo(126, ry - 46); mc.closePath(); mc.fill() }
+        const tint = r.you ? GOLD : i === 0 ? '#f6e3a8' : i === 1 ? '#e6ebf0' : '#efc8a6'
+        say(week.ctx, (r.you ? 'You' : (r.name || 'someone')).slice(0, 16), 160, ry, { size: 68, color: tint, align: 'left', fit: 470 })
+        say(week.ctx, ms(r.score), 960, ry, { size: 60, font: SANS, weight: 300, color: tint, align: 'right' })
       })
     }
     week.done()
+    drawWanted()
   }
   const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th')
   drawBoard()
