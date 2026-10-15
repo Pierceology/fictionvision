@@ -47,6 +47,9 @@ export default async function start(p0) {
   for (const sx of [-1, 1]) { const w = new THREE.Mesh(new THREE.BoxGeometry(0.3, H, lot.depth), plaster); w.position.set(sx * (lot.width / 2 - 0.15), H / 2, 0); scene.add(w) }
   const brass = new THREE.MeshStandardMaterial({ color: 0xc9a96a, roughness: 0.32, metalness: 0.85 })
   const skirt = new THREE.Mesh(new THREE.BoxGeometry(lot.width - 0.6, 0.05 * S, 0.05), brass); skirt.position.set(0, 0.45 * S, -lot.depth / 2 + 0.33); scene.add(skirt)
+  // the same gold line runs all the way round the room: both side walls and the front
+  for (const sx of [-1, 1]) { const sk = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05 * S, lot.depth - 0.6), brass); sk.position.set(sx * (lot.width / 2 - 0.33), 0.45 * S, 0); scene.add(sk) }
+  { const sk = new THREE.Mesh(new THREE.BoxGeometry(lot.width - 0.6, 0.05 * S, 0.05), brass); sk.position.set(0, 0.45 * S, lot.depth / 2 - 0.33); scene.add(sk) }
 
   /* ---- the words on the wall: the quote, then the clock and the week's best ---- */
   const quote = plate(2048, 640)

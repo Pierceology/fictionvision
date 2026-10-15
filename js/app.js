@@ -949,7 +949,7 @@ function games(game, being) {
   if (game === 'typecast') return lazy('./typecast/typecast.js', 'TYPECAST', 'The typing');
   if (game === 'name-that-planet') return lazy('./planet/planet.js', 'NAME THAT PLANET', 'The quiz');
   if (game === 'brain-bean') return lazy('./bean/bean.js', 'BRAIN BEAN COFFEE', 'The coffee');
-  if (game === 'the-duck') return lazy('./duck/duck.js?v=20261013l', 'THE DUCK', 'The Duck');
+  if (game === 'the-duck') return lazy('./duck/duck.js?v=20261013m', 'THE DUCK', 'The Duck');
   if (game === 'over-the-board') {
     return {
       title: 'OVER THE BOARD',
@@ -1188,7 +1188,7 @@ async function laserVolley() {
   document.body.appendChild(box);
   let logo = null;
   try {
-    const mod = await import('./fv-logo.js?v=20261013l');
+    const mod = await import('./fv-logo.js?v=20261013m');
     logo = mod.mount(box, { intro: false, interactive: false, background: 'transparent', size: r.width, idle: 0, mark: false });
     await Promise.race([logo.ready || Promise.resolve(), new Promise(res => setTimeout(res, 1500))]);
     logo.burst(); setTimeout(() => { try { logo.burst() } catch (e) { } }, 380);
@@ -1211,7 +1211,7 @@ async function ident() {
   const size = W < 700 ? W * 0.86 : Math.min(W * 0.6, 1100);
   let logo;
   try {
-    const mod = await import('./fv-logo.js?v=20261013l');
+    const mod = await import('./fv-logo.js?v=20261013m');
     logo = mod.mount(stage, { intro: true, interactive: false, background: 'transparent', size, idle: 0.9 });
   } catch (e) { el.remove(); document.body.classList.remove('ident-on'); return; }
   let folded = false;
