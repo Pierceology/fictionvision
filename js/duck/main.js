@@ -137,6 +137,21 @@ export default async function start(p0) {
   posterL.visible = posterR.visible = SHOW_POSTERS
   scene.add(posterL, posterR)
 
+  /* ---- the ad: a wide banner across the top of the back wall, straight on to the camera, above the quote ---- */
+  let bannerGroup = null
+  const BANNER_W = 8.4 * S, BANNER_H = BANNER_W * 890 / 4096
+  ;(async () => {
+    try {
+      const r = await fetch(p0.asset('assets/ad-banner.jpg')); const bmp = await createImageBitmap(await r.blob(), { imageOrientation: 'flipY' })
+      const tex = new THREE.Texture(bmp); tex.flipY = false; tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8; tex.needsUpdate = true
+      const g = new THREE.Group(), z = -lot.depth / 2 + 0.34
+      const pic = new THREE.Mesh(new THREE.PlaneGeometry(BANNER_W, BANNER_H), new THREE.MeshBasicMaterial({ map: tex, color: 0xd6d6d6, toneMapped: false })); pic.position.set(0, 0, 0); g.add(pic)
+      // a slim brass frame
+      for (const [w, h, x, y] of [[BANNER_W + 0.16, 0.08, 0, BANNER_H / 2 + 0.04], [BANNER_W + 0.16, 0.08, 0, -BANNER_H / 2 - 0.04], [0.08, BANNER_H, -BANNER_W / 2 - 0.04, 0], [0.08, BANNER_H, BANNER_W / 2 + 0.04, 0]]) { const f = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.05), brass); f.position.set(x, y, -0.01); g.add(f) }
+      g.position.set(0, 6.35 * S, z); g.visible = !tallView; scene.add(g); bannerGroup = g
+    } catch (e) { try { p0.log('the ad banner did not load') } catch (e2) { } }
+  })()
+
   /* ---- the tub: ivory porcelain, a brass band, deep water ---- */
   const R = 3.2 * S, WATER_Y = 1.15 * S
   const porcelain = new THREE.MeshStandardMaterial({ color: 0xf1ebdf, roughness: 0.28 })
@@ -306,7 +321,7 @@ export default async function start(p0) {
     const tall = aspect < 0.85, was = tallView
     tallView = tall
     // on a phone the wall keeps no words: they are on the screen
-    quoteMesh.visible = boardMesh.visible = mineMesh.visible = weekMesh.visible = posterL.visible = posterR.visible = !tall && SHOW_POSTERS
+    quoteMesh.visible = boardMesh.visible = mineMesh.visible = weekMesh.visible = !tall; posterL.visible = posterR.visible = !tall && SHOW_POSTERS; if (bannerGroup) bannerGroup.visible = !tall
     // from straight above the lamp's hard glint breaks into white flecks: a phone keeps only the soft sheen
     waterUniforms.uGlint.value = tall ? 0.12 : 1
     if (!tall) {
