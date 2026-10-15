@@ -5,7 +5,7 @@
 .duck-art .ttl { position: absolute; z-index: 2; left: 6%; top: 9%; text-align: left; font: 700 clamp(16px, 7.2cqw, 36px)/.94 var(--display); letter-spacing: .02em; color: #fff; text-shadow: 0 2px 18px rgba(0, 0, 0, .8); }
 @container (max-width: 330px) { .duck-art .ttl { display: none; } }
 .duck-page { padding: 0 0 32px; }
-.duck-stage { position: relative; width: 100%; height: min(82vh, 62vw); min-height: 420px; background: #06080a; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+.duck-stage { position: relative; width: 100%; height: calc(100svh - 110px); min-height: 420px; background: #06080a; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
 .duck-canvas { display: block; width: 100%; height: 100%; cursor: pointer; touch-action: none; }
 .duck-hud { position: absolute; left: 0; right: 0; bottom: 14px; margin: 0; padding: 0 16px; text-align: center; font: 400 14px/1.4 var(--body, sans-serif); color: rgba(236, 228, 211, .62); pointer-events: none; }
 @media (max-width: 700px) { .duck-stage { height: calc(100svh - 120px); min-height: 0; } }
