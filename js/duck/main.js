@@ -155,6 +155,22 @@ export default async function start(p0) {
     } catch (e) { try { p0.log('the ad banner did not load') } catch (e2) { } }
   })()
 
+  /* ---- the side walls: one wide painting on each, big shapes and colour only, no words (they are seen at a steep angle) ---- */
+  const sidePics = []
+  ;(async () => {
+    for (const [name, sx] of [['duck-side-left.jpg', -1], ['duck-side-right.jpg', 1]]) {
+      try {
+        const r = await fetch(p0.asset('assets/' + name)); if (!r.ok) continue
+        const bmp = await createImageBitmap(await r.blob(), { imageOrientation: 'flipY' })
+        const tex = new THREE.Texture(bmp); tex.flipY = false; tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8; tex.needsUpdate = true
+        const W = Math.min(lot.depth - 0.9, 10.8) * S, Hh = W / 3
+        const m = new THREE.Mesh(new THREE.PlaneGeometry(W, Hh), new THREE.MeshBasicMaterial({ map: tex, color: 0xc4c4c4, toneMapped: false }))
+        m.rotation.y = sx < 0 ? Math.PI / 2 : -Math.PI / 2           // facing into the room; the picture reads left to right as you look at it
+        m.position.set(sx * (lot.width / 2 - 0.36), 2.75 * S, -0.1); m.visible = !bannerHide; scene.add(m); sidePics.push(m)
+      } catch (e) { }
+    }
+  })()
+
   /* ---- the tub: ivory porcelain, a brass band, deep water ---- */
   const R = 3.2 * S, WATER_Y = 1.15 * S
   const porcelain = new THREE.MeshStandardMaterial({ color: 0xf1ebdf, roughness: 0.28 })
@@ -324,7 +340,7 @@ export default async function start(p0) {
     const tall = aspect < 0.85, was = tallView
     tallView = tall
     // on a phone the wall keeps no words: they are on the screen
-    quoteMesh.visible = boardMesh.visible = mineMesh.visible = weekMesh.visible = !tall; posterL.visible = posterR.visible = !tall && SHOW_POSTERS; bannerHide = tall; if (bannerGroup) bannerGroup.visible = !tall
+    quoteMesh.visible = boardMesh.visible = mineMesh.visible = weekMesh.visible = !tall; posterL.visible = posterR.visible = !tall && SHOW_POSTERS; bannerHide = tall; if (bannerGroup) bannerGroup.visible = !tall; for (const m of sidePics) m.visible = !tall
     // from straight above the lamp's hard glint breaks into white flecks: a phone keeps only the soft sheen
     waterUniforms.uGlint.value = tall ? 0.12 : 1
     if (!tall) {
