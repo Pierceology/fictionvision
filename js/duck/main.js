@@ -158,15 +158,15 @@ export default async function start(p0) {
   /* ---- the side walls: one wide painting on each, big shapes and colour only, no words (they are seen at a steep angle) ---- */
   const sidePics = []
   ;(async () => {
-    for (const [name, sx] of [['duck-side-left.jpg', -1], ['duck-side-right.jpg', 1]]) {
+    for (const [name, sx] of [['duck-tall-left.jpg', -1], ['duck-tall-right.jpg', 1]]) {
       try {
         const r = await fetch(p0.asset('assets/' + name)); if (!r.ok) continue
         const bmp = await createImageBitmap(await r.blob(), { imageOrientation: 'flipY' })
         const tex = new THREE.Texture(bmp); tex.flipY = false; tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8; tex.needsUpdate = true
-        const W = Math.min(lot.depth - 0.9, 10.8) * S, Hh = W / 3
+        const W = Math.min(lot.depth - 0.9, 10.8) * S, Hh = W / 1.5   // 3:2, from just above the gold line to well past the top of what the camera sees
         const m = new THREE.Mesh(new THREE.PlaneGeometry(W, Hh), new THREE.MeshBasicMaterial({ map: tex, color: 0xc4c4c4, toneMapped: false }))
         m.rotation.y = sx < 0 ? Math.PI / 2 : -Math.PI / 2           // facing into the room; the picture reads left to right as you look at it
-        m.position.set(sx * (lot.width / 2 - 0.36), 2.75 * S, -0.1); m.visible = !bannerHide; scene.add(m); sidePics.push(m)
+        m.position.set(sx * (lot.width / 2 - 0.36), 0.62 * S + Hh / 2, -0.1); m.visible = !bannerHide; scene.add(m); sidePics.push(m)
       } catch (e) { }
     }
   })()
