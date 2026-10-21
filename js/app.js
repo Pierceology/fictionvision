@@ -27,6 +27,10 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem('fv.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem('fv.' + k, JSON.stringify(v)); } catch (e) { /* private mode: fine */ } },
 };
+// Wishbones, a preview (2026-10-21): only a browser that opened a ?wallet link loads the wallet; ?wallet=test starts it with 6,000
+// so Deck 14 can be opened at once; ?wallet=off puts it away. Everyone else gets the site exactly as it was.
+const wbFlag = (() => { const q = new URLSearchParams(location.search).get('wallet'); if (q === 'off') store.set('wallet', 0); else if (q != null) store.set('wallet', q === 'test' ? 'test' : 1); return store.get('wallet', 0); })();
+const wallet = wbFlag ? import('./wallet.js?v=20261021b').then(m => { m.init({ test: wbFlag === 'test' }); return m; }).catch(() => null) : null;
 const sess = {
   get(k) { try { return sessionStorage.getItem('fv.' + k); } catch (e) { return null; } },
   set(k, v) { try { sessionStorage.setItem('fv.' + k, v); } catch (e) { } },
@@ -1008,6 +1012,18 @@ function tfrtaPost(id) {
   };
 }
 
+// PTU Radio HQ: where your Wishbones are banked (the preview only; wallet.js draws the page)
+function hq() {
+  return {
+    title: 'PTU Radio HQ',
+    html: '<div id="hqRoot"></div>',
+    after(root) {
+      const hold = { dead: false, stop: null };
+      cleanup.push(() => { hold.dead = true; if (hold.stop) hold.stop(); });
+      wallet.then(m => { if (m && !hold.dead) hold.stop = m.page($('#hqRoot', root)); });
+    },
+  };
+}
 function notFound() {
   return { title: 'Not found', html: `<div class="page"><div class="page-head"><h1>That one isn't streaming.</h1><p>It may have left. <a href="#/" style="color:var(--orange);border-bottom:1px solid currentColor">Back to the home page</a>.</p></div></div>` };
 }
@@ -1027,7 +1043,9 @@ let curNav = 'home';
 function renderNav() {
   const it = navItems();
   $('#nav').innerHTML = it.map(([k, h, l]) => `<a href="${h}" data-nav="${k}">${l}</a>`).join('');
-  $('#drawer').innerHTML = it.map(([k, h, l]) => `<a href="${h}" data-nav="${k}">${l}</a>`).join('') + `<a href="#/list" data-nav="list">I'd watch <span id="listN2"></span></a>`;
+  $('#drawer').innerHTML = it.map(([k, h, l]) => `<a href="${h}" data-nav="${k}">${l}</a>`).join('') + `<a href="#/list" data-nav="list">I'd watch <span id="listN2"></span></a>`
+    + (wallet ? `<a href="#/hq" data-nav="hq">PTU Radio HQ <span class="wb-dn"></span></a>` : '');
+  if (wallet) wallet.then(m => m && m.balance && document.querySelectorAll('.wb-dn').forEach(x => { x.textContent = m.balance().toLocaleString('en-US'); }));
   $('#footNav').innerHTML = it.map(([k, h, l]) => `<a href="${h}">${l}</a>`).join('') + `<a href="#/submit">Submit your idea</a>`;
   setCurrent(curNav); paintList();
 }
@@ -1071,6 +1089,7 @@ function route() {
   else if (a === 'show') v = showPage(b);
   else if (a === 'games') v = games(b, parts[2]);
   else if (a === 'tfrta') v = b ? tfrtaPost(b) : tfrta();
+  else if (a === 'hq' && wallet) v = hq();
   else if (a === 'submit') v = submit();
   else v = notFound();
   if (a === 't') { const t = T[FV.aliases[b] || b]; nav = t && t.planet && disc.level() >= 1 ? 'ptu' : 'ideas'; }

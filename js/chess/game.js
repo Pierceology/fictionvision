@@ -511,6 +511,7 @@ class Table {
     const b = this.b, g = this.game;
     const win = kind === 'win' || kind === 'resign';
     this.result = kind === 'draw' ? 'draw' : win ? 'win' : 'loss';
+    document.dispatchEvent(new CustomEvent('fv:event', { detail: { kind: 'chess', result: this.result, being: b.id, name: b.short || b.name } }));
     const line = { win: 'lost', loss: 'win', resign: 'resign', 'human-resign': 'taken', draw: 'draw' }[kind];
     document.dispatchEvent(new CustomEvent('fv:sfx', { detail: win ? { planet: b.id, volume: 0.7 } : { kind: kind === 'draw' ? 'soft' : 'lose' } }));
     this.say(this.pick(line), line);

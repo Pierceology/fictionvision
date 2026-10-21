@@ -62,7 +62,8 @@ function ensureAudio() {
   const r = el.r;
   r.addEventListener('play', () => { S.playing = true; paint(); });
   r.addEventListener('pause', () => { if (!r.ended) { S.playing = false; paint(); } });
-  r.addEventListener('ended', () => next());
+  // a song heard to the end tells the site (the Wishbones preview pays for it), then the next one starts
+  r.addEventListener('ended', () => { const t = cur(); document.dispatchEvent(new CustomEvent('fv:event', { detail: { kind: 'song', slug: S.slug, title: t && t.t } })); next(); });
   r.addEventListener('timeupdate', () => { progress(); preload(); });
   r.addEventListener('loadedmetadata', () => {
     const t = cur(); if (!t || !isFinite(r.duration)) return;
