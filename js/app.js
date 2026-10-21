@@ -1,14 +1,15 @@
 /* FictionVision: ideas, streaming. The Pool Table Universe is underneath; people find it. */
 import { mountStickers, stickerHTML } from './holo.js';
 import { emblem } from './emblems.js';
-import { mount as mountMedia, speakerHTML, vplayHTML, srcFor, autoOK } from './media.js';
+import { mount as mountMedia, speakerHTML, vplayHTML, srcFor, autoOK } from './media.js?v=20261021a';
 import { bus } from './bus.js';
-import * as radio from './radio.js';
+import * as radio from './radio.js?v=20261021a';
 import { otbCard, gameCards } from './cards.js?v=20261012g';
-import * as solace from './bumper.js';
+import * as solace from './bumper.js?v=20261021b';
 import * as sfx from './sfx.js';
 import { TFRTA } from './tfrta-data.js';
 import * as rick from './rick.js';
+import { roomsHTML, mountRooms } from './rooms.js?v=20261021a';
 const TF_BY_FV = Object.fromEntries(TFRTA.posts.filter(p => p.fvId).map(p => [p.fvId, p]));
 
 const FV = window.FV;
@@ -31,7 +32,7 @@ const store = {
 // so Brad's slug can be tried at once; ?wallet=off puts it away.
 // Everyone else gets the site exactly as it was.
 const wbFlag = (() => { const q = new URLSearchParams(location.search).get('wallet'); if (q === 'off') store.set('wallet', 0); else if (q != null) store.set('wallet', q === 'test' ? 'test' : 1); return store.get('wallet', 0); })();
-const wallet = wbFlag ? import('./wallet.js?v=20261021j').then(m => { m.init({ test: wbFlag === 'test' }); return m; }).catch(() => null) : null;
+const wallet = wbFlag ? import('./wallet.js?v=20261021k').then(m => { m.init({ test: wbFlag === 'test' }); return m; }).catch(() => null) : null;
 const sess = {
   get(k) { try { return sessionStorage.getItem('fv.' + k); } catch (e) { return null; } },
   set(k, v) { try { sessionStorage.setItem('fv.' + k, v); } catch (e) { } },
@@ -539,7 +540,7 @@ function ptu() {
     ${mast({
       vid: SOLACE_SPOT, kicker: 'The Pool Table Universe · Deck 4', title: 'Aboard SOLACE',
       text: 'SOLACE is the cruise line that runs between all thirteen planets. You board on Deck 4, the excursion desk is on Deck 15, and Rick reviews the excuriences before you spend a single Wishbone.',
-      btns: `<a class="ghost" href="#/ptu/planet-zee">Start at Planet Zee ${ARROW}</a><button class="ghost" id="rand" type="button">Take me somewhere</button>`,
+      btns: `<button class="cta" id="board" type="button">Take me under</button><a class="ghost" href="#/ptu/planet-zee">Start at Planet Zee ${ARROW}</a><button class="ghost" id="rand" type="button">Take me somewhere</button>`,
     })}
     <div class="sec-label" style="margin-top:clamp(18px,2.4vw,36px)">The route</div>
     <nav class="route" aria-label="Planets">${FV.planets.map(p => tile(p)).join('')}</nav>
@@ -557,6 +558,8 @@ function ptu() {
     </div>`,
     after(root) {
       $('#rand', root).addEventListener('click', takeMeSomewhere);
+      // boarding: the elevator on Deck 4, the doors open on the Atrium and its music (his canon: the first note hits on "Take me under")
+      $('#board', root).addEventListener('click', () => solace.play({ kind: 'board', open: true, enter: 'Back to FictionVision' }));
       $$('[data-scroll]', root).forEach(b => b.addEventListener('click', () => { const n = document.getElementById(b.dataset.scroll); if (n) n.scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'start' }); }));
       $$('[data-watch]', root).forEach(paintWatchBtn);
     },
@@ -591,13 +594,14 @@ function channel(slug) {
     <div class="listings">${ex.map(listing).join('')}</div>
     ${al ? `<div style="margin-top:clamp(24px,3.4vw,56px)">${albumBlock(al, { small: true })}</div>` : ''}
     ${more.length ? `<div style="margin-top:clamp(24px,3.4vw,56px)">${row('Also streaming from ' + p.name, more, { static: true })}</div>` : ''}
-    <div class="sec-label">Staterooms aboard SOLACE</div>
-    <div class="chips-row">${p.staterooms.map(s => `<span>${esc(s)}</span>`).join('')}</div>
+    ${roomsHTML(slug) || `<div class="sec-label">Staterooms aboard SOLACE</div>
+    <div class="chips-row">${p.staterooms.map(s => `<span>${esc(s)}</span>`).join('')}</div>`}
     <nav class="stops" aria-label="SOLACE route">${stop(prev, 'Previous stop')}${stop(next, 'SOLACE departs for')}</nav>
     ${door()}`,
     after(root) {
       $$('[data-watch]', root).forEach(paintWatchBtn);
       $('#rand', root).addEventListener('click', takeMeSomewhere);
+      cleanup.push(mountRooms(root, slug, p.name));
       const go = s => { location.hash = '#/ptu/' + s; };
       const key = e => { if (e.altKey || e.ctrlKey || e.metaKey || /input|textarea|select/i.test(document.activeElement.tagName)) return; if (e.key === 'ArrowRight') go(next.slug); else if (e.key === 'ArrowLeft') go(prev.slug); };
       addEventListener('keydown', key);
@@ -960,7 +964,7 @@ function games(game, being) {
   if (game === 'dead-ends') return lazy('./maze/maze.js?v=20261012e', 'DEAD ENDS', 'The maze');
   if (game === 'in-pieces') return lazy('./puzzle/puzzle.js', 'IN PIECES', 'The puzzle');
   if (game === 'typecast') return lazy('./typecast/typecast.js', 'TYPECAST', 'The typing');
-  if (game === 'name-that-planet') return lazy('./planet/planet.js', 'NAME THAT PLANET', 'The quiz');
+  if (game === 'name-that-planet') return lazy('./planet/planet.js?v=20261021a', 'NAME THAT PLANET', 'The quiz');
   if (game === 'brain-bean') return lazy('./bean/bean.js', 'BRAIN BEAN COFFEE', 'The coffee');
   if (game === 'the-duck') return lazy('./duck/duck.js?v=20261013q', 'THE DUCK', 'The Duck');
   if (game === 'over-the-board') {

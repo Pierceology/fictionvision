@@ -547,6 +547,28 @@ main { transition: transform 1s; }
 .vstage.manual .vplay { display: grid; }
 .vstage.manual .vplay:hover { transform: translate(-50%, -50%) scale(1.06); }
 .mast .speaker { bottom: clamp(14px, 2.2vw, 40px); right: max(12px, calc(var(--gutter) * .6)); }
+/* the music player's tab sits on the right edge at mid-screen: a masthead's speaker steps left of it so it is never hidden (Pierce, 2026-10-21) */
+/* the staterooms: two rooms a planet, big, the way the ship shows them; "Open the room" fills the screen and plays the planet's lullaby */
+.rooms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(10px, 1.2vw, 18px); padding: 0 var(--gutter); }
+.room { position: relative; display: block; padding: 0; border-radius: var(--radius); overflow: hidden; text-align: left; background: #000; box-shadow: 0 0 0 1px rgba(255, 255, 255, .12); }
+.room .pic { display: block; aspect-ratio: 16 / 9; max-width: 100%; }
+.room .pic img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1.2s cubic-bezier(.2, .7, .2, 1); }
+.room:hover .pic img, .room:focus-visible .pic img { transform: scale(1.04); }
+.room .cap { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: end; gap: 12px; padding: clamp(12px, 1.4vw, 20px); background: linear-gradient(0deg, rgba(0, 0, 0, .78), transparent); }
+.room .cap b { font: 700 clamp(17px, calc(9px + .9vw), 28px)/1.1 var(--display); }
+.room .cap .go { flex: none; font-size: var(--fs-small); font-weight: 600; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .5); background: rgba(0, 0, 0, .35); }
+@media (max-width: 640px) { .rooms { grid-template-columns: 1fr; } }
+.room-view { position: fixed; inset: 0; z-index: 200; background: #000; opacity: 0; transition: opacity .5s; }
+.room-view.on { opacity: 1; }
+.room-view img, .room-view video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.room-view.on img { animation: roomDrift 40s ease-out forwards; }
+@keyframes roomDrift { from { transform: scale(1); } to { transform: scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .room-view.on img { animation: none; } }
+.room-view .cap { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 4px; text-shadow: 0 2px 14px #000; }
+.room-view .cap b { font: 700 clamp(26px, 3.2vw, 52px)/1 var(--display); }
+.room-view .ctl { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); top: calc(16px + env(safe-area-inset-top, 0px)); display: flex; gap: 8px; }
+.room-view .ctl button { padding: 10px 16px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .4); background: rgba(0, 0, 0, .5); color: #fff; font: 600 var(--fs-small)/1 var(--ui); }
+body.has-player .mast .speaker { right: calc(max(12px, calc(var(--gutter) * .6)) + 66px); }
 .card.tile .tv { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .5s; pointer-events: none; background: #000; }
 .card.tile .tv.in { opacity: 1; }
 /* a movie's poster turns into its film under the pointer (and on the card nearest the middle of a phone): it fills the poster, never letterboxed */

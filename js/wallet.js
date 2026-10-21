@@ -3,7 +3,7 @@
    Everything lives on this device (fv.wb). Wishbones are never sold and never cashed out: a ticket stub, not money.
    Earn: a song heard to the end, a champion beaten, the Duck held under, Pam's coffee, a trophy.
    Spend: a planet's 50-50 slug, 1,000 a lick (Pierce's pick, 2026-10-21): his own pharmacy game, a happy face or a tripping face. */
-import { mount as mountMedia, speakerHTML, vplayHTML } from './media.js';
+import { mount as mountMedia, speakerHTML, vplayHTML } from './media.js?v=20261021a';
 import * as sfx from './sfx.js';
 import { bus } from './bus.js';
 

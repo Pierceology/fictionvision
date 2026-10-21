@@ -5,7 +5,7 @@
    at half volume, and crossfades over two seconds when you move to another planet.
    One sound at a time: a video that gets its sound turned on takes the bus, the player fades out and waits. */
 import { bus } from './bus.js';
-import { mount as mountMedia } from './media.js';
+import { mount as mountMedia } from './media.js?v=20261021a';
 
 const M = window.FVM || { albums: [], p: {}, v: {}, hq: '', atrium: '' };
 const A = Object.fromEntries(M.albums.map(a => [a.slug, a]));
@@ -60,8 +60,8 @@ function ensureAudio() {
   el.a = [mk(), mk()];
   el.a.forEach(a => { a.loop = true; });
   const r = el.r;
-  r.addEventListener('play', () => { S.playing = true; paint(); });
-  r.addEventListener('pause', () => { if (!r.ended) { S.playing = false; paint(); } });
+  r.addEventListener('play', () => { S.playing = true; document.body.dataset.radio = 'on'; paint(); });
+  r.addEventListener('pause', () => { if (!r.ended) { S.playing = false; document.body.dataset.radio = ''; paint(); } });
   // a song heard to the end tells the site (the Wishbones preview pays for it), then the next one starts
   r.addEventListener('ended', () => { const t = cur(); document.dispatchEvent(new CustomEvent('fv:event', { detail: { kind: 'song', slug: S.slug, title: t && t.t } })); next(); });
   r.addEventListener('timeupdate', () => { progress(); preload(); });

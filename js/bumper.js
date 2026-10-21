@@ -6,7 +6,7 @@
    special one and it lives here; the only other show on the site is his beat-synced one at #/show). Press a floor instead and the car
    rides there: the doors re-skin, the card changes, and the doors open onto that deck's own film with its own sound. Before a preview
    the car arrives at Deck 4, the Atrium. */
-import { srcFor } from './media.js';
+import { srcFor, muteAll } from './media.js?v=20261021a';
 import { FLOORS } from './ship.js';
 import { bus } from './bus.js';
 
@@ -48,8 +48,8 @@ const viewOf = slug => NAMES[slug] ? { slug, name: NAMES[slug] } : null;
 let primed = null;
 /* start the door film loading early, and the deck behind it */
 export function prime(kind = 'ident', planet = null) {
-  const at = kind === 'preview' ? ATRIUM : OBSERVATION;
-  const view = kind === 'preview' ? null : viewOf(planet);
+  const at = kind === 'preview' || kind === 'board' ? ATRIUM : OBSERVATION;
+  const view = kind === 'preview' || kind === 'board' ? null : viewOf(planet);
   const q = quality();
   const door = document.createElement('video');
   door.muted = true; door.playsInline = true; door.preload = 'auto'; door.loop = true; door.setAttribute('disablepictureinpicture', '');
@@ -149,8 +149,12 @@ export function play(opts = {}) {
   };
   // one sound per floor, heard once the reader opens the doors: the deck's own film, "We're Grand" on 16.
   // Only when the sounds are on and nothing else is speaking; the button press is the gesture the browser wants.
+  // (2026-10-21, Pierce: "i dont hear my song": the doors that open by themselves bring the sound too, except on the plate before a preview)
   const hear = byReader => {
-    if (!soundOn() || bus.claims.size || !byReader || !wall) return;
+    const touched = !navigator.userActivation || navigator.userActivation.hasBeenActive;
+    if (!soundOn() || !wall || !(byReader || (kind !== 'preview' && touched))) return;
+    muteAll();                                   // the deck outranks the film on the page behind it
+    if (bus.claims.size) return;
     bus.claim('elevator');
     wall.muted = false; wall.volume = 0.5; wall.play().catch(() => { wall.muted = true; bus.release('elevator'); });
   };
@@ -179,9 +183,10 @@ export function play(opts = {}) {
     el.querySelector('.skip').addEventListener('click', finish);
     enterBtn.addEventListener('click', finish);
     const onKey = e => { if (e.key === 'Escape') { finish(); removeEventListener('keydown', onKey); } }; addEventListener('keydown', onKey);
-    if (quick) { cover(); state = 'closed'; renderGate(); return; }
+    // boarding ("Take me under") opens straight onto the Atrium: the press is the gesture, the first note comes with the doors
+    if (quick) { cover(); state = 'closed'; renderGate(); if (opts.open) openDoors(true); return; }
     later(() => { el.classList.add('shut'); sfxEv('doors'); }, 30);           // the doors close over the logo, wearing the deck's film
-    later(() => { cover(); renderGate(); }, 930);                              // the gate card, the floor controller: the reader opens the doors when ready
+    later(() => { cover(); renderGate(); if (opts.open) later(() => openDoors(true), 350); }, 930);                              // the gate card, the floor controller: the reader opens the doors when ready
   }).finally(() => { });
 
   function finish() { el.__finish && el.__finish(); }

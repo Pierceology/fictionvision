@@ -52,7 +52,7 @@ class Stage {
     v.addEventListener('playing', () => { v.classList.add('in'); el.classList.add('live'); }, { once: false });
     v.addEventListener('ended', () => { if (!this.active) return; this.lastT = 0; this.looped = true; this.raf = requestAnimationFrame(t => this.back(t)); });
     v.addEventListener('error', () => { el.classList.remove('live'); v.classList.remove('in'); });
-    if (this.sp) this.sp.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); this.sound(!this.soundOn); });
+    if (this.sp) this.sp.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); this.hushed = this.soundOn; this.sound(!this.soundOn); });
     if (this.vp) this.vp.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); this.userOn = true; arbitrate(); });
     stages.add(this);
     if (this.kind === 'main') { mains.add(this); io.observe(el); }
@@ -148,7 +148,20 @@ function arbitrate() {
     let best = null;
     mains.forEach(s => { if (!s.eligible()) return; if (!best || s.prio > best.prio || (s.prio === best.prio && s.ratio > best.ratio + 0.05)) best = s; });
     mains.forEach(s => { if (s === best && !document.hidden) s.play(); else s.pause(); });
+    if (best && !document.hidden) speak(best);
   });
+}
+// ---- the film on the page speaks for itself while the bar's switch is on (Pierce, 2026-10-21: "i dont hear my stateroom audio that goes with
+// the videos"). Only once the visitor has touched the page (the browser's rule), never under the logo reveal or the elevator, never over the
+// radio or another voice, and never again for a film whose speaker they turned off. Blocked for now means: look again in a moment.
+const switchOn = () => { try { return localStorage.getItem('fv.sfx') === '1'; } catch (e) { return false; } };
+const touched = () => !navigator.userActivation || navigator.userActivation.hasBeenActive;
+let speakT = 0;
+function speak(s) {
+  clearTimeout(speakT);
+  if (!s || s.dead || !s.active || s.soundOn || s.hushed || !s.sp || !switchOn()) return;
+  if (!touched() || document.body.classList.contains('ident-on') || document.getElementById('bumper') || document.body.dataset.radio === 'on' || bus.claims.size) { speakT = setTimeout(() => speak(s), 900); return; }
+  s.sound(true);
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden) { stages.forEach(s => s.pause()); } else arbitrate(); });
 
@@ -223,6 +236,6 @@ export function mount(root) {
   };
 }
 export function muteAll() { stages.forEach(s => s.soundOn && s.sound(false)); }
-document.addEventListener('fv:sound', e => { if (e.detail && e.detail.on === false) muteAll(); });
+document.addEventListener('fv:sound', e => { if (e.detail && e.detail.on === false) muteAll(); else arbitrate(); });
 bus.onTakeover = muteAll;
 export function anySound() { for (const s of stages) if (s.soundOn) return true; return false; }
