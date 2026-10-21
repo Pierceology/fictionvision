@@ -5,7 +5,7 @@ import { mount as mountMedia, speakerHTML, vplayHTML, srcFor, autoOK } from './m
 import { bus } from './bus.js';
 import * as radio from './radio.js?v=20261021a';
 import { otbCard, gameCards } from './cards.js?v=20261012g';
-import * as solace from './bumper.js?v=20261021b';
+import * as solace from './bumper.js?v=20261021c';
 import * as sfx from './sfx.js';
 import { TFRTA } from './tfrta-data.js';
 import * as rick from './rick.js';

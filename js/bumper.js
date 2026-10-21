@@ -107,6 +107,7 @@ export function play(opts = {}) {
     gate.classList.remove('hide');
     nav.querySelectorAll('button').forEach((b, i) => b.classList.toggle('on', i === at));
     arm();
+    hearDoor();
   };
   // the deck's name, low on the screen, fading on its own
   const showTag = () => { const f = FLOORS[at]; tag.querySelector('b').textContent = f.name; tag.querySelector('i').textContent = `DECK ${f.label}${view && at === OBSERVATION ? ` · ${view.name.toUpperCase()} IN VIEW` : ''}`; tag.classList.add('on'); later(() => tag.classList.remove('on'), 4200); };
@@ -123,7 +124,7 @@ export function play(opts = {}) {
   });
   const travelTo = i => {
     if (done || i === at || state === 'riding') return;
-    const from = at; at = i; state = 'riding'; clearTimeout(autoT);
+    const from = at; at = i; state = 'riding'; clearTimeout(autoT); hush();
     gate.classList.add('hide'); tag.classList.remove('on');
     if (state !== 'closed' && wall) { el.classList.remove('open', 'show'); hush(); }
     sfxEv('doors');
@@ -150,9 +151,25 @@ export function play(opts = {}) {
   // one sound per floor, heard once the reader opens the doors: the deck's own film, "We're Grand" on 16.
   // Only when the sounds are on and nothing else is speaking; the button press is the gesture the browser wants.
   // (2026-10-21, Pierce: "i dont hear my song": the doors that open by themselves bring the sound too, except on the plate before a preview)
+  const touched = () => !navigator.userActivation || navigator.userActivation.hasBeenActive;
+  // the doors wear the deck's own film on most decks (on 16 it is "We're Grand"): with the sounds on, it is heard the moment the car arrives,
+  // not only once the doors part (Pierce, 2026-10-21: "if im already hearing sounds, then why dont i hear the we're grand when this arrives")
+  let doorLoud = false;
+  const hearDoor = () => {
+    if (done || doorLoud || kind === 'preview' || !soundOn() || !touched() || skinOf(FLOORS[at], at) !== FLOORS[at].wall) return;
+    muteAll(); if (bus.claims.size) return;
+    bus.claim('elevator'); doorLoud = true;
+    door.muted = false; door.volume = 0.5; door.play().catch(() => { door.muted = true; doorLoud = false; bus.release('elevator'); });
+  };
   const hear = byReader => {
-    const touched = !navigator.userActivation || navigator.userActivation.hasBeenActive;
-    if (!soundOn() || !wall || !(byReader || (kind !== 'preview' && touched))) return;
+    // the song is already playing on the doors: the deck behind them picks it up at the same second, so it never restarts
+    if (doorLoud && wall) {
+      const t = door.currentTime; doorLoud = false; door.muted = true;
+      wall.addEventListener('loadedmetadata', () => { try { wall.currentTime = t; } catch (e) { } }, { once: true });
+      wall.muted = false; wall.volume = 0.5; wall.play().catch(() => { wall.muted = true; bus.release('elevator'); });
+      return;
+    }
+    if (!soundOn() || !wall || !(byReader || (kind !== 'preview' && touched()))) return;
     muteAll();                                   // the deck outranks the film on the page behind it
     if (bus.claims.size) return;
     bus.claim('elevator');
@@ -160,6 +177,7 @@ export function play(opts = {}) {
   };
   const hush = () => {
     if (wall) { try { wall.muted = true; } catch (e) { } }
+    doorLoud = false; try { door.muted = true; } catch (e) { }
     bus.release('elevator');
   };
   const openDoors = byReader => {
