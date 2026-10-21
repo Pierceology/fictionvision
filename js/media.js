@@ -177,13 +177,13 @@ function tileSwitch(card) {
 let hoverT = 0;
 document.addEventListener('pointerover', e => {
   if (e.pointerType !== 'mouse') return;
-  const c = e.target.closest && e.target.closest('.card.tile[data-tile]');
+  const c = e.target.closest && e.target.closest('.card[data-tile]');
   if (!c || c === (tileOn && tileOn.el)) return;
   clearTimeout(hoverT); hoverT = setTimeout(() => tileSwitch(c), 140);
 });
 document.addEventListener('pointerout', e => {
   if (e.pointerType !== 'mouse') return;
-  const c = e.target.closest && e.target.closest('.card.tile[data-tile]');
+  const c = e.target.closest && e.target.closest('.card[data-tile]');
   if (!c || (e.relatedTarget && c.contains(e.relatedTarget))) return;
   clearTimeout(hoverT); if (tileOn && tileOn.el === c) tileSwitch(null);
 });
@@ -192,7 +192,7 @@ function centerTile() {
   cancelAnimationFrame(centerRaf);
   centerRaf = requestAnimationFrame(() => {
     if (!matchMedia('(hover: none)').matches) return;
-    const cards = [...document.querySelectorAll('#view .card.tile[data-tile]')];
+    const cards = [...document.querySelectorAll('#view .card[data-tile]')];
     const cx = innerWidth / 2, cy = innerHeight / 2;
     let best = null, bd = 1e9;
     for (const c of cards) {

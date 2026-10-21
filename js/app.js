@@ -1,7 +1,7 @@
 /* FictionVision: ideas, streaming. The Pool Table Universe is underneath; people find it. */
 import { mountStickers, stickerHTML } from './holo.js';
 import { emblem } from './emblems.js';
-import { mount as mountMedia, speakerHTML, vplayHTML } from './media.js';
+import { mount as mountMedia, speakerHTML, vplayHTML, srcFor, autoOK } from './media.js';
 import { bus } from './bus.js';
 import * as radio from './radio.js';
 import { otbCard, gameCards } from './cards.js?v=20261012g';
@@ -27,10 +27,10 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem('fv.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem('fv.' + k, JSON.stringify(v)); } catch (e) { /* private mode: fine */ } },
 };
-// Wishbones, a preview (2026-10-21): only a browser that opened a ?wallet link loads the wallet; ?wallet=test starts it with 6,000
-// so Deck 14 can be opened at once; ?wallet=off puts it away. Everyone else gets the site exactly as it was.
-const wbFlag = (() => { const q = new URLSearchParams(location.search).get('wallet'); if (q === 'off') store.set('wallet', 0); else if (q != null) store.set('wallet', q === 'test' ? 'test' : 1); return store.get('wallet', 0); })();
-const wallet = wbFlag ? import('./wallet.js?v=20261021b').then(m => { m.init({ test: wbFlag === 'test' }); return m; }).catch(() => null) : null;
+// Wishbones, a preview (2026-10-21): only a browser that opened a ?wallet link loads the wallet; ?wallet=off puts it away.
+// Everyone else gets the site exactly as it was.
+const wbFlag = (() => { const q = new URLSearchParams(location.search).get('wallet'); if (q === 'off') store.set('wallet', 0); else if (q != null) store.set('wallet', 1); return store.get('wallet', 0); })();
+const wallet = wbFlag ? import('./wallet.js?v=20261021e').then(m => { m.init(); return m; }).catch(() => null) : null;
 const sess = {
   get(k) { try { return sessionStorage.getItem('fv.' + k); } catch (e) { return null; } },
   set(k, v) { try { sessionStorage.setItem('fv.' + k, v); } catch (e) { } },
@@ -150,19 +150,23 @@ function rateBadge(t) {
   if (t.teehees != null) return `<span class="rt">${dots(t.teehees)}<span>${t.teehees} TEE-HEE${t.teehees === 1 ? '' : 's'}</span></span>`;
   return '';
 }
+// a movie's own film (the Wix id), and the better one where Pierce has it: Brad talking in his pharmacy (Brad.mp4, 29 s, with sound) beats the 5 s of slugs
+const FILM = { 'ptu-oogh-iv-3': '6c593b_471c9ca87feb48fd80d0df961c2f6185' };
+const filmOf = t => FILM[t.id] || (t.video ? t.video.split('/')[4] : null);
 function card(t, o = {}) {
   const w = worldOf(t);
   const clone = o.clone ? ' aria-hidden="true" tabindex="-1"' : '';
   const src = o.defer ? 'data-src' : 'src';
   const wl = list.has(t.id) ? ONDECK : '';
+  const film = filmOf(t) && !o.clone ? ` data-tile="${filmOf(t)}"` : '';
   if (t.orient === 'l') {
-    return `<a class="card t sl" href="#/t/${t.id}" data-id="${t.id}" style="--ar:${t.img.w}/${t.img.h};--c1:${t.img.c1}"${clone}>
+    return `<a class="card t sl" href="#/t/${t.id}" data-id="${t.id}"${film} style="--ar:${t.img.w}/${t.img.h};--c1:${t.img.c1}"${clone}>
       <span class="frame"><img class="poster" ${src}="${t.img.row}" alt="" width="${t.img.w}" height="${t.img.h}" loading="lazy" decoding="async" draggable="false">
         <span class="panel"><i class="kick">${esc(t.genre || t.kind)}</i><b class="nm">${esc(t.title)}</b><i class="mt">${esc(t.kind)}</i>${rateBadge(t)}${wouldWatch(t.id)}</span></span>${wl}</a>`;
   }
   const sub = [w ? w.name : null, t.kind].filter(Boolean).join(' · ');
   const ic = w ? `<img src="${w.mark}" alt="" loading="lazy">` : '';
-  return `<a class="card t p" href="#/t/${t.id}" data-id="${t.id}" style="--ce:${t.img.ce}"${clone}>
+  return `<a class="card t p" href="#/t/${t.id}" data-id="${t.id}"${film} style="--ce:${t.img.ce}"${clone}>
     <span class="frame"><img class="poster" ${src}="${t.img.row}" alt="${esc(t.title)}" width="${t.img.w}" height="${t.img.h}" loading="lazy" decoding="async" draggable="false">${rateBadge(t)}${wouldWatch(t.id)}</span>
     ${badgeHTML(t)}${o.xnum ? `<span class="xnum">Excurience ${t.slot}</span>` : ''}
     <span class="cap"><b>${esc(t.title)}</b><small>${ic}<span>${esc(sub)}</span></small></span>${wl}</a>`;
@@ -627,7 +631,7 @@ function titlePage(id) {
   const sameWorld = w ? FV.titles.filter(x => x.planet === t.planet && x.id !== t.id) : [];
   const g = Object.keys(GENRES).find(k => inGenre(t, k));
   const sameGenre = g ? mix(ARCH.filter(x => x.id !== t.id && inGenre(x, g)), UNIV.filter(x => x.id !== t.id && inGenre(x, g) && !sameWorld.includes(x)), 3).slice(0, 24) : [];
-  const preview = t.video || t.preview;
+  const preview = FILM[t.id] ? srcFor(FILM[t.id], 1080) : t.video || t.preview;
   const lead = t.lead || 'Only the poster made it out. If this one is yours, tell us what happens in it.';
   const rick = rickBox(t);
   const body = (t.body || []).map(b => `<p>${esc(b)}</p>`).join('');
@@ -680,6 +684,8 @@ function titlePage(id) {
           if (open) { fitTitle(tp); more.scrollIntoView({ block: 'center', behavior: calm() ? 'auto' : 'smooth' }); }
         });
       }
+      // ---- the poster turns into the film
+      if (filmOf(t)) cleanup.push(posterFilm($('.tp-left .poster', root), filmOf(t)));
       // ---- the preview opens over the page, so the text never moves under anyone
       const pv = $('#prev', root);
       if (pv) pv.addEventListener('click', async () => {
@@ -1023,6 +1029,29 @@ function hq() {
       wallet.then(m => { if (m && !hold.dead) hold.stop = m.page($('#hqRoot', root)); });
     },
   };
+}
+// The poster plays its film in place (Pierce, 2026-10-21: "the hover can turn the cover image of each movie into its video automatically").
+// Under the pointer on a laptop, by itself on a phone; once through, then back to the poster (never a hard loop). Sound only with the bar's switch on.
+function posterFilm(box, id) {
+  if (!box || !id) return () => { };
+  const v = document.createElement('video');
+  v.className = 'pfilm'; v.playsInline = true; v.muted = true; v.preload = 'none'; v.setAttribute('aria-hidden', 'true');
+  box.appendChild(v); box.classList.add('has-film');
+  let loaded = false, live = false, dead = false;
+  const loud = on => { if (on && sfx.isOn()) { v.muted = false; bus.claim('poster'); } else { v.muted = true; bus.release('poster'); } };
+  const start = () => {
+    if (dead || live || !autoOK()) return;
+    if (document.body.classList.contains('ident-on')) { if (touch) setTimeout(start, 600); return; }   // never over the logo reveal
+    if (!loaded) { v.src = srcFor(id); loaded = true; }
+    live = true; v.classList.add('in'); loud(true);
+    v.play().catch(() => { v.muted = true; bus.release('poster'); v.play().catch(() => { }); });
+  };
+  const stop = (rewind) => { if (!live) return; live = false; v.pause(); v.classList.remove('in'); loud(false); if (rewind) { try { v.currentTime = 0; } catch (e) { } } };
+  v.addEventListener('ended', () => stop(true));
+  const touch = matchMedia('(hover: none)').matches;
+  if (touch) { setTimeout(start, 700); box.addEventListener('click', () => live ? stop() : start()); }
+  else { box.addEventListener('pointerenter', start); box.addEventListener('pointerleave', () => stop()); }
+  return () => { dead = true; stop(); v.removeAttribute('src'); v.load(); };
 }
 function notFound() {
   return { title: 'Not found', html: `<div class="page"><div class="page-head"><h1>That one isn't streaming.</h1><p>It may have left. <a href="#/" style="color:var(--orange);border-bottom:1px solid currentColor">Back to the home page</a>.</p></div></div>` };
