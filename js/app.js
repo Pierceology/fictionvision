@@ -27,10 +27,11 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem('fv.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem('fv.' + k, JSON.stringify(v)); } catch (e) { /* private mode: fine */ } },
 };
-// Wishbones, a preview (2026-10-21): only a browser that opened a ?wallet link loads the wallet; ?wallet=off puts it away.
+// Wishbones, a preview (2026-10-21): only a browser that opened a ?wallet link loads the wallet; ?wallet=test adds 1,000 once
+// so Brad's slug can be tried at once; ?wallet=off puts it away.
 // Everyone else gets the site exactly as it was.
-const wbFlag = (() => { const q = new URLSearchParams(location.search).get('wallet'); if (q === 'off') store.set('wallet', 0); else if (q != null) store.set('wallet', 1); return store.get('wallet', 0); })();
-const wallet = wbFlag ? import('./wallet.js?v=20261021f').then(m => { m.init(); return m; }).catch(() => null) : null;
+const wbFlag = (() => { const q = new URLSearchParams(location.search).get('wallet'); if (q === 'off') store.set('wallet', 0); else if (q != null) store.set('wallet', q === 'test' ? 'test' : 1); return store.get('wallet', 0); })();
+const wallet = wbFlag ? import('./wallet.js?v=20261021g').then(m => { m.init({ test: wbFlag === 'test' }); return m; }).catch(() => null) : null;
 const sess = {
   get(k) { try { return sessionStorage.getItem('fv.' + k); } catch (e) { return null; } },
   set(k, v) { try { sessionStorage.setItem('fv.' + k, v); } catch (e) { } },

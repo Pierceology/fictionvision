@@ -73,7 +73,7 @@ function paint(amt, why) {
   }
 }
 
-export function init() {
+export function init(o = {}) {
   css();
   const tools = document.querySelector('#bar .tools');
   coin = document.createElement('a');
@@ -87,6 +87,7 @@ export function init() {
   // the first Wishbones and the card that explains them wait for the logo reveal to fold into the bar
   const first = () => document.body.classList.contains('ident-on') ? setTimeout(first, 400) : setTimeout(() => { if (earn(RATES.board, 'Your first Wishbones. Listen and play to get more.', 'board', true)) intro(); }, 700);
   setTimeout(first, 600);
+  if (o.test) setTimeout(() => earn(SLUG.price, 'Test Wishbones from the preview link', 'test'), 5200);   // enough for one lick, once
 
   document.addEventListener('fv:event', e => {
     const d = e.detail || {};
