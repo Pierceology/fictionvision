@@ -30,7 +30,7 @@ const store = {
 // Wishbones, a preview (2026-10-21): only a browser that opened a ?wallet link loads the wallet; ?wallet=off puts it away.
 // Everyone else gets the site exactly as it was.
 const wbFlag = (() => { const q = new URLSearchParams(location.search).get('wallet'); if (q === 'off') store.set('wallet', 0); else if (q != null) store.set('wallet', 1); return store.get('wallet', 0); })();
-const wallet = wbFlag ? import('./wallet.js?v=20261021e').then(m => { m.init(); return m; }).catch(() => null) : null;
+const wallet = wbFlag ? import('./wallet.js?v=20261021f').then(m => { m.init(); return m; }).catch(() => null) : null;
 const sess = {
   get(k) { try { return sessionStorage.getItem('fv.' + k); } catch (e) { return null; } },
   set(k, v) { try { sessionStorage.setItem('fv.' + k, v); } catch (e) { } },
@@ -684,6 +684,8 @@ function titlePage(id) {
           if (open) { fitTitle(tp); more.scrollIntoView({ block: 'center', behavior: calm() ? 'auto' : 'smooth' }); }
         });
       }
+      // ---- Brad's 50-50 slug, for a browser with the Wishbones preview
+      if (wallet && t.id === 'ptu-oogh-iv-3') { const hold = { dead: false, stop: null }; cleanup.push(() => { hold.dead = true; if (hold.stop) hold.stop(); }); wallet.then(m => { if (m && m.slug && !hold.dead) hold.stop = m.slug($('#info', root)); }); }
       // ---- the poster turns into the film
       if (filmOf(t)) cleanup.push(posterFilm($('.tp-left .poster', root), filmOf(t)));
       // ---- the preview opens over the page, so the text never moves under anyone
