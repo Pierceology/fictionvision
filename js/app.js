@@ -5,11 +5,11 @@ import { mount as mountMedia, speakerHTML, vplayHTML, srcFor, autoOK } from './m
 import { bus } from './bus.js';
 import * as radio from './radio.js?v=20261021a';
 import { otbCard, gameCards } from './cards.js?v=20261012g';
-import * as solace from './bumper.js?v=20261021c';
+import * as solace from './bumper.js?v=20261021d';
 import * as sfx from './sfx.js';
 import { TFRTA } from './tfrta-data.js';
 import * as rick from './rick.js';
-import { roomsHTML, mountRooms } from './rooms.js?v=20261021a';
+import { roomsHTML, mountRooms, heroRooms } from './rooms.js?v=20261021d';
 const TF_BY_FV = Object.fromEntries(TFRTA.posts.filter(p => p.fvId).map(p => [p.fvId, p]));
 
 const FV = window.FV;
@@ -602,12 +602,14 @@ function channel(slug) {
       $$('[data-watch]', root).forEach(paintWatchBtn);
       $('#rand', root).addEventListener('click', takeMeSomewhere);
       cleanup.push(mountRooms(root, slug, p.name));
+      cleanup.push(heroRooms($('#hero', root), slug, p.name));   // the stateroom film is the hallway: its two signs lead into the two rooms
       const go = s => { location.hash = '#/ptu/' + s; };
       const key = e => { if (e.altKey || e.ctrlKey || e.metaKey || /input|textarea|select/i.test(document.activeElement.tagName)) return; if (e.key === 'ArrowRight') go(next.slug); else if (e.key === 'ArrowLeft') go(prev.slug); };
       addEventListener('keydown', key);
       let sx = null, sy = 0;
       const hero = $('#hero', root);
-      hero.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+      // a swipe on the film goes into the staterooms now; a swipe on the words under it still moves to the next planet
+      hero.addEventListener('touchstart', e => { if (e.target.closest('.vwrap')) { sx = null; return; } sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
       hero.addEventListener('touchend', e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null; if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.6) go(dx < 0 ? next.slug : prev.slug); }, { passive: true });
       cleanup.push(() => removeEventListener('keydown', key));
     },
@@ -1106,6 +1108,8 @@ function arrive(a, b) {
   document.dispatchEvent(new CustomEvent('fv:event', { detail: { kind: 'arrive', planet: b } }));
   solace.play({ kind: 'arrive', planet: b, enter: 'Step off at ' + P[b].name });
 }
+// stepping off at another planet's stateroom deck: that planet's page, without a second arrival
+document.addEventListener('fv:stepoff', e => { const b = e.detail && e.detail.planet; if (!b || !P[b]) return; arrived.add(b); try { sessionStorage.setItem('fv.arrived', JSON.stringify([...arrived])); } catch (x) { } location.hash = '#/ptu/' + b; });
 function route() {
   const parts = (location.hash.replace(/^#\/?/, '') || '').split('/').map(decodeURIComponent);
   let [a, b] = parts;

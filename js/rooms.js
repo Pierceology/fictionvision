@@ -4,6 +4,7 @@
    Sound follows the bar's switch, and the room has its own button too. */
 import { bus } from './bus.js';
 import * as sfx from './sfx.js';
+import { muteAll } from './media.js?v=20261021a';
 
 export const ROOMS = {
   "planet-zee": { lull: "f08d21_f86fdb1a0d924c2993cae32b8c3eeb00", rooms: [{"name": "Velvet Curtain Crypts", "v": "0caac7_283e536b4ef741b7b8576c8283952ab0"}, {"name": "Gilded Coffin Cabins", "v": "0caac7_7c4174d7d05e494e9ad4c417ededea2f"}] },
@@ -68,4 +69,60 @@ function open(R, r, planetName) {
   requestAnimationFrame(() => box.classList.add('on'));
   sound();
   return close;
+}
+
+// ---- the stateroom deck film at the top of a planet page is the hallway: its two signs point at the two rooms (left room left, right room
+// right, the way Pierce's films have them). Tap a sign or swipe toward it and that room slides in over the film with the planet's lullaby;
+// swipe back, or tap the way out, to return (Pierce, 2026-10-21: "the user can swipe left toward the room... and vice versa for the other one").
+export function heroRooms(hero, slug, planetName) {
+  const R = ROOMS[slug], wrap = hero && hero.querySelector('.vwrap');
+  if (!R || !wrap || R.rooms.length < 2) return () => { };
+  const [L, Rt] = R.rooms;
+  const layer = document.createElement('div');
+  layer.className = 'hr';
+  layer.innerHTML = `
+    <button type="button" class="hr-sign l" aria-label="Step into ${esc(L.name)}"><span>${esc(L.name)}</span></button>
+    <button type="button" class="hr-sign r" aria-label="Step into ${esc(Rt.name)}"><span>${esc(Rt.name)}</span></button>
+    <p class="hr-hint">Tap a sign, or swipe, to step into a room</p>
+    ${[['l', L], ['r', Rt]].map(([k, r]) => `<div class="hr-room ${k}" aria-hidden="true">${r.v ? '<video playsinline muted preload="none"></video>' : `<img alt="" decoding="async" data-src="${pic(r, 1600, 900)}">`}
+      <div class="hr-cap"><span class="kicker">${esc(planetName)} staterooms</span><b>${esc(r.name)}</b></div>
+      <button type="button" class="hr-back">Back to the hall</button></div>`).join('')}`;
+  wrap.appendChild(layer);
+  const a = new Audio(); a.preload = 'none'; a.volume = 0.6;
+  let at = '';   // '' the hall, 'l' or 'r' a room
+  const go = side => {
+    if (side === at) return;
+    layer.querySelectorAll('.hr-room').forEach(x => { const on = x.classList.contains(side); x.classList.toggle('on', on); x.setAttribute('aria-hidden', String(!on)); });
+    wrap.classList.toggle('in-room', !!side); wrap.dataset.room = side;
+    const room = side && layer.querySelector('.hr-room.' + side);
+    layer.querySelectorAll('.hr-room video').forEach(v => { if (!room || !room.contains(v)) v.pause(); });
+    if (room) {
+      const im = room.querySelector('img[data-src]'); if (im) { im.src = im.dataset.src; im.removeAttribute('data-src'); }
+      const v = room.querySelector('video'); if (v) { const r = side === 'l' ? L : Rt; if (!v.src) v.src = film(r.v); try { v.currentTime = 0; } catch (e) { } v.play().catch(() => { }); }   // once through, then it holds
+      // the room's sound is the planet's lullaby; the hall's film goes quiet while you are in a room
+      if (sfx.isOn()) { muteAll(); if (!a.src) a.src = mp3(R.lull); bus.claim('room'); a.play().catch(() => bus.release('room')); }
+    } else {
+      a.pause(); bus.release('room');
+      document.dispatchEvent(new CustomEvent('fv:sound', { detail: { on: sfx.isOn() } }));   // the hall's film may speak again
+    }
+    at = side;
+  };
+  layer.querySelector('.hr-sign.l').addEventListener('click', () => go('l'));
+  layer.querySelector('.hr-sign.r').addEventListener('click', () => go('r'));
+  layer.querySelectorAll('.hr-back').forEach(b => b.addEventListener('click', () => go('')));
+  // swipe (a finger, or a mouse drag): toward the left sign is the left room, toward the right sign the right room; from a room, the other way is back
+  let sx = null, sy = 0;
+  const down = e => { if (e.target.closest('button')) return; sx = e.clientX; sy = e.clientY; };
+  const up = e => {
+    if (sx == null) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+    const left = dx < 0;
+    if (!at) go(left ? 'l' : 'r'); else if ((at === 'l' && !left) || (at === 'r' && left)) go('');
+  };
+  wrap.addEventListener('pointerdown', down);
+  addEventListener('pointerup', up);
+  wrap.addEventListener('pointercancel', () => { sx = null; });
+  wrap.addEventListener('dragstart', e => e.preventDefault());   // a mouse drag is a swipe, never a picture being dragged away
+  return () => { removeEventListener('pointerup', up); a.pause(); a.removeAttribute('src'); bus.release('room'); layer.remove(); wrap.classList.remove('in-room'); };
 }

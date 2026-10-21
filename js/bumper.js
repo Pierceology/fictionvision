@@ -86,7 +86,8 @@ export function play(opts = {}) {
   document.body.appendChild(el);
   door.play().catch(() => { });
 
-  let done = false, covered = false, state = 'closed', wall = null, autoT = 0;
+  let done = false, covered = false, state = 'closed', wall = null, autoT = 0, stepTo = null;
+  const enterLabel = opts.enter || (kind === 'preview' ? 'Watch the preview' : 'Enter FictionVision');
   const timers = [];
   const later = (fn, ms) => { const t = setTimeout(fn, ms); timers.push(t); return t; };
   const cover = () => { if (covered) return; covered = true; try { opts.onCovered && opts.onCovered(); } catch (e) { } };
@@ -135,6 +136,11 @@ export function play(opts = {}) {
     for (let s = 1; s <= steps; s++) { const idx = Math.round(from + (i - from) * (s / steps)); later(() => { ind.textContent = 'Deck ' + FLOORS[idx].label; ind.classList.remove('tick'); void ind.offsetWidth; ind.classList.add('tick'); }, Math.round(RIDE * s / (steps + 1))); }
     later(() => { ind.textContent = `Deck ${FLOORS[i].label} · ${FLOORS[i].name}`; el.classList.add('ding'); sfxEv('ding'); }, RIDE);
     later(() => { el.classList.remove('riding', 'ding'); state = 'closed'; renderGate(); }, RIDE + 700);
+    // the button names where you get off: a planet's stateroom deck takes you to that planet (Pierce, 2026-10-21: it said "Step off at Figuria"
+    // on Spee-ider Grove's deck); any other deck keeps where the car was going
+    const f = FLOORS[i], ps = stateroom(f) && Object.keys(NAMES).find(k => NAMES[k].toUpperCase() + ' STATEROOMS' === f.name);
+    stepTo = ps || null;
+    enterBtn.textContent = ps ? 'Step off at ' + NAMES[ps] : enterLabel;
   };
 
   // ---- the deck behind the doors, built when the doors open: the deck's own film, full bleed. On 16 that film is "We're Grand", the
@@ -199,7 +205,7 @@ export function play(opts = {}) {
     };
     el.__finish = finish;
     el.querySelector('.skip').addEventListener('click', finish);
-    enterBtn.addEventListener('click', finish);
+    enterBtn.addEventListener('click', () => { const to = stepTo; finish(); if (to) document.dispatchEvent(new CustomEvent('fv:stepoff', { detail: { planet: to } })); });
     const onKey = e => { if (e.key === 'Escape') { finish(); removeEventListener('keydown', onKey); } }; addEventListener('keydown', onKey);
     // boarding ("Take me under") opens straight onto the Atrium: the press is the gesture, the first note comes with the doors
     if (quick) { cover(); state = 'closed'; renderGate(); if (opts.open) openDoors(true); return; }

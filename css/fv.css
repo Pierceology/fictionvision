@@ -568,6 +568,29 @@ main { transition: transform 1s; }
 .room-view .cap b { font: 700 clamp(26px, 3.2vw, 52px)/1 var(--display); }
 .room-view .ctl { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); top: calc(16px + env(safe-area-inset-top, 0px)); display: flex; gap: 8px; }
 .room-view .ctl button { padding: 10px 16px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .4); background: rgba(0, 0, 0, .5); color: #fff; font: 600 var(--fs-small)/1 var(--ui); }
+/* the hallway: the stateroom film's two signs are buttons, and each room slides in over the film from its own side */
+.hr { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.mast .vwrap:has(.hr) { touch-action: pan-y; user-select: none; -webkit-user-select: none; }   /* a sideways finger swipes rooms, an up-down one still scrolls */
+.hr-sign { position: absolute; top: 33%; width: 19%; height: 30%; pointer-events: auto; border-radius: 10px; display: grid; place-items: end center; padding-bottom: 6px; background: transparent; box-shadow: 0 0 0 2px rgba(255, 200, 87, 0); animation: hrGlow 3.2s ease-in-out infinite; transition: background .25s; }
+.hr-sign.l { left: 7%; } .hr-sign.r { left: 74%; animation-delay: 1.6s; }
+.hr-sign span { font: 600 var(--fs-small)/1.2 var(--ui); padding: 6px 10px; border-radius: 999px; background: rgba(0, 0, 0, .55); border: 1px solid rgba(255, 200, 87, .6); opacity: 0; transform: translateY(6px); transition: opacity .25s, transform .25s; white-space: nowrap; }
+.hr-sign:hover, .hr-sign:focus-visible { background: rgba(255, 200, 87, .08); }
+.hr-sign:hover span, .hr-sign:focus-visible span { opacity: 1; transform: none; }
+@keyframes hrGlow { 0%, 100% { box-shadow: 0 0 0 2px rgba(255, 200, 87, 0); } 50% { box-shadow: 0 0 0 2px rgba(255, 200, 87, .55), 0 0 26px rgba(255, 200, 87, .35); } }
+.hr-hint { position: absolute; right: max(14px, calc(var(--gutter) * .6)); top: calc(var(--bar-h) + 10px); margin: 0; font-size: var(--fs-small); padding: 6px 12px; border-radius: 999px; background: rgba(0, 0, 0, .45); pointer-events: none; transition: opacity .4s; }
+.in-room .hr-hint, .in-room .hr-sign { opacity: 0; pointer-events: none; }
+.hr-room { position: absolute; inset: 0; pointer-events: none; background: #000; transition: transform .7s cubic-bezier(.2, .8, .2, 1), visibility 0s .7s; visibility: hidden; }
+.hr-room.l { transform: translateX(-100%); } .hr-room.r { transform: translateX(100%); }
+.hr-room.on { transform: none; visibility: visible; transition: transform .7s cubic-bezier(.2, .8, .2, 1), visibility 0s; }
+.hr-room img, .hr-room video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hr-cap { position: absolute; right: max(16px, calc(var(--gutter) * .6)); bottom: clamp(48px, 7vw, 120px); display: grid; gap: 2px; text-align: right; text-shadow: 0 2px 12px #000; }
+.hr-cap b { font: 700 clamp(22px, 2.4vw, 40px)/1 var(--display); }
+.hr-back { position: absolute; top: calc(var(--bar-h) + 10px); pointer-events: auto; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .45); background: rgba(0, 0, 0, .5); font: 600 var(--fs-small)/1 var(--ui); }
+.hr-room .hr-back { right: max(14px, calc(var(--gutter) * .6)); }
+.mast .vwrap.in-room .vstage .speaker { opacity: 0; pointer-events: none; }
+body.has-player .hr-cap, body.has-player .hr-room .hr-back { right: calc(max(16px, calc(var(--gutter) * .6)) + 66px); }   /* clear of the music player's tab */
+@media (max-width: 760px) { .hr-sign span { opacity: 1; transform: none; font-size: 11px; } .hr-hint { display: none; } .hr-cap { bottom: 16px; } }
+@media (prefers-reduced-motion: reduce) { .hr-sign { animation: none; } .hr-room, .hr-room.on { transition: none; } }
 body.has-player .mast .speaker { right: calc(max(12px, calc(var(--gutter) * .6)) + 66px); }
 .card.tile .tv { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .5s; pointer-events: none; background: #000; }
 .card.tile .tv.in { opacity: 1; }
