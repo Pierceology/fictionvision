@@ -4,7 +4,7 @@
    Sound follows the bar's switch, and the room has its own button too. */
 import { bus } from './bus.js';
 import * as sfx from './sfx.js';
-import { muteAll } from './media.js?v=20261021a';
+import { muteAll } from './media.js?v=20261021b';
 
 export const ROOMS = {
   "planet-zee": { lull: "f08d21_f86fdb1a0d924c2993cae32b8c3eeb00", rooms: [{"name": "Velvet Curtain Crypts", "v": "0caac7_283e536b4ef741b7b8576c8283952ab0"}, {"name": "Gilded Coffin Cabins", "v": "0caac7_7c4174d7d05e494e9ad4c417ededea2f"}] },

@@ -2,7 +2,7 @@
    Thirteen rounds, one song from each station, in a shuffled order. The being from the right planet tells you how you did.
    Sound only after you press Play the clip, like everywhere on the site. The radio player goes quiet while you play. */
 import { BEINGS, BY_ID } from '../chess/beings.js';
-import { albums } from '../radio.js?v=20261021a';
+import { albums } from '../radio.js?v=20261021b';
 import { bus } from '../bus.js';
 
 export const HOME = '#/games/name-that-planet';

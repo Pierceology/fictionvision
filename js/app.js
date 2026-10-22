@@ -1,15 +1,15 @@
 /* FictionVision: ideas, streaming. The Pool Table Universe is underneath; people find it. */
 import { mountStickers, stickerHTML } from './holo.js';
 import { emblem } from './emblems.js';
-import { mount as mountMedia, speakerHTML, vplayHTML, srcFor, autoOK } from './media.js?v=20261021a';
+import { mount as mountMedia, speakerHTML, vplayHTML, srcFor, autoOK } from './media.js?v=20261021b';
 import { bus } from './bus.js';
-import * as radio from './radio.js?v=20261021a';
+import * as radio from './radio.js?v=20261021b';
 import { otbCard, gameCards } from './cards.js?v=20261012g';
-import * as solace from './bumper.js?v=20261021d';
+import * as solace from './bumper.js?v=20261021e';
 import * as sfx from './sfx.js';
 import { TFRTA } from './tfrta-data.js';
 import * as rick from './rick.js';
-import { roomsHTML, mountRooms, heroRooms } from './rooms.js?v=20261021d';
+import { roomsHTML, mountRooms, heroRooms } from './rooms.js?v=20261021e';
 const TF_BY_FV = Object.fromEntries(TFRTA.posts.filter(p => p.fvId).map(p => [p.fvId, p]));
 
 const FV = window.FV;
@@ -32,7 +32,7 @@ const store = {
 // so Brad's slug can be tried at once; ?wallet=off puts it away.
 // Everyone else gets the site exactly as it was.
 const wbFlag = (() => { const q = new URLSearchParams(location.search).get('wallet'); if (q === 'off') store.set('wallet', 0); else if (q != null) store.set('wallet', q === 'test' ? 'test' : 1); return store.get('wallet', 0); })();
-const wallet = wbFlag ? import('./wallet.js?v=20261021k').then(m => { m.init({ test: wbFlag === 'test' }); return m; }).catch(() => null) : null;
+const wallet = wbFlag ? import('./wallet.js?v=20261021l').then(m => { m.init({ test: wbFlag === 'test' }); return m; }).catch(() => null) : null;
 const sess = {
   get(k) { try { return sessionStorage.getItem('fv.' + k); } catch (e) { return null; } },
   set(k, v) { try { sessionStorage.setItem('fv.' + k, v); } catch (e) { } },
@@ -966,7 +966,7 @@ function games(game, being) {
   if (game === 'dead-ends') return lazy('./maze/maze.js?v=20261012e', 'DEAD ENDS', 'The maze');
   if (game === 'in-pieces') return lazy('./puzzle/puzzle.js', 'IN PIECES', 'The puzzle');
   if (game === 'typecast') return lazy('./typecast/typecast.js', 'TYPECAST', 'The typing');
-  if (game === 'name-that-planet') return lazy('./planet/planet.js?v=20261021a', 'NAME THAT PLANET', 'The quiz');
+  if (game === 'name-that-planet') return lazy('./planet/planet.js?v=20261021b', 'NAME THAT PLANET', 'The quiz');
   if (game === 'brain-bean') return lazy('./bean/bean.js', 'BRAIN BEAN COFFEE', 'The coffee');
   if (game === 'the-duck') return lazy('./duck/duck.js?v=20261013q', 'THE DUCK', 'The Duck');
   if (game === 'over-the-board') {

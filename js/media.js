@@ -50,9 +50,14 @@ class Stage {
     v.muted = true; v.playsInline = true; v.loop = false; v.preload = 'none';
     v.setAttribute('disablepictureinpicture', '');
     v.addEventListener('playing', () => { v.classList.add('in'); el.classList.add('live'); }, { once: false });
-    v.addEventListener('ended', () => { if (!this.active) return; this.lastT = 0; this.looped = true; this.raf = requestAnimationFrame(t => this.back(t)); });
+    v.addEventListener('ended', () => {
+      if (!this.active) return;
+      // a film that spoke by itself speaks once: after its first run it goes on silently (Pierce, 2026-10-21: "miss planet zee repeating over and over")
+      if (this.auto) { this.auto = false; this.hushed = true; this.sound(false); }
+      this.lastT = 0; this.looped = true; this.raf = requestAnimationFrame(t => this.back(t));
+    });
     v.addEventListener('error', () => { el.classList.remove('live'); v.classList.remove('in'); });
-    if (this.sp) this.sp.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); this.hushed = this.soundOn; this.sound(!this.soundOn); });
+    if (this.sp) this.sp.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); this.auto = false; this.hushed = this.soundOn; this.sound(!this.soundOn); });
     if (this.vp) this.vp.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); this.userOn = true; arbitrate(); });
     stages.add(this);
     if (this.kind === 'main') { mains.add(this); io.observe(el); }
@@ -161,7 +166,7 @@ function speak(s) {
   clearTimeout(speakT);
   if (!s || s.dead || !s.active || s.soundOn || s.hushed || !s.sp || !switchOn()) return;
   if (!touched() || document.body.classList.contains('ident-on') || document.getElementById('bumper') || document.body.dataset.radio === 'on' || bus.claims.size) { speakT = setTimeout(() => speak(s), 900); return; }
-  s.sound(true);
+  s.sound(true); s.auto = true;
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden) { stages.forEach(s => s.pause()); } else arbitrate(); });
 

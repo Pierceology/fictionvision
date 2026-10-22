@@ -6,7 +6,7 @@
    special one and it lives here; the only other show on the site is his beat-synced one at #/show). Press a floor instead and the car
    rides there: the doors re-skin, the card changes, and the doors open onto that deck's own film with its own sound. Before a preview
    the car arrives at Deck 4, the Atrium. */
-import { srcFor, muteAll } from './media.js?v=20261021a';
+import { srcFor, muteAll } from './media.js?v=20261021b';
 import { FLOORS } from './ship.js';
 import { bus } from './bus.js';
 

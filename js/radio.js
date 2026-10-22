@@ -5,7 +5,7 @@
    at half volume, and crossfades over two seconds when you move to another planet.
    One sound at a time: a video that gets its sound turned on takes the bus, the player fades out and waits. */
 import { bus } from './bus.js';
-import { mount as mountMedia } from './media.js?v=20261021a';
+import { mount as mountMedia } from './media.js?v=20261021b';
 
 const M = window.FVM || { albums: [], p: {}, v: {}, hq: '', atrium: '' };
 const A = Object.fromEntries(M.albums.map(a => [a.slug, a]));
